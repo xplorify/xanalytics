@@ -36,7 +36,7 @@ app.use(function (req, res, next) {
     res.header("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE");
     res.header("Access-Control-Allow-Headers", "origin, content-type");
     res.header("Content-Type", "application/json");
-    if (req.method == "OPTIONS") {
+    if (req.method === "OPTIONS") {
         res.send(200);
     } else {
         next();
@@ -58,7 +58,7 @@ analyticsService.closeOpenConnections()
         });
 
         // create http server
-        app.listen(process.env.PORT || config.httpPort);
+        // app.listen(process.env.PORT || config.httpPort);
 
         // create https server
         var cipher = require("./cipher");
