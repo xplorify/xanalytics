@@ -1,17 +1,15 @@
 {
-  "name": "woogeen.sdk",
-  "title": "Intel WebRTC SDK",
-  "description": "Intel WebRTC JavaScript library",
-  "version": "3.3.0",
-  "homepage": "http://webrtc.intel.com",
-  "author": "Markus Chou <yue.y.zhou@intel.com>",
+  "name": "xplorify.analytics",
+  "title": "Xplorify Analytics",
+  "description": "Xplorify Analytics",
+  "version": "1.0.0",
+  "homepage": "https://www.xplorify.net",
+  "author": "Violeta Ivkovska <violeta.ivkovska@inovatika.net>",
   "contributors": [],
   "keywords": [
-    "webrtc",
-    "library",
-    "sdk",
-    "gateway",
-    "mcu"
+    "xplorify",
+    "analytics",
+    "realtime"
   ],
   "dependencies": {
     "body-parser": "~1.14.1",
@@ -22,8 +20,5 @@
     "morgan": "^1.8.1",
     "node-uuid": "^1.4.8",
     "sockjs": "^0.3.18"
-  },
-  "engines": {
-    "node": ">=0.10"
   }
 }
