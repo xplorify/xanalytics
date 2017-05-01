@@ -7,6 +7,7 @@ VOLUME /cert
 ENV NVM_DIR /usr/local/.nvm
 ENV NODE_VERSION 7.7.3
 ENV NODE_ENV dev
+VOLUME /cert
 
 
 # Add files
