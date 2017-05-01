@@ -1,8 +1,8 @@
-Setting up the development environment
-1) choco install mongodb
-2) Add System env variables, extend path variable with 'C:\Program Files\MongoDB\Server\3.2\bin'
-3) in cmd run mongo
-4) use admin
-5) db.createUser({user: 'XplorifyAdmin', pwd: 'Xp12345!', roles:[{role:'dbOwner',db:'admin'}]})
-6) use xplorifydb
-7) db.createCollection('connections')
+Build:
+`docker build -t xplorify/analytics .`
+
+Run:
+`docker run -d \
+		-p 444:444 \
+                -e NODE_ENV="tst" \
+		xplorify/analytics`
