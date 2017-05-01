@@ -3,7 +3,9 @@ HOW TO GENERATE SELF-ASSIGNED CERTIFICATE ON WINDOWS ENVIRONMENT
 0. Ensure you are running a CMD in 'Administrator mode'
 
 1. Make sure you have installed openssl.
-- E.g if you install git using chocolatey, then add this path 'C:\Program Files\Git\usr\bin' to the system 'path' environment variable
+- E.g if you install git using chocolatey,
+- then add this path 'C:\Program Files\Git\usr\bin' to the system 'path' environment variable.
+- openssl.exe is stored in 'C:\Program Files\Git\usr\bin'
 
 2. Generate private key:
 - openssl genrsa 2048 > private.pem
