@@ -6,7 +6,6 @@ apt-get install build-essential libssl-dev curl git -y
 
 git clone https://github.com/creationix/nvm.git $NVM_DIR
 cd $NVM_DIR
-#git checkout `git describe --abbrev=0 --tags`
 
 source $NVM_DIR/nvm.sh
 nvm install $NODE_VERSION
@@ -28,7 +27,5 @@ echo "StrictHostKeyChecking no" >> /etc/ssh/ssh_config
 
 cd /
 git clone git@github.com:xplorify/xplorify-analytics.git
-cp /cert/certificate.pfx /xplorify-analytics/server/cert/
-cp /cert/.woogeen.keystore /xplorify-analytics/server/cert/
 cd xplorify-analytics/server 
 npm i
