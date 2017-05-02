@@ -12,7 +12,6 @@ VOLUME /cert
 
 # Add files
 ADD scripts/ /scripts/
-ADD cert /cert/
 ADD repo-key /
 
 # Prepare the system
