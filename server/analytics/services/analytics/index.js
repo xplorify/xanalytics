@@ -12,7 +12,7 @@ analyticsService.Connection = mongoose.model("connections", connectionSchema);
 analyticsService.createConnection = function (data) {
     console.log("inside create conn ");
     return new Promise(function (resolve, reject) {
-        var db = mongoose.createConnection(config.xplorifyDb, {auth:{authdb:"admin"}});
+        var db = mongoose.createConnection(config.xplorifyDb, { auth: { authdb: "admin" } });
         var connection = analyticsService.getNewConnectionObject(db, data);
         console.log("db: " + db);
         console.log("CONN OBJ " + connection);
@@ -34,7 +34,7 @@ analyticsService.createConnection = function (data) {
 
 analyticsService.getConnections = function () {
     return new Promise(function (resolve, reject) {
-        var db = mongoose.createConnection(config.xplorifyDb, {auth:{authdb:"admin"}});
+        var db = mongoose.createConnection(config.xplorifyDb, { auth: { authdb: "admin" } });
         var connectionModel = db.model("connections", connectionSchema);
         console.log("before find");
         return connectionModel.find()
@@ -76,23 +76,10 @@ analyticsService.sendMessageToAdmin = function (data) {
 
 analyticsService.getOpenConnections = function () {
     return new Promise(function (resolve, reject) {
-        var db = mongoose.createConnection(config.xplorifyDb, {auth:{authdb:"admin"}});
+        var db = mongoose.createConnection(config.xplorifyDb, { auth: { authdb: "admin" } });
         var connectionModel = db.model("connections", connectionSchema);
         console.log("before find");
-        return connectionModel.aggregate([
-            {
-                $project: {
-                    endingDate: { endDate: "$endDate" },
-                    userName: '$userName',
-                    events: '$events',
-                    connectionId: '$connectionId',
-                    previousConnectionId: '$previousConnectionId'
-                }
-            },
-            {
-                $match: { endingDate: undefined, "events.eventType": "Navigate" }
-            }
-        ])
+        return connectionModel.aggregate({ '$match': { 'endDate': { '$exists': false }, "events.eventType": "Navigate" } })
             .exec(function (err, response) {
                 if (!err) {
                     console.log("Result: " + response);
@@ -110,12 +97,12 @@ analyticsService.getOpenConnections = function () {
 
 analyticsService.closeOpenConnections = function () {
     return new Promise(function (resolve, reject) {
-        var db = mongoose.createConnection(config.xplorifyDb, {auth:{authdb:"admin"}});
+        var db = mongoose.createConnection(config.xplorifyDb, { auth: { authdb: "admin" } });
         var connectionModel = db.model("connections", connectionSchema);
         console.log("before update many");
         return connectionModel.updateMany(
             { endDate: undefined },
-            { $set: {endDate: new Date().toISOString()} }
+            { $set: { endDate: new Date().toISOString() } }
         )
             .exec(function (err, response) {
                 if (!err) {
@@ -134,7 +121,7 @@ analyticsService.closeOpenConnections = function () {
 
 analyticsService.getConnectionByConnectionId = function (id) {
     return new Promise(function (resolve, reject) {
-        var db = mongoose.createConnection(config.xplorifyDb, {auth:{authdb:"admin"}});
+        var db = mongoose.createConnection(config.xplorifyDb, { auth: { authdb: "admin" } });
         var connectionModel = db.model("connections", connectionSchema);
         console.log("before find");
         return connectionModel.findById(id)
@@ -156,7 +143,7 @@ analyticsService.getConnectionByConnectionId = function (id) {
 analyticsService.setConnectionEndDate = function (connectionId) {
     try {
         return new Promise(function (resolve, reject) {
-            var db = mongoose.createConnection(config.xplorifyDb, {auth:{authdb:"admin"}});
+            var db = mongoose.createConnection(config.xplorifyDb, { auth: { authdb: "admin" } });
             var connectionModel = db.model("connections", connectionSchema);
             console.log("Before end date update");
             var endDate = new Date().toISOString();
@@ -183,7 +170,7 @@ analyticsService.setConnectionEndDate = function (connectionId) {
 
 analyticsService.addNewEvent = function (data) {
     return new Promise(function (resolve, reject) {
-        var db = mongoose.createConnection(config.xplorifyDb, {auth:{authdb:"admin"}});
+        var db = mongoose.createConnection(config.xplorifyDb, { auth: { authdb: "admin" } });
         var connectionModel = db.model("connections", connectionSchema);
         var isUserNamePresent = data.userName && data.userName !== "Anonymous";
         var updateObject = {
@@ -203,7 +190,7 @@ analyticsService.addNewEvent = function (data) {
         if (isUserNamePresent) {
             updateObject.$set = { userName: data.userName };
         }
-        return connectionModel.findByIdAndUpdate(data.connectionId, updateObject, {new: true})
+        return connectionModel.findByIdAndUpdate(data.connectionId, updateObject, { new: true })
             .exec()
             .then(function (response) {
                 console.log("Result: " + response);
