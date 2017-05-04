@@ -213,8 +213,11 @@ analyticsService.getNewConnectionObject = function (db, data) {
         countryCode: data.body.countryCode,
         remoteAddress: data.body.ipAddress,
         userAgent: data.userAgent,
+        detectRtc: data.body.detectRtc,
+        referrer: data.body.referrer,
+        application: data.body.application,
         events: [{
-            eventType: data.body.eventType
+            eventType: data.body.eventType           
         }]
     };
     var connectionModel = db.model("connections", connectionSchema);

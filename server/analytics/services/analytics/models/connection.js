@@ -11,10 +11,15 @@ module.exports = {
         remoteAddress: String,
         remotePort: Number,
         userAgent: String,
+        detectRtc: Object,
         address: {
             ipAddress: String,
             family: String,
             port: Number
+        },
+        application: {
+            code: String,
+            url: String
         },
         events: [{
             eventType: String,
