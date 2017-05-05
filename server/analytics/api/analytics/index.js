@@ -35,8 +35,10 @@ module.exports = function (app, config) {
 
     app.get("/getOpenConnections", function (req, res) {
         "use strict";
+        var code = req.query.code; 
+        console.log("code " + code);
         res.header("Content-Type", "application/json");
-        return analytics.getOpenConnections()
+        return analytics.getOpenConnections(code)
             .then(function (result) {
                 console.log("result " + result);
                 res.send({ result: result });

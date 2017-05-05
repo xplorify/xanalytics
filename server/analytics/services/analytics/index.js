@@ -74,12 +74,15 @@ analyticsService.sendMessageToAdmin = function (data) {
     }
 };
 
-analyticsService.getOpenConnections = function () {
+analyticsService.getOpenConnections = function (code) {
     return new Promise(function (resolve, reject) {
         var db = mongoose.createConnection(config.xplorifyDb, { auth: { authdb: "admin" } });
         var connectionModel = db.model("connections", connectionSchema);
         console.log("before find");
-        return connectionModel.aggregate({ '$match': { 'endDate': { '$exists': false }, "events.eventType": "Navigate" } })
+        var query = code
+            ? { '$match': { 'endDate': { '$exists': false }, "events.eventType": "Navigate", "application.code": code } }
+            : { '$match': { 'endDate': { '$exists': false }, "events.eventType": "Navigate" } }
+        return connectionModel.aggregate(query)
             .exec(function (err, response) {
                 if (!err) {
                     console.log("Result: " + response);
@@ -217,7 +220,7 @@ analyticsService.getNewConnectionObject = function (db, data) {
         referrer: data.body.referrer,
         application: data.body.application,
         events: [{
-            eventType: data.body.eventType           
+            eventType: data.body.eventType
         }]
     };
     var connectionModel = db.model("connections", connectionSchema);
