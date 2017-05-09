@@ -15,7 +15,7 @@ var express = require("express"),
     sockjs = require('sockjs'),
     analytics = require("./analytics/ws/analytics"),
     analyticsModel = require("./analytics/models/analytics"),
-    analyticsService = require("./analytics/services/analytics");
+    analyticsService = require("./analytics/services/analytics/analytics-service");
 
 var app = express();
 
@@ -25,7 +25,7 @@ app.use(errorhandler({
     showStack: true
 }));
 app.use(morgan("dev"));
-app.use(express.static("./client"));
+app.use(express.static("../client"));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
     extended: true
@@ -43,7 +43,8 @@ app.use(function (req, res, next) {
     }
 });
 
-require('./analytics/api/analytics')(app, config);
+require('./analytics/api/analytics-controller')(app, config);
+require('./analytics/api/ip-controller')(app, config);
 analyticsService.closeOpenConnections()
     .then(function () {
         console.log("inside then");

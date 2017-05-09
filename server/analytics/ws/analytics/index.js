@@ -1,5 +1,5 @@
 
-var analyticsService = require("../../services/analytics/index");
+var analyticsService = require("../../services/analytics/analytics-service");
 var analyticsModel = require("../../models/analytics/index");
 var analytics = {};
 

@@ -1,7 +1,7 @@
 "use strict";
 
 var mongoose = require('mongoose');
-var analytics = require("../../services/analytics/index");
+var analytics = require("../services/analytics/analytics-service");
 
 module.exports = function (app, config) {
     app.get("/getConnections", function (req, res) {
