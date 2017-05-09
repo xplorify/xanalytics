@@ -1,12 +1,12 @@
 "use strict";
 
 var mongoose = require('mongoose');
-var analytics = require("../services/analytics/analytics-service");
+var analyticsService = require("../services/analytics/analytics-service");
 
 module.exports = function (app, config) {
     app.get("/getConnections", function (req, res) {
         res.header("Content-Type", "application/json");
-        return analytics.getConnections()
+        return analyticsService.getConnections()
             .then(function (result) {
                 console.log("result " + result);
                 res.send({ result: result });
@@ -22,7 +22,7 @@ module.exports = function (app, config) {
         res.header("Content-Type", "application/json");
         var id = req.params.connectionId;
         console.log(id);
-        return analytics.getConnectionByConnectionId(id)
+        return analyticsService.getConnectionByConnectionId(id)
             .then(function (result) {
                 console.log("result " + result);
                 res.send({ result: result });
@@ -38,7 +38,7 @@ module.exports = function (app, config) {
         var code = req.query.code;
         console.log("code " + code);
         res.header("Content-Type", "application/json");
-        return analytics.getOpenConnections(code)
+        return analyticsService.getOpenConnections(code)
             .then(function (result) {
                 console.log("result " + result);
                 res.send({ result: result });
@@ -57,11 +57,24 @@ module.exports = function (app, config) {
             userAgent: req.headers['user-agent']
         }
         console.log("create connection request start");
-        return analytics.createConnection(data)
-            .then(function (result) {
+        return analyticsService.createConnection(data)
+            .then(function (response) {
+                var info = {
+                    data: {
+                        _id: response._id,
+                        previousConnectionId: response.previousConnectionId,
+                        userName: response.userName,
+                        remoteAddress: response.remoteAddress,
+                        userAgent: response.userAgent,
+                        countryCode: response.countryCode,
+                        events: [response.events],
+                        startDate: response.startDate
+                    }
+                }
+                analyticsService.notifyAdmin(info);
                 console.log("create connection request end");
-                console.log("result " + result);
-                res.send({ result: result });
+                console.log("result " + response);
+                res.send({ result: response });
             })
             .catch(function (err) {
                 res.status(500);
@@ -74,9 +87,9 @@ module.exports = function (app, config) {
         res.header("Content-Type", "application/json");
         console.log("Add new event " + JSON.stringify(req.body));
         console.log("create connection request start");
-        return analytics.addNewEvent(req.body)
+        return analyticsService.addNewEvent(req.body)
             .then(function (result) {
-                analytics.notifyAdmin(result);
+                analyticsService.notifyAdmin(result);
                 res.send({ result: result });
             })
             .catch(function (err) {
@@ -85,13 +98,19 @@ module.exports = function (app, config) {
             })
     });
 
-    app.post("/setConnectionEndDate", function (req, res) {
+    app.post("/closeConnection", function (req, res) {
         "use strict";
         res.header("Content-Type", "application/json");
-        console.log("Add new event " + JSON.stringify(req.body));
+        console.log("Add new event " + JSON.stringify(req.body.connectionId));
         console.log("create connection request start");
-        return analytics.setConnectionEndDate(req.body)
+        var connectionId = req.body.connectionId;
+        return analyticsService.closeConnection(connectionId)
             .then(function (result) {
+                analyticsService.disconnectUser(connectionId);
+                var infoObj = {
+                    removeConnection: connectionId
+                }
+                analyticsService.notifyAdmin(infoObj);
                 res.send({ result: result });
             })
             .catch(function (err) {

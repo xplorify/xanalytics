@@ -18,8 +18,6 @@ analyticsService.createConnection = function (data) {
         console.log("CONN OBJ " + connection);
         return connection.save(function (err, response) {
             if (!err) {
-                //find admin and send message
-                analyticsService.sendMessageToAdmin(response);
                 console.log("Result: " + response);
                 resolve(response);
             } else {
@@ -51,27 +49,6 @@ analyticsService.getConnections = function () {
                 db.close();
             });
     });
-};
-
-analyticsService.sendMessageToAdmin = function (data) {
-    for (var k in analyticsModel.admin) {
-        if (analyticsModel.admin.hasOwnProperty(k)) {
-            var info = {
-                data: {
-                    _id: data._id,
-                    previousConnectionId: data.previousConnectionId,
-                    userName: data.userName,
-                    remoteAddress: data.remoteAddress,
-                    userAgent: data.userAgent,
-                    countryCode: data.countryCode,
-                    events: [data.events],
-                    startDate: data.startDate
-                }
-            }
-            var infoString = JSON.stringify(info);
-            analyticsModel.admin[k].write(infoString);
-        }
-    }
 };
 
 analyticsService.getOpenConnections = function (code) {
@@ -143,7 +120,7 @@ analyticsService.getConnectionByConnectionId = function (id) {
     });
 };
 
-analyticsService.setConnectionEndDate = function (connectionId) {
+analyticsService.closeConnection = function (connectionId) {
     try {
         return new Promise(function (resolve, reject) {
             var db = mongoose.createConnection(config.xplorifyDb, { auth: { authdb: "admin" } });
@@ -228,21 +205,29 @@ analyticsService.getNewConnectionObject = function (db, data) {
     return connection;
 }
 
-analyticsService.notifyAdmin = function(info){
-      var connectionsCount = analyticsModel.users ? Object.keys(analyticsModel.users).length : 0;
-            console.log("connections count " + connectionsCount);
-            // find admin connection and send him the connections count
-            console.log("Preparing to send admins message ... ");
-            console.log("admin keys: " + Object.keys(analyticsModel.admin));
-            var infoString = JSON.stringify(info);
-            console.log("Sending message: " + infoString);
-            for (var k in analyticsModel.admin) {
-                if (analyticsModel.admin.hasOwnProperty(k)) {
-                    //sending to admin the latest user event for a specific connection
-                    console.log("to admin " + analyticsModel.admin[k].userName);
-                    analyticsModel.admin[k].write(infoString);
-                }
-            }
+analyticsService.disconnectUser = function (connectionId) {
+    console.log("Disconnecting user connection..............");
+    if (analyticsModel.admin && analyticsModel.admin[connectionId]) {
+        delete analyticsModel.admin[connectionId];
+        delete analyticsModel.users[connectionId];
+    } else {
+        delete analyticsModel.users[connectionId];
+    }
+}
+
+analyticsService.notifyAdmin = function (info) {
+    // find admin connection and send him the connections count
+    console.log("Preparing to send admins message ... ");
+    console.log("admin keys: " + Object.keys(analyticsModel.admin));
+    var infoString = JSON.stringify(info);
+    console.log("Sending message: " + infoString);
+    for (var k in analyticsModel.admin) {
+        if (analyticsModel.admin.hasOwnProperty(k)) {
+            //sending to admin the latest user event for a specific connection
+            console.log("to admin " + analyticsModel.admin[k].userName);
+            analyticsModel.admin[k].write(infoString);
+        }
+    }
 }
 
 module.exports = analyticsService;

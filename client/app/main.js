@@ -1,8 +1,6 @@
 import { globals } from "./globals";
 import { analyticsService } from "services/analytics-service";
 
-navigator.sendBeacon = navigator.sendBeacon || analyticsService.setConnectionEndDate();
-
 window.addEventListener('load', function () {
     analyticsService.getGlobals(function (err) {
         if (err) {
@@ -44,14 +42,10 @@ window.addEventListener('load', function () {
     });
 });
 
-
 window.addEventListener('unload', closeConnection, false);
 
-
 function closeConnection() {
-    if (globals.detectRtc.isWebSocketsSupported) {
-        analyticsService.close();
-    } else {
-        navigator.sendBeacon();
+    if (!globals.detectRtc.isWebSocketsSupported) {
+        analyticsService.closeConnection();
     }
 }

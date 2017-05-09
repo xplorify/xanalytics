@@ -8,7 +8,7 @@ var urls = {
     ws: globals.serverUrl + '/echo',
     createConnection: globals.serverUrl + '/createConnection',
     addNewEvent: globals.serverUrl + '/addNewEvent',
-    setConnectionEndDate: globals.serverUrl + '/setConnectionEndDate',
+    closeConnection: globals.serverUrl + '/closeConnection',
 };
 var self = null;
 
@@ -41,21 +41,17 @@ class AnalyticsService {
         }
     }
 
-    setConnectionEndDate(next) {
-        var req = new XMLHttpRequest();
-        var url = urls.setConnectionEndDate;
-        req.open('POST', url, true);
-        req.setRequestHeader('Content-Type', 'application/json');
-        var body = globals.connection;
-        console.log("body: "+ body);
-        req.send(JSON.stringify(body));
-        req.onreadystatechange = function () {
-            if (req.readyState === 4) {
-                next(null);
-            }
-        };
-        req.onerror = function (err) {
-            next({ error: true, message: err });
+    closeConnection(next) {
+        var body = { connectionId: globals.connection };
+        if (navigator.sendBeacon) {
+            navigator.sendBeacon(closeConnection, JSON.stringify(body));
+        } else {
+            var req = new XMLHttpRequest();
+            var url = urls.closeConnection;
+            req.open('POST', url, false);
+            req.setRequestHeader('Content-Type', 'application/json');
+            console.log("body: " + body);
+            req.send(JSON.stringify(body));
         }
     }
 
@@ -102,7 +98,7 @@ class AnalyticsService {
         var url = urls.addNewEvent;
         var body = {
             userName: "Anonymous",
-            connectionId: globals.connectionId,
+            connectionId: globals.connection,
             referrer: document.referrer,
             from: document.referrer,
             to: window.location.href,
@@ -164,13 +160,6 @@ class AnalyticsService {
         if (self && self.sock) {
             var data = JSON.stringify(dataObj);
             self.sock.send(data);
-        }
-    }
-
-    close() {
-        if (self && self.sock) {
-            self.sock.close();
-            console.log('after close: ' + self.sock.readyState);
         }
     }
 }
