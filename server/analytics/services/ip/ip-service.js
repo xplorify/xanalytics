@@ -10,10 +10,8 @@ ipService.getGeoIpInfo = function (ipAddress) {
     console.log("url: " + url);
     return fetch(url, {
         method: 'GET'
-        // headers: { 'Content-Type': 'application/json' },
     })
         .then(function (res) {
-            // console.log('FreeGeopIP result: ' + res.json());
             return res.json();
         });
 }

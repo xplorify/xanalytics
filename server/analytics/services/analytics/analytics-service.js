@@ -228,4 +228,21 @@ analyticsService.getNewConnectionObject = function (db, data) {
     return connection;
 }
 
+analyticsService.notifyAdmin = function(info){
+      var connectionsCount = analyticsModel.users ? Object.keys(analyticsModel.users).length : 0;
+            console.log("connections count " + connectionsCount);
+            // find admin connection and send him the connections count
+            console.log("Preparing to send admins message ... ");
+            console.log("admin keys: " + Object.keys(analyticsModel.admin));
+            var infoString = JSON.stringify(info);
+            console.log("Sending message: " + infoString);
+            for (var k in analyticsModel.admin) {
+                if (analyticsModel.admin.hasOwnProperty(k)) {
+                    //sending to admin the latest user event for a specific connection
+                    console.log("to admin " + analyticsModel.admin[k].userName);
+                    analyticsModel.admin[k].write(infoString);
+                }
+            }
+}
+
 module.exports = analyticsService;

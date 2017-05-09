@@ -1,6 +1,8 @@
 import { globals } from "./globals";
 import { analyticsService } from "services/analytics-service";
 
+navigator.sendBeacon = navigator.sendBeacon || analyticsService.setConnectionEndDate();
+
 window.addEventListener('load', function () {
     analyticsService.getGlobals(function (err) {
         if (err) {
@@ -11,24 +13,45 @@ window.addEventListener('load', function () {
                     if (err) {
                         console.log(err);
                     } else {
-                        analyticsService.init(function (err) {
-                            if (err) {
-                                console.log(err);
-                            } else {
-                                var dataObj = {
-                                    userName: "Anonymous",
-                                    connectionId: globals.connectionId,
-                                    referrer: document.referrer,
-                                    from: document.referrer,
-                                    to: window.location,
-                                    eventType: "Navigate"
+                        if (globals.detectRtc.isWebSocketsSupported) {
+                            analyticsService.init(function (err) {
+                                if (err) {
+                                    console.log(err);
+                                } else {
+                                    var dataObj = {
+                                        userName: "Anonymous",
+                                        connectionId: globals.connectionId,
+                                        referrer: document.referrer,
+                                        from: document.referrer,
+                                        to: window.location.href,
+                                        eventType: "Navigate"
+                                    }
+                                    analyticsService.send(dataObj)
                                 }
-                                analyticsService.send(dataObj)
-                            }
-                        });
+                            });
+                        } else {
+                            //if web socket is not supported add new event using ajax request and also send message to admin
+                            analyticsService.addNewEvent(function (err) {
+                                if (err) {
+                                    console.log(err);
+                                }
+                            });
+                        }
                     }
                 });
             });
         }
     });
 });
+
+
+window.addEventListener('unload', closeConnection, false);
+
+
+function closeConnection() {
+    if (globals.detectRtc.isWebSocketsSupported) {
+        analyticsService.close();
+    } else {
+        navigator.sendBeacon();
+    }
+}

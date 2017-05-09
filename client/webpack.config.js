@@ -121,7 +121,8 @@ module.exports = {
     },
     externals: {
         "window": "window",
-        "document" : "document"
+        "document" : "document",
+        "navigator" : "navigator"
     },
 
     devServer: {

@@ -7,6 +7,8 @@ var urls = {
     getGlobals: globals.serverUrl + '/getGlobals',
     ws: globals.serverUrl + '/echo',
     createConnection: globals.serverUrl + '/createConnection',
+    addNewEvent: globals.serverUrl + '/addNewEvent',
+    setConnectionEndDate: globals.serverUrl + '/setConnectionEndDate',
 };
 var self = null;
 
@@ -36,6 +38,24 @@ class AnalyticsService {
         };
         req.onerror = function () {
             next({ error: true, message: req.responseText });
+        }
+    }
+
+    setConnectionEndDate(next) {
+        var req = new XMLHttpRequest();
+        var url = urls.setConnectionEndDate;
+        req.open('POST', url, true);
+        req.setRequestHeader('Content-Type', 'application/json');
+        var body = globals.connection;
+        console.log("body: "+ body);
+        req.send(JSON.stringify(body));
+        req.onreadystatechange = function () {
+            if (req.readyState === 4) {
+                next(null);
+            }
+        };
+        req.onerror = function (err) {
+            next({ error: true, message: err });
         }
     }
 
@@ -73,6 +93,31 @@ class AnalyticsService {
         };
         req.onerror = function (err) {
             // promise.reject(req.responseText);
+            next({ error: true, message: err });
+        }
+    }
+
+    addNewEvent(next) {
+        var req = new XMLHttpRequest();
+        var url = urls.addNewEvent;
+        var body = {
+            userName: "Anonymous",
+            connectionId: globals.connectionId,
+            referrer: document.referrer,
+            from: document.referrer,
+            to: window.location.href,
+            eventType: "Navigate"
+        }
+        req.open('POST', url, true);
+        req.setRequestHeader('Content-Type', 'application/json');
+        req.send(JSON.stringify(body));
+        req.onreadystatechange = function () {
+            if (req.readyState === 4) {
+                var result = JSON.parse(req.responseText);
+                next(null);
+            }
+        };
+        req.onerror = function (err) {
             next({ error: true, message: err });
         }
     }
@@ -115,11 +160,18 @@ class AnalyticsService {
         };
     }
 
-     send(dataObj) {
-        if(self && self.sock){
+    send(dataObj) {
+        if (self && self.sock) {
             var data = JSON.stringify(dataObj);
             self.sock.send(data);
-        }       
+        }
+    }
+
+    close() {
+        if (self && self.sock) {
+            self.sock.close();
+            console.log('after close: ' + self.sock.readyState);
+        }
     }
 }
 
