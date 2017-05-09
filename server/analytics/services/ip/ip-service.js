@@ -9,8 +9,8 @@ ipService.getGeoIpInfo = function (ipAddress) {
     var url = config.freeGeoIpUrl + "/" + ipAddress;
     console.log("url: " + url);
     return fetch(url, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
+        method: 'GET'
+        // headers: { 'Content-Type': 'application/json' },
     })
         .then(function (res) {
             // console.log('FreeGeopIP result: ' + res.json());
