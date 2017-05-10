@@ -9,13 +9,7 @@ var express = require("express"),
     https = require("https"),
     http = require("http"),
     config = require("./config"),
-    path = require('path'),
-    mime = require('mime'),
-    mongoose = require('mongoose'),
-    sockjs = require('sockjs'),
-    analytics = require("./analytics/ws/analytics"),
-    analyticsModel = require("./analytics/models/analytics"),
-    analyticsService = require("./analytics/services/analytics/analytics-service");
+    analyticsService = require("./services/analytics/analytics-service");
 
 var app = express();
 
@@ -31,7 +25,7 @@ app.use(bodyParser.urlencoded({
     extended: true
 }));
 
-app.use(function (req, res, next) {
+app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE");
     res.header("Access-Control-Allow-Headers", "origin, content-type");
@@ -43,24 +37,16 @@ app.use(function (req, res, next) {
     }
 });
 
-require('./analytics/api/analytics-controller')(app, config);
-require('./analytics/api/ip-controller')(app, config);
+require('./api/analytics-api')(app);
+require('./api/ip-api')(app);
+var analyticsWs = require('./api/analytics-ws');
+
+// first close all open connections due to server restart,
+// then start WS server
+// then start HTTP server
 analyticsService.closeOpenConnections()
-    .then(function () {
+    .then(function() {
         console.log("inside then");
-        //create socket
-        var echo = sockjs.createServer({ sockjs_url: 'http://cdn.jsdelivr.net/sockjs/1.0.1/sockjs.min.js' });
-        echo.on('connection', function (conn) {
-            console.log("CONN  " + conn);
-            var connectionId = conn.url.split("/")[3];
-            analyticsModel.users[connectionId] = conn;
-            conn.on('data', function (message) { analytics.onData(conn, message) });
-            conn.on('close', function () { analytics.onClose(conn) });
-        });
-
-        // create http server
-        // app.listen(process.env.PORT || config.httpPort);
-
         // create https server
         var cipher = require("./cipher");
         cipher.unlock(cipher.k, "cert/.woogeen.keystore", function cb(err, obj) {
@@ -70,7 +56,7 @@ analyticsService.closeOpenConnections()
                         pfx: fs.readFileSync("cert/certificate.pfx"),
                         passphrase: obj.sample
                     }, app).listen(config.httpsPort);
-                    echo.installHandlers(server, { prefix: '/echo' });
+                    analyticsWs.echo.installHandlers(server, { prefix: '/echo' });
                 } catch (e) {
                     err = e;
                 }
@@ -81,4 +67,3 @@ analyticsService.closeOpenConnections()
             }
         });
     });
-

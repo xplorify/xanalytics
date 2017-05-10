@@ -2,8 +2,8 @@
 
 var ipService = require("../services/ip/ip-service");
 
-module.exports = function (app, config) {
-    app.get("/getGlobals", function (request, res) {
+module.exports = function(app) {
+    app.get("/getGlobals", function(request, res) {
         res.header("Content-Type", "application/json");
         var ip = request.headers['x-forwarded-for'] ||
             request.connection.remoteAddress ||
@@ -12,18 +12,18 @@ module.exports = function (app, config) {
         ip = ip.split(',')[0];
         ip = ip.split(':').slice(-1); //in case the ip returned in a format: "::ffff:146.xxx.xxx.xxx"
         if (ip == "1") {
-            ip = "95.86.38.12";
+            ip = "::1";
         }
 
         return ipService.getGeoIpInfo(ip)
-            .then(function (result) {
+            .then(function(result) {
                 console.log("Ip Controller: " + result);
                 res.send({ result: result });
             })
-            .catch(function (err) {
+            .catch(function(err) {
                 res.status(500);
                 console.log("Ip Controller catch: " + err);
                 res.send({ error: err });
             });
-    });    
+    });
 };

@@ -3,6 +3,6 @@ export let globals = {
     ipAddress: null,
     countryCode: null,
     connection: null,
-    detectRtc: null,
-    application: __APPLICATION__    
+    detectRtc: {},
+    application: __APPLICATION__
 }

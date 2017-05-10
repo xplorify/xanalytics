@@ -1,42 +1,41 @@
 "use strict";
 
 var mongoose = require('mongoose'),
-    config = require("./../../../config"),
+    config = require("../../config"),
     connectionSchema = require("./models/connection").connectionSchema,
-    analyticsModel = require("../../models/analytics/index"),
     util = require('util');
 mongoose.Promise = require('bluebird');
 var analyticsService = {};
 analyticsService.Connection = mongoose.model("connections", connectionSchema);
 
-analyticsService.createConnection = function (data) {
+analyticsService.createConnection = function(data) {
     console.log("inside create conn ");
-    return new Promise(function (resolve, reject) {
+    return new Promise(function(resolve, reject) {
         var db = mongoose.createConnection(config.xplorifyDb, { auth: { authdb: "admin" } });
         var connection = analyticsService.getNewConnectionObject(db, data);
         console.log("db: " + db);
         console.log("CONN OBJ " + connection);
-        return connection.save(function (err, response) {
-            if (!err) {
-                console.log("Result: " + response);
-                resolve(response);
-            } else {
-                reject(new Error(err));
-            }
-        })
-            .finally(function () {
+        return connection.save(function(err, response) {
+                if (!err) {
+                    // console.log("Result: " + response);
+                    resolve(response);
+                } else {
+                    reject(new Error(err));
+                }
+            })
+            .finally(function() {
                 db.close();
             });
     });
 }
 
-analyticsService.getConnections = function () {
-    return new Promise(function (resolve, reject) {
+analyticsService.getConnections = function() {
+    return new Promise(function(resolve, reject) {
         var db = mongoose.createConnection(config.xplorifyDb, { auth: { authdb: "admin" } });
         var connectionModel = db.model("connections", connectionSchema);
         console.log("before find");
         return connectionModel.find()
-            .exec(function (err, response) {
+            .exec(function(err, response) {
                 if (!err) {
                     console.log("Result: " + response);
                     resolve(response);
@@ -45,22 +44,20 @@ analyticsService.getConnections = function () {
                     reject(new Error(err));
                 }
             })
-            .finally(function () {
+            .finally(function() {
                 db.close();
             });
     });
 };
 
-analyticsService.getOpenConnections = function (code) {
-    return new Promise(function (resolve, reject) {
+analyticsService.getOpenConnections = function(code) {
+    return new Promise(function(resolve, reject) {
         var db = mongoose.createConnection(config.xplorifyDb, { auth: { authdb: "admin" } });
         var connectionModel = db.model("connections", connectionSchema);
         console.log("before find");
-        var query = code
-            ? { '$match': { 'endDate': { '$exists': false }, "events.eventType": "Navigate", "application.code": code } }
-            : { '$match': { 'endDate': { '$exists': false }, "events.eventType": "Navigate" } }
+        var query = code ? { '$match': { 'endDate': { '$exists': false }, "events.eventType": "Navigate", "application.code": code } } : { '$match': { 'endDate': { '$exists': false }, "events.eventType": "Navigate" } }
         return connectionModel.aggregate(query)
-            .exec(function (err, response) {
+            .exec(function(err, response) {
                 if (!err) {
                     console.log("Result: " + response);
                     resolve(response);
@@ -69,21 +66,21 @@ analyticsService.getOpenConnections = function (code) {
                     reject(new Error(err));
                 }
             })
-            .finally(function () {
+            .finally(function() {
                 db.close();
             });
     });
 };
 
-analyticsService.getAnalytics = function (data) {
-    return new Promise(function (resolve, reject) {
+analyticsService.getAnalytics = function(data) {
+    return new Promise(function(resolve, reject) {
         var db = mongoose.createConnection(config.xplorifyDb, { auth: { authdb: "admin" } });
         var connectionModel = db.model("connections", connectionSchema);
         console.log("before find");
         console.log("username: " + data.username);
         var query = { '$match': { "userName": data.username, "startDate": { "$lt": new Date(data.to), "$gt": new Date(data.from) } } }
         return connectionModel.aggregate(query)
-            .exec(function (err, response) {
+            .exec(function(err, response) {
                 if (!err) {
                     console.log("Result: " + response);
                     resolve(response);
@@ -92,22 +89,19 @@ analyticsService.getAnalytics = function (data) {
                     reject(new Error(err));
                 }
             })
-            .finally(function () {
+            .finally(function() {
                 db.close();
             });
     });
 };
 
-analyticsService.closeOpenConnections = function () {
-    return new Promise(function (resolve, reject) {
+analyticsService.closeOpenConnections = function() {
+    return new Promise(function(resolve, reject) {
         var db = mongoose.createConnection(config.xplorifyDb, { auth: { authdb: "admin" } });
         var connectionModel = db.model("connections", connectionSchema);
         console.log("before update many");
-        return connectionModel.updateMany(
-            { endDate: undefined },
-            { $set: { endDate: new Date().toISOString() } }
-        )
-            .exec(function (err, response) {
+        return connectionModel.updateMany({ endDate: undefined }, { $set: { endDate: new Date().toISOString() } })
+            .exec(function(err, response) {
                 if (!err) {
                     console.log("Result: " + response);
                     resolve(response);
@@ -116,19 +110,19 @@ analyticsService.closeOpenConnections = function () {
                     reject(new Error(err));
                 }
             })
-            .finally(function () {
+            .finally(function() {
                 db.close();
             });
     });
 };
 
-analyticsService.getConnectionByConnectionId = function (id) {
-    return new Promise(function (resolve, reject) {
+analyticsService.getConnectionByConnectionId = function(id) {
+    return new Promise(function(resolve, reject) {
         var db = mongoose.createConnection(config.xplorifyDb, { auth: { authdb: "admin" } });
         var connectionModel = db.model("connections", connectionSchema);
         console.log("before find");
         return connectionModel.findById(id)
-            .exec(function (err, response) {
+            .exec(function(err, response) {
                 if (!err) {
                     console.log("Result: " + response);
                     resolve(response);
@@ -137,42 +131,39 @@ analyticsService.getConnectionByConnectionId = function (id) {
                     reject(new Error(err));
                 }
             })
-            .finally(function () {
+            .finally(function() {
                 db.close();
             });
     });
 };
 
-analyticsService.closeConnection = function (connectionId) {
+analyticsService.closeConnection = function(connectionId) {
     try {
-        return new Promise(function (resolve, reject) {
+        return new Promise(function(resolve, reject) {
             var db = mongoose.createConnection(config.xplorifyDb, { auth: { authdb: "admin" } });
             var connectionModel = db.model("connections", connectionSchema);
             console.log("Before end date update");
             var endDate = new Date().toISOString();
-            return connectionModel.update({ _id: connectionId },
-                {
+            return connectionModel.update({ _id: connectionId }, {
                     $set: { endDate: endDate }
                 })
                 .exec()
-                .then(function (result) {
+                .then(function(result) {
                     console.log("End date updated: " + result);
                     resolve(result);
                 });
         });
-    }
-    catch (e) {
+    } catch (e) {
         console.log("Save failed");
         console.log("Error: " + e);
-    }
-    finally {
+    } finally {
         console.log("finally block");
         return mongoose.disconnect();
-    };
+    }
 };
 
-analyticsService.addNewEvent = function (data) {
-    return new Promise(function (resolve, reject) {
+analyticsService.addNewEvent = function(data) {
+    return new Promise(function(resolve, reject) {
         var db = mongoose.createConnection(config.xplorifyDb, { auth: { authdb: "admin" } });
         var connectionModel = db.model("connections", connectionSchema);
         var isUserNamePresent = data.userName && data.userName !== "Anonymous";
@@ -195,20 +186,20 @@ analyticsService.addNewEvent = function (data) {
         }
         return connectionModel.findByIdAndUpdate(data.connectionId, updateObject, { new: true })
             .exec()
-            .then(function (response) {
+            .then(function(response) {
                 console.log("Result: " + response);
                 resolve(response);
             })
-            .catch(function (err) {
+            .catch(function(err) {
                 reject(new Error(err));
             })
-            .finally(function () {
+            .finally(function() {
                 db.close();
             });
     });
 };
 
-analyticsService.getNewConnectionObject = function (db, data) {
+analyticsService.getNewConnectionObject = function(db, data) {
     var obj = {
         previousConnectionId: data.body.previousConnId,
         startDate: new Date().toISOString(),
@@ -225,31 +216,8 @@ analyticsService.getNewConnectionObject = function (db, data) {
     var connectionModel = db.model("connections", connectionSchema);
     var connection = new connectionModel(obj);
     return connection;
-}
+};
 
-analyticsService.disconnectUser = function (connectionId) {
-    console.log("Disconnecting user connection..............");
-    if (analyticsModel.admin && analyticsModel.admin[connectionId]) {
-        delete analyticsModel.admin[connectionId];
-        delete analyticsModel.users[connectionId];
-    } else {
-        delete analyticsModel.users[connectionId];
-    }
-}
 
-analyticsService.notifyAdmin = function (info) {
-    // find admin connection and send him the connections count
-    console.log("Preparing to send admins message ... ");
-    console.log("admin keys: " + Object.keys(analyticsModel.admin));
-    var infoString = JSON.stringify(info);
-    console.log("Sending message: " + infoString);
-    for (var k in analyticsModel.admin) {
-        if (analyticsModel.admin.hasOwnProperty(k)) {
-            //sending to admin the latest user event for a specific connection
-            console.log("to admin " + analyticsModel.admin[k].userName);
-            analyticsModel.admin[k].write(infoString);
-        }
-    }
-}
 
 module.exports = analyticsService;

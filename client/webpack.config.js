@@ -7,7 +7,7 @@ var ManifestPlugin = require('webpack-manifest-plugin');
 var HtmlWebpackPlugin = require('html-webpack-plugin');
 var InlineManifestWebpackPlugin = require('inline-manifest-webpack-plugin');
 var config = require("../server/config");
-
+console.log(JSON.stringify(config));
 var DEBUG = process.env.NODE_ENV ? !(JSON.stringify(process.env.NODE_ENV).replace(" ", "") === '"prd"') : true;
 var ENV = process.env.NODE_ENV ? process.env.NODE_ENV.replace(" ", "") : "dev";
 var SERVER = JSON.stringify(config.serverUrl);
@@ -22,7 +22,7 @@ var GLOBALS = {
     // 'process.env.NODE_ENV': ENV,
     '__ENV__': JSON.stringify(ENV),
     '__DEV__': DEBUG,
-    '__SERVER__' : SERVER,
+    '__SERVER__': SERVER,
     '__APPLICATION__': APPLICATION
 };
 
@@ -42,32 +42,32 @@ module.exports = {
         filename: fileName,
         chunkFilename: chunkFilename,
         publicPath: '/dist/'
-        //  publicPath: '/Xplorify.WebSpa/dist/'
+            //  publicPath: '/Xplorify.WebSpa/dist/'
     },
 
     // Custom plugins
     plugins: [
-        new webpack.DefinePlugin(GLOBALS),
-        // new webpack.ProvidePlugin({
-        //     $: "jquery",
-        //     "window.$": "jquery",
-        //     jQuery: "jquery",
-        //     "window.jQuery": "jquery",
-        //     Q: "q",
-        //     "window.Q": "q"
-        // }),
-        new WebpackMd5Hash(),
-        new ManifestPlugin(),
-        new HtmlWebpackPlugin({
-            filename: '../index.html',
-            template: './index.ejs'
-        }),
-        new InlineManifestWebpackPlugin({
-            name: 'webpackManifest'
-        }),
-        new webpack.optimize.OccurenceOrderPlugin()
-        // new webpack.ContextReplacementPlugin(/moment[\/\\]locale$/, /en/)
-    ]
+            new webpack.DefinePlugin(GLOBALS),
+            // new webpack.ProvidePlugin({
+            //     $: "jquery",
+            //     "window.$": "jquery",
+            //     jQuery: "jquery",
+            //     "window.jQuery": "jquery",
+            //     Q: "q",
+            //     "window.Q": "q"
+            // }),
+            new WebpackMd5Hash(),
+            new ManifestPlugin(),
+            new HtmlWebpackPlugin({
+                filename: '../index.html',
+                template: './index.ejs'
+            }),
+            new InlineManifestWebpackPlugin({
+                name: 'webpackManifest'
+            }),
+            new webpack.optimize.OccurenceOrderPlugin()
+            // new webpack.ContextReplacementPlugin(/moment[\/\\]locale$/, /en/)
+        ]
         .concat(DEBUG ? [] : [
             new webpack.optimize.DedupePlugin(),
             new webpack.optimize.UglifyJsPlugin(),
@@ -75,8 +75,7 @@ module.exports = {
         ]),
 
     module: {
-        loaders: [
-            {
+        loaders: [{
                 test: /\.js$/,
                 exclude: /(node_modules)/,
                 loader: 'babel-loader',
@@ -121,8 +120,8 @@ module.exports = {
     },
     externals: {
         "window": "window",
-        "document" : "document",
-        "navigator" : "navigator"
+        "document": "document",
+        "navigator": "navigator"
     },
 
     devServer: {
