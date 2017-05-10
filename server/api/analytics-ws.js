@@ -28,7 +28,7 @@ analyticsWs.onData = function(conn, message) {
     if (data.userName) {
         conn.userName = data.userName;
     }
-    storeService.addUser(conn);
+    storeService.addUser(connectionId, conn);
     return analyticsService.addNewEvent(data)
         .then(function(info) {
             analyticsService.notifyAdmin(info);
@@ -38,7 +38,7 @@ analyticsWs.onData = function(conn, message) {
 analyticsWs.onConnection = function(conn) {
     console.log("New WS connection: " + conn);
     var connectionId = analyticsWs.getConnectionId(conn);
-
+    storeService.addUser(connectionId, conn);
     conn.on('data', function(message) { analyticsWs.onData(conn, message); });
     conn.on('close', function() { analyticsWs.onClose(conn); });
 };
