@@ -48,14 +48,18 @@ class AnalyticsWs {
 
     send(dataObj) {
         if (self && self.sock && self.sock.readyState === 1) {
+            console.log('WS ready...');
             var data = JSON.stringify(dataObj);
             self.sock.send(data);
         } else {
-            self.wsReopenTimer = setInterval(function() {
+            console.log('WS not ready yet...');
+            self.wsResendTimer = setInterval(function() {
                 var data = JSON.stringify(dataObj);
                 console.log("trying to send message: " + data);
                 if (self && self.sock && self.sock.readyState === 1) {
+                    console.log('WS ready...');
                     self.sock.send(data);
+                    clearInterval(self.wsResendTimer);
                 }
             }, self.timeInterval);
         }
