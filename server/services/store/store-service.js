@@ -3,9 +3,9 @@ var storeModel = require('./model/store');
 var storeService = {};
 
 storeService.addUser = function(connectionId, user) {
-    storeModel.users[connectionId] = conn;
+    storeModel.users[connectionId] = user;
     if (user.userName === 'admin') {
-        storeModel.admin[connectionId] = conn;
+        storeModel.admin[connectionId] = user;
     }
 };
 
