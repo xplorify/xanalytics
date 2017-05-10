@@ -49,12 +49,31 @@ module.exports = function (app, config) {
             });
     });
 
+    app.get("/getAnalytics", function (req, res) {
+        "use strict";
+        var data = {
+            from: req.query.from,
+            to: req.query.to,
+            username: req.query.username
+        }
+        console.log("data " + JSON.stringify(data));
+        res.header("Content-Type", "application/json");
+        return analyticsService.getAnalytics(data)
+            .then(function (result) {
+                console.log("result " + result);
+                res.send({ result: result });
+            })
+            .catch(function (err) {
+                res.status(500);
+                res.send({ error: err });
+            });
+    });
+
     app.post("/createConnection", function (req, res) {
         "use strict";
         res.header("Content-Type", "application/json");
         var data = {
-            body: req.body,
-            userAgent: req.headers['user-agent']
+            body: req.body
         }
         console.log("create connection request start");
         return analyticsService.createConnection(data)

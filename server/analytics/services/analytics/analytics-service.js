@@ -75,6 +75,29 @@ analyticsService.getOpenConnections = function (code) {
     });
 };
 
+analyticsService.getAnalytics = function (data) {
+    return new Promise(function (resolve, reject) {
+        var db = mongoose.createConnection(config.xplorifyDb, { auth: { authdb: "admin" } });
+        var connectionModel = db.model("connections", connectionSchema);
+        console.log("before find");
+        console.log("username: " + data.username);
+        var query = { '$match': { "userName": data.username, "startDate": { "$lt": new Date(data.to), "$gt": new Date(data.from) } } }
+        return connectionModel.aggregate(query)
+            .exec(function (err, response) {
+                if (!err) {
+                    console.log("Result: " + response);
+                    resolve(response);
+                } else {
+                    console.log("err: " + err);
+                    reject(new Error(err));
+                }
+            })
+            .finally(function () {
+                db.close();
+            });
+    });
+};
+
 analyticsService.closeOpenConnections = function () {
     return new Promise(function (resolve, reject) {
         var db = mongoose.createConnection(config.xplorifyDb, { auth: { authdb: "admin" } });
@@ -192,7 +215,6 @@ analyticsService.getNewConnectionObject = function (db, data) {
         userName: data.body.userName,
         countryCode: data.body.countryCode,
         remoteAddress: data.body.ipAddress,
-        userAgent: data.userAgent,
         detectRtc: data.body.detectRtc,
         referrer: data.body.referrer,
         application: data.body.application,

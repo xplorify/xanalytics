@@ -6,6 +6,8 @@ module.exports = {
         userName: { type: String, index: true },
         startDate: Date,
         endDate: Date,
+        countryCode: String,
+        remoteAddress: String,
         referrer: String,
         detectRtc: Object,
         application: {
@@ -16,10 +18,6 @@ module.exports = {
             eventType: String,
             date: Date,
             info: Object
-        }],
-        locations:[{
-            countryCode: String,
-            ipAddress: String
         }]
     })
 };
