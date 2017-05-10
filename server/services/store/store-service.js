@@ -11,7 +11,7 @@ storeService.addUser = function(connectionId, user) {
 
 storeService.removeUser = function(connectionId) {
     console.log("Removing user connection from the store...");
-    if (storeModel.admin && store.admin[connectionId]) {
+    if (storeModel.admin && storeModel.admin[connectionId]) {
         delete storeModel.admin[connectionId];
         delete storeModel.users[connectionId];
     } else {
