@@ -24,7 +24,7 @@ window.addEventListener('load', function() {
                                 } else {
                                     var dataObj = {
                                         userName: "Anonymous",
-                                        connectionId: globals.connectionId,
+                                        connectionId: globals.connection,
                                         referrer: document.referrer,
                                         from: document.referrer,
                                         to: window.location.href,
