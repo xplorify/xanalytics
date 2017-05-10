@@ -7,16 +7,7 @@ module.exports = {
         startDate: Date,
         endDate: Date,
         referrer: String,
-        countryCode: String,
-        remoteAddress: String,
-        remotePort: Number,
-        userAgent: String,
         detectRtc: Object,
-        address: {
-            ipAddress: String,
-            family: String,
-            port: Number
-        },
         application: {
             code: String,
             url: String
@@ -25,6 +16,10 @@ module.exports = {
             eventType: String,
             date: Date,
             info: Object
+        }],
+        locations:[{
+            countryCode: String,
+            ipAddress: String
         }]
     })
 };
