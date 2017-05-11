@@ -5,6 +5,7 @@ var express = require("express"),
     bodyParser = require("body-parser"),
     errorhandler = require("errorhandler"),
     morgan = require("morgan"),
+    passport = require('passport'),
     fs = require("fs"),
     https = require("https"),
     http = require("http"),
@@ -24,6 +25,13 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
     extended: true
 }));
+app.use(passport.initialize());
+
+// load passport strategies
+const localSignupStrategy = require('./services/auth/auth-service').signupStrategy;
+const localLoginStrategy = require('./services/auth/auth-service').loginStrategy;
+passport.use('local-signup', localSignupStrategy);
+passport.use('local-login', localLoginStrategy);
 
 app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");

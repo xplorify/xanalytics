@@ -1,6 +1,8 @@
 "use strict"
+
 var mongoose = require('mongoose');
-module.exports = {
+
+var connectionShema = {
     connectionSchema: mongoose.Schema({
         previousConnectionId: { type: String, index: true },
         userName: { type: String, index: true },
@@ -22,3 +24,5 @@ module.exports = {
         }]
     })
 };
+
+module.exports = connectionShema;
