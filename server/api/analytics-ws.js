@@ -13,11 +13,11 @@ analyticsWs.onClose = function(conn) {
     console.log("Closing WS connection: " + conn);
     return analyticsService.closeConnection(connectionId)
         .then(function() {
-            analyticsService.removeUser(connectionId);
+            storeService.removeUser(connectionId);
             var infoObj = {
                 removeConnection: connectionId
             };
-            analyticsService.notifyAdmin(infoObj);
+            storeService.notifyAdmin(infoObj);
         });
 };
 
@@ -31,7 +31,7 @@ analyticsWs.onData = function(conn, message) {
     storeService.addUser(connectionId, conn);
     return analyticsService.addNewEvent(data)
         .then(function(info) {
-            analyticsService.notifyAdmin(info);
+            storeService.notifyAdmin(info);
         });
 };
 

@@ -25,7 +25,7 @@ module.exports = function(app) {
         var id = req.params.connectionId;
         console.log(id);
         return analyticsService
-            .getConnectionByConnectionId(id)
+            .getConnectionById(id)
             .then(function(result) {
                 console.log("result " + result);
                 res.send({ result: result });
@@ -58,7 +58,12 @@ module.exports = function(app) {
         var data = {
             from: req.query.from,
             to: req.query.to,
-            username: req.query.username
+            username: req.query.username,
+            countryCode: req.query.countryCode,
+            ipAddress: req.query.ipAddress,
+            referrer: req.query.referrer,
+            navigateTo: req.query.navigateTo,
+            groupBy: req.query.groupBy
         };
         console.log("data " + JSON.stringify(data));
         res.header("Content-Type", "application/json");

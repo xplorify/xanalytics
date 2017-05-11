@@ -4,11 +4,11 @@ module.exports = {
     connectionSchema: mongoose.Schema({
         previousConnectionId: { type: String, index: true },
         userName: { type: String, index: true },
-        startDate: Date,
-        endDate: Date,
-        countryCode: String,
-        remoteAddress: String,
-        referrer: String,
+        startDate: { type: Date, index: true },
+        endDate: { type: Date, index: true },
+        countryCode: { type: String, index: true },
+        remoteAddress: { type: String, index: true },
+        referrer: { type: String, index: true },
         detectRtc: Object,
         application: {
             code: String,
@@ -16,6 +16,7 @@ module.exports = {
         },
         events: [{
             eventType: String,
+            url: { type: String, index: true },
             date: Date,
             info: Object
         }]

@@ -43,11 +43,12 @@ class AnalyticsApi {
             previousConnId: window.sessionStorage["connectionId"],
             userName: "Anonymous",
             referrer: document.referrer,
-            eventType: "Intro",
+            eventType: "Navigate",
             countryCode: globals.countryCode,
             ipAddress: globals.ipAddress,
             detectRtc: globals.detectRtc,
-            application: globals.application
+            application: globals.application,
+            to: window.location.url
         };
 
         req.open("POST", url, true);
