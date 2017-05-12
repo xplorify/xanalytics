@@ -26,8 +26,7 @@ authService.signupStrategy = new PassportLocalStrategy({
 
     var db = mongoose.createConnection(config.xplorifyDb, { auth: { authdb: "admin" } });
     var userModel = db.model("users", userSchema);
-    var myVar = 90;
-
+    var x = 1;
     const newUser = new userModel(userData);
     newUser.save((err) => {
             if (err) {
