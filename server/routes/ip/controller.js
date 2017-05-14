@@ -1,9 +1,9 @@
 "use strict";
 
-var ipService = require("../services/ip/ip-service");
+var ipService = require("../../services/ip-service");
 
-module.exports = function(app) {
-    app.get("/getGlobals", function(request, res) {
+module.exports = {
+    getGlobals: function(request, res) {
         res.header("Content-Type", "application/json");
         var ip = request.headers['x-forwarded-for'] ||
             request.connection.remoteAddress ||
@@ -25,5 +25,5 @@ module.exports = function(app) {
                 console.log("Ip Controller catch: " + err);
                 res.send({ error: err });
             });
-    });
+    }
 };

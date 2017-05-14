@@ -6,11 +6,18 @@ var mongoose = require('mongoose'),
     bcrypt = require('bcryptjs');
 
 var userSchema = new Schema({
-    first: { type: String, required: 'FirstNameInvalid' },
-    last: { type: String, required: 'LastNameInvalid' },
+    firstname: { type: String, required: 'FirstNameInvalid' },
+    lastname: { type: String, required: 'LastNameInvalid' },
     email: { type: String, lowercase: true, required: 'EmailInvalid' },
     username: { type: String, unique: true, required: 'UsernameInvalid' },
-    password: { type: String, select: false, required: 'PasswordInvalid' }
+    password: { type: String, required: 'PasswordInvalid' },
+    roles: [{
+        type: String,
+        enum: ['admin', 'teacher', 'student'],
+        default: 'student'
+    }]
+}, {
+    timestamps: true
 });
 
 // userSchema.plugin(mongoosePaginate);
@@ -20,8 +27,15 @@ userSchema.pre('save', function(next) {
     if (!user.isModified('password')) {
         return next();
     }
-    bcrypt.genSalt(10, function(err, salt) {
+    var SALT_FACTOR = 10;
+    bcrypt.genSalt(SALT_FACTOR, function(err, salt) {
+        if (err) {
+            return next(err);
+        }
         bcrypt.hash(user.password, salt, function(err, hash) {
+            if (err) {
+                return next(err);
+            }
             user.password = hash;
             next();
         });
@@ -30,6 +44,13 @@ userSchema.pre('save', function(next) {
 
 userSchema.methods.comparePassword = function(password, done) {
     bcrypt.compare(password, this.password, function(err, isMatch) {
+        if (err) {
+            console.log('Error during password comparison: ' + err);
+            return done(err);
+        }
+        if (!isMatch) {
+            cosnole.log('Passwords don\'t match.');
+        }
         done(err, isMatch);
     });
 };

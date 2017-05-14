@@ -1,8 +1,8 @@
 "use strict";
 
 var mongoose = require('mongoose'),
-    config = require("../../config"),
-    connectionSchema = require("./models/connection"),
+    config = require("../config"),
+    connectionSchema = require("../models/connection"),
     util = require('util');
 mongoose.Promise = require('bluebird');
 var analyticsService = {};
@@ -54,9 +54,7 @@ analyticsService.getOpenConnections = function(code) {
         var db = mongoose.createConnection(config.xplorifyDb, { auth: { authdb: "admin" } });
         var connectionModel = db.model("connections", connectionSchema);
         console.log("before find");
-        var query = code ?
-            { '$match': { 'endDate': { '$exists': false }, "events.eventType": "Navigate", "application.code": code } } :
-            { '$match': { 'endDate': { '$exists': false }, "events.eventType": "Navigate" } }
+        var query = code ? { '$match': { 'endDate': { '$exists': false }, "events.eventType": "Navigate", "application.code": code } } : { '$match': { 'endDate': { '$exists': false }, "events.eventType": "Navigate" } }
         return connectionModel.aggregate(query)
             .exec(function(err, response) {
                 if (!err) {
@@ -79,30 +77,26 @@ analyticsService.getAnalytics = function(data) {
         var connectionModel = db.model("connections", connectionSchema);
         console.log("before find");
         var query = data.navigateTo ?
-            data.groupBy ?
-            [
+            data.groupBy ? [
                 { '$match': { "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) }, "events.url": data.navigateTo } },
                 { '$group': { "_id": '$' + data.groupBy, "connections": { $push: "$$ROOT" } } }
-            ] :
-            { '$match': { "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) }, "events.url": data.navigateTo } } :
-            data.groupBy ?
-            [
+            ] : { '$match': { "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) }, "events.url": data.navigateTo } } :
+            data.groupBy ? [
                 { '$match': { "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) } } },
                 { '$group': { "_id": '$' + data.groupBy, "connections": { $push: "$$ROOT" } } }
-            ] :
-            { '$match': { "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) } } }
+            ] : { '$match': { "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) } } }
 
         if (data.username) {
-            query.$match.userName = data.username
+            query.$match.userName = data.username;
         }
         if (data.ipAddress) {
-            query.$match.remoteAddress = data.ipAddress
+            query.$match.remoteAddress = data.ipAddress;
         }
         if (data.countryCode) {
-            query.$match.countryCode = data.countryCode
+            query.$match.countryCode = data.countryCode;
         }
         if (data.referrer) {
-            query.$match.referrer = data.referrer
+            query.$match.referrer = data.referrer;
         }
 
         console.log("query " + JSON.stringify(query));

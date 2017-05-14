@@ -1,4 +1,3 @@
-/*global require, __dirname, console, process*/
 "use strict";
 
 var express = require("express"),
@@ -8,9 +7,9 @@ var express = require("express"),
     passport = require('passport'),
     fs = require("fs"),
     https = require("https"),
-    http = require("http"),
+    cipher = require("./cert/cipher"),
     config = require("./config"),
-    analyticsService = require("./services/analytics/analytics-service");
+    analyticsService = require("./services/analytics-service");
 
 var app = express();
 
@@ -25,13 +24,6 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
     extended: true
 }));
-app.use(passport.initialize());
-
-// load passport strategies
-const localSignupStrategy = require('./services/auth/auth-service').signupStrategy;
-const localLoginStrategy = require('./services/auth/auth-service').loginStrategy;
-passport.use('local-signup', localSignupStrategy);
-passport.use('local-login', localLoginStrategy);
 
 app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
@@ -45,26 +37,30 @@ app.use(function(req, res, next) {
     }
 });
 
-require('./api/analytics-api')(app);
-require('./api/ip-api')(app);
-var analyticsWs = require('./api/analytics-ws');
+// routes
+const routes = require('./routes')(app);
+
 
 // first close all open connections due to server restart,
+// then start HTTPS server
 // then start WS server
-// then start HTTP server
 analyticsService.closeOpenConnections()
     .then(function() {
-        console.log("inside then");
-        // create https server
-        var cipher = require("./cipher");
-        cipher.unlock(cipher.k, "cert/.woogeen.keystore", function cb(err, obj) {
+        console.log('All open connections have been closed.');
+
+        console.log('Initializing https server...');
+        cipher.unlock(cipher.k, "./cert/.woogeen.keystore", function cb(err, obj) {
             if (!err) {
                 try {
-                    var server = https.createServer({
-                        pfx: fs.readFileSync("cert/certificate.pfx"),
-                        passphrase: obj.sample
-                    }, app).listen(config.httpsPort);
-                    analyticsWs.echo.installHandlers(server, { prefix: '/echo' });
+                    var server = https
+                        .createServer({
+                            pfx: fs.readFileSync("./cert/certificate.pfx"),
+                            passphrase: obj.sample
+                        }, app)
+                        .listen(config.httpsPort);
+
+                    console.log('Initializing WS server...');
+                    require('./routes/echo').init(server);
                 } catch (e) {
                     err = e;
                 }
@@ -74,4 +70,7 @@ analyticsService.closeOpenConnections()
                 return process.exit();
             }
         });
+
+
+
     });

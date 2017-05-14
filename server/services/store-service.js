@@ -1,4 +1,4 @@
-var storeModel = require('./model/store');
+var storeModel = require('../models/store');
 
 var storeService = {};
 

@@ -24,7 +24,9 @@
     "node-fetch": "^1.6.3",
     "node-uuid": "^1.4.8",
     "passport": "^0.3.2",
+    "passport-jwt": "^2.2.1",
     "passport-local": "^1.0.0",
-    "sockjs": "^0.3.18"
+    "sockjs": "^0.3.18",
+    "validator": "^7.0.0"
   }
 }
