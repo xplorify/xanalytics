@@ -11,7 +11,11 @@ class AnalyticsWs {
         self = this;
         self.sock = null;
         self.timeInterval = 2000;
-        self.wsReopenTimer = null;
+
+        // SockJS.CONNECTING = 0;
+        // SockJS.OPEN = 1;
+        // SockJS.CLOSING = 2;
+        // SockJS.CLOSED = 3;
     }
 
     open(next) {
@@ -37,8 +41,11 @@ class AnalyticsWs {
             console.log("ws closed.");
             if (self.sock.readyState !== 1) {
                 self.wsReopenTimer = setInterval(function() {
-                    console.log("trying to reopen ws...");
-                    self.sock.onopen();
+                    if (self.sock.readyState === 3) {
+                        console.log("trying to reopen ws...");
+                        self.sock.onopen();
+                    }
+
                 }, self.timeInterval);
             }
         };

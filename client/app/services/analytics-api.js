@@ -1,10 +1,11 @@
 import { globals } from "../models/globals";
 
 var urls = {
-    getGlobals: globals.serverUrl + "/getGlobals",
-    createConnection: globals.serverUrl + "/createConnection",
-    addNewEvent: globals.serverUrl + "/addNewEvent",
-    closeConnection: globals.serverUrl + "/closeConnection"
+    getGlobals: globals.serverUrl + "/api/ip/getGlobals",
+    createConnection: globals.serverUrl + "/api/createConnection",
+    addNewEvent: globals.serverUrl + "/api/addNewEvent",
+    closeConnection: globals.serverUrl + "/api/closeConnection",
+    getUserInfoUrl: globals.options.getUserInfoUrl
 };
 var self = null;
 
@@ -34,6 +35,34 @@ class AnalyticsApi {
         req.onerror = function() {
             next({ error: true, message: req.responseText });
         };
+    }
+
+    getUserInfo(next) {
+        var accessToken = window.sessionStorage["accessToken"] || window.localStorage["accessToken"];
+        if (accessToken) {
+            var req = new XMLHttpRequest();
+            var url = urls.getUserInfoUrl;
+            req.open("GET", url, true);
+            req.setRequestHeader("Authorization", "Bearer " + accessToken);
+            req.send(null);
+            req.onreadystatechange = function() {
+                if (req.readyState === 4) {
+                    try {
+                        var result = JSON.parse(req.responseText);
+                        console.log("result " + result);
+                        globals.userInfo = result;
+                    } catch (e) {
+                        console.log('Unable to parse UserInfo as JSON');
+                    }
+                    next(null);
+                }
+            };
+            req.onerror = function() {
+                next({ error: true, message: req.responseText });
+            };
+        } else {
+            next();
+        }
     }
 
     createConnection(next) {
