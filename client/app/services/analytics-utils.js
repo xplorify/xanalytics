@@ -9,6 +9,8 @@ class AnalyticsUtils {
     }
 
     detectRtc(next) {
+        console.log('Detecting RTC...');
+
         DetectRtc.load(function() {
             globals.detectRtc = new DetectRtcModel(DetectRTC);
             next(null);

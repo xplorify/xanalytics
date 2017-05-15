@@ -19,6 +19,8 @@ class AnalyticsApi {
     }
 
     getGlobals(next) {
+        console.log('Getting globals...');
+
         var req = new XMLHttpRequest();
         var url = urls.getGlobals;
         req.open("GET", url, true);
@@ -32,12 +34,15 @@ class AnalyticsApi {
                 next(null);
             }
         };
-        req.onerror = function() {
+        req.onerror = function(err) {
+            console.log(err);
             next({ error: true, message: req.responseText });
         };
     }
 
     getUserInfo(next) {
+        console.log('Getting user info...');
+
         var accessToken = window.sessionStorage["accessToken"] || window.localStorage["accessToken"];
         if (accessToken) {
             var req = new XMLHttpRequest();
@@ -66,6 +71,8 @@ class AnalyticsApi {
     }
 
     createConnection(next) {
+        console.log('Creating connection...');
+
         var req = new XMLHttpRequest();
         var url = urls.createConnection;
         var body = {
@@ -92,12 +99,14 @@ class AnalyticsApi {
             }
         };
         req.onerror = function(err) {
-            // promise.reject(req.responseText);
+            console.log(err);
             next({ error: true, message: err });
         };
     }
 
     addNewEvent(next) {
+        console.log('Sending Navigate event via AJAX...');
+
         var req = new XMLHttpRequest();
         var url = urls.addNewEvent;
         var body = {
@@ -118,11 +127,14 @@ class AnalyticsApi {
             }
         };
         req.onerror = function(err) {
+            console.log(err);
             next({ error: true, message: err });
         };
     }
 
     closeConnection(next) {
+        console.log('Closing connection via AJAX...');
+
         var body = { connectionId: globals.connection };
         if (navigator.sendBeacon) {
             navigator.sendBeacon(urls.closeConnection, JSON.stringify(body));

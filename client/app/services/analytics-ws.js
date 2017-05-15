@@ -19,6 +19,8 @@ class AnalyticsWs {
     }
 
     open(next) {
+        console.log('Opening WS...');
+
         var sessionId = function() {
             return globals.connection;
         };
@@ -53,6 +55,8 @@ class AnalyticsWs {
     }
 
     send(dataObj) {
+        console.log('Sending Navigate event via WS...');
+
         if (self && self.sock && self.sock.readyState === 1) {
             console.log('WS ready...');
             var data = JSON.stringify(dataObj);
