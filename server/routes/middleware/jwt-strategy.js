@@ -10,8 +10,8 @@ mongoose.Promise = require('bluebird');
 
 var jwtOptions = {
     jwtFromRequest: ExtractJwt.fromExtractors([ // a passport-jwt option determining where to parse the JWT
-        ExtractJwt.fromHeader('Authorization'), // From "Authorization" header
-        ExtractJwt.fromAuthHeaderWithScheme('Bearer'), // Allowing "Bearer" prefix        
+        ExtractJwt.fromHeader('Token'), // From "Authorization" header
+        ExtractJwt.fromAuthHeaderWithScheme('JWT'), // Allowing "Bearer" prefix        
         ExtractJwt.fromUrlQueryParameter('token') // From query-string parameter "token"
     ]),
     // jwtFromRequest: ExtractJwt.fromHeader('Authorization'),

@@ -49,7 +49,7 @@ userSchema.methods.comparePassword = function(password, done) {
             return done(err);
         }
         if (!isMatch) {
-            cosnole.log('Passwords don\'t match.');
+            console.log('Passwords don\'t match.');
         }
         done(err, isMatch);
     });
