@@ -32,7 +32,7 @@ module.exports = {
     entry: {
         app: [
             // 'webpack/hot/dev-server',
-            path.join(__dirname, 'app', 'main.js')
+            path.join(__dirname, 'app', 'xanalytics.js')
         ]
     },
 

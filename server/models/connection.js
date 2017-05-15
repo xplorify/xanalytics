@@ -16,6 +16,11 @@ var connectionShema = {
             code: String,
             url: String
         },
+        userInfo: {
+            firstName: String,
+            lastName: String,
+            email: String
+        },
         events: [{
             eventType: String,
             url: { type: String, index: true },

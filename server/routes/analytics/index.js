@@ -25,6 +25,9 @@ analyticsRoutes.post(
     '/addNewEvent',
     controller.addNewEvent);
 analyticsRoutes.post(
+    '/addUserInfo',
+    controller.addUserInfo);
+analyticsRoutes.post(
     '/closeConnection',
     controller.closeConnection);
 

@@ -219,6 +219,36 @@ analyticsService.addNewEvent = function(data) {
     });
 };
 
+analyticsService.addUserInfo = function(data) {
+    return new Promise(function(resolve, reject) {
+        var db = mongoose.createConnection(config.xplorifyDb, { auth: { authdb: "admin" } });
+        var connectionModel = db.model("connections", connectionSchema);
+        var isUserNamePresent = data.userName && data.userName !== "Anonymous";
+        var updateObject = {
+            $set: {
+                 userName: data.userName,
+                 userInfo: {
+                     firstName: data.firstName,
+                     lastName: data.lastName,
+                     email: data.email
+                 }
+            }
+        };
+        return connectionModel.findByIdAndUpdate(data.connectionId, updateObject, { new: true })
+            .exec()
+            .then(function(response) {
+                console.log("Result: " + response);
+                resolve(response);
+            })
+            .catch(function(err) {
+                reject(new Error(err));
+            })
+            .finally(function() {
+                db.close();
+            });
+    });
+};
+
 analyticsService.getNewConnectionObject = function(db, data) {
     var obj = {
         previousConnectionId: data.body.previousConnId,

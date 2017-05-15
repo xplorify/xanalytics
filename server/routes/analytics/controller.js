@@ -118,6 +118,20 @@ module.exports = {
                 res.send({ error: err });
             });
     },
+    addUserInfo: function(req, res) {
+        res.header("Content-Type", "application/json");
+        console.log("Add new event " + JSON.stringify(req.body));
+        console.log("create connection request start");
+        return analyticsService
+            .addUserInfo(req.body)
+            .then(function(result) {
+                res.send({ result: result });
+            })
+            .catch(function(err) {
+                res.status(500);
+                res.send({ error: err });
+            });
+    },
     closeConnection: function(req, res) {
         res.header("Content-Type", "application/json");
         console.log("Add new event " + JSON.stringify(req.body.connectionId));

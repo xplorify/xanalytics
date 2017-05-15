@@ -5,7 +5,8 @@ var urls = {
     createConnection: globals.serverUrl + "/api/createConnection",
     addNewEvent: globals.serverUrl + "/api/addNewEvent",
     closeConnection: globals.serverUrl + "/api/closeConnection",
-    getUserInfoUrl: globals.options.getUserInfoUrl
+    getUserInfoUrl: globals.options.getUserInfoUrl,
+    addUserInfo: globals.serverUrl + "/api/addUserInfo"
 };
 var self = null;
 
@@ -25,7 +26,7 @@ class AnalyticsApi {
         var url = urls.getGlobals;
         req.open("GET", url, true);
         req.send(null);
-        req.onreadystatechange = function() {
+        req.onreadystatechange = function () {
             if (req.readyState === 4) {
                 var result = JSON.parse(req.responseText);
                 console.log("result " + result);
@@ -34,7 +35,7 @@ class AnalyticsApi {
                 next(null);
             }
         };
-        req.onerror = function(err) {
+        req.onerror = function (err) {
             console.log(err);
             next({ error: true, message: req.responseText });
         };
@@ -50,24 +51,55 @@ class AnalyticsApi {
             req.open("GET", url, true);
             req.setRequestHeader("Authorization", "Bearer " + accessToken);
             req.send(null);
-            req.onreadystatechange = function() {
+            req.onreadystatechange = function () {
                 if (req.readyState === 4) {
                     try {
                         var result = JSON.parse(req.responseText);
                         console.log("result " + result);
                         globals.userInfo = result;
+                        if (result && result.userName) {
+                            addUserInfo();
+                        }
                     } catch (e) {
                         console.log('Unable to parse UserInfo as JSON');
                     }
                     next(null);
                 }
             };
-            req.onerror = function() {
+            req.onerror = function () {
                 next({ error: true, message: req.responseText });
             };
         } else {
             next();
         }
+    }
+
+    addUserInfo(next) {
+        console.log('Sending User Info via AJAX...');
+
+        var req = new XMLHttpRequest();
+        var url = urls.addUserInfo;
+        var userInfo = globals.userInfo;
+        var body = {
+            userName: userInfo.userName,
+            firstName: userInfo.firstName,
+            lastName: userInfo.lastName,
+            email: userInfo.email,
+            connectionId: globals.connection
+        };
+        req.open("POST", url, true);
+        req.setRequestHeader("Content-Type", "application/json");
+        req.send(JSON.stringify(body));
+        req.onreadystatechange = function () {
+            if (req.readyState === 4) {
+                var result = JSON.parse(req.responseText);
+                next(null);
+            }
+        };
+        req.onerror = function (err) {
+            console.log(err);
+            next({ error: true, message: err });
+        };
     }
 
     createConnection(next) {
@@ -90,7 +122,7 @@ class AnalyticsApi {
         req.open("POST", url, true);
         req.setRequestHeader("Content-Type", "application/json");
         req.send(JSON.stringify(body));
-        req.onreadystatechange = function() {
+        req.onreadystatechange = function () {
             if (req.readyState === 4) {
                 var result = JSON.parse(req.responseText);
                 globals.connection = result.result._id;
@@ -98,7 +130,7 @@ class AnalyticsApi {
                 next(null);
             }
         };
-        req.onerror = function(err) {
+        req.onerror = function (err) {
             console.log(err);
             next({ error: true, message: err });
         };
@@ -120,13 +152,13 @@ class AnalyticsApi {
         req.open("POST", url, true);
         req.setRequestHeader("Content-Type", "application/json");
         req.send(JSON.stringify(body));
-        req.onreadystatechange = function() {
+        req.onreadystatechange = function () {
             if (req.readyState === 4) {
                 var result = JSON.parse(req.responseText);
                 next(null);
             }
         };
-        req.onerror = function(err) {
+        req.onerror = function (err) {
             console.log(err);
             next({ error: true, message: err });
         };
