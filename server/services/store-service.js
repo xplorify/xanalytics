@@ -5,6 +5,7 @@ var storeService = {};
 storeService.addUser = function(connectionId, user) {
     storeModel.users[connectionId] = user;
     if (user.userName === 'admin') {
+        console.log("Adding admin");
         storeModel.admin[connectionId] = user;
     }
 };
