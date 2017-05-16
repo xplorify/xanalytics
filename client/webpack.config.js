@@ -6,12 +6,8 @@ var WebpackMd5Hash = require('webpack-md5-hash');
 var ManifestPlugin = require('webpack-manifest-plugin');
 var HtmlWebpackPlugin = require('html-webpack-plugin');
 var InlineManifestWebpackPlugin = require('inline-manifest-webpack-plugin');
-var config = require("../server/config");
-console.log(JSON.stringify(config));
 var DEBUG = process.env.NODE_ENV ? !(JSON.stringify(process.env.NODE_ENV).replace(" ", "") === '"prd"') : true;
 var ENV = process.env.NODE_ENV ? process.env.NODE_ENV.replace(" ", "") : "dev";
-var SERVER = JSON.stringify(config.serverUrl);
-var APPLICATION = JSON.stringify(config.application);
 var fileName = ENV == 'dev' ? '[name].js' : '[name].[chunkhash].js';
 var chunkFilename = ENV == 'dev' ? '[name].chunk.js' : '[name].[chunkhash].chunk.js';
 console.log(ENV);
@@ -21,9 +17,7 @@ console.log(DEBUG);
 var GLOBALS = {
     // 'process.env.NODE_ENV': ENV,
     '__ENV__': JSON.stringify(ENV),
-    '__DEV__': DEBUG,
-    '__SERVER__': SERVER,
-    '__APPLICATION__': APPLICATION
+    '__DEV__': DEBUG
 };
 
 module.exports = {

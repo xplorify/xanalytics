@@ -5,7 +5,7 @@ var urls = {
     createConnection: globals.serverUrl + "/api/createConnection",
     addNewEvent: globals.serverUrl + "/api/addNewEvent",
     closeConnection: globals.serverUrl + "/api/closeConnection",
-    getUserInfoUrl: globals.options.getUserInfoUrl,
+    getUserInfoUrl: globals.getUserInfoUrl,
     addUserInfo: globals.serverUrl + "/api/addUserInfo"
 };
 var self = null;
@@ -32,6 +32,7 @@ class AnalyticsApi {
                 console.log("result " + result);
                 globals.countryCode = result.result.country_code;
                 globals.ipAddress = result.result.ip;
+                console.log("Getting globals was successful");
                 next(null);
             }
         };
@@ -45,7 +46,7 @@ class AnalyticsApi {
         console.log('Getting user info...');
 
         var accessToken = window.sessionStorage["accessToken"] || window.localStorage["accessToken"];
-        if (accessToken) {
+        if (accessToken && urls.getUserInfoUrl) {
             var req = new XMLHttpRequest();
             var url = urls.getUserInfoUrl;
             req.open("GET", url, true);
@@ -57,8 +58,10 @@ class AnalyticsApi {
                         var result = JSON.parse(req.responseText);
                         console.log("result " + result);
                         globals.userInfo = result;
-                        if (result && result.userName) {
-                            addUserInfo();
+                        if (result && (result.userName || result.username)) {
+                            console.log('Getting user info was successful.');
+                            addUserInfo(next);
+                            return;
                         }
                     } catch (e) {
                         console.log('Unable to parse UserInfo as JSON');
@@ -81,9 +84,9 @@ class AnalyticsApi {
         var url = urls.addUserInfo;
         var userInfo = globals.userInfo;
         var body = {
-            userName: userInfo.userName,
-            firstName: userInfo.firstName,
-            lastName: userInfo.lastName,
+            userName: globals.userName(),
+            firstName: globals.firstName(),
+            lastName: globals.lastName(),
             email: userInfo.email,
             connectionId: globals.connection
         };
@@ -93,6 +96,7 @@ class AnalyticsApi {
         req.onreadystatechange = function () {
             if (req.readyState === 4) {
                 var result = JSON.parse(req.responseText);
+                console.log("Sending User Info via AJAX was successful.");
                 next(null);
             }
         };
@@ -127,6 +131,7 @@ class AnalyticsApi {
                 var result = JSON.parse(req.responseText);
                 globals.connection = result.result._id;
                 window.sessionStorage["connectionId"] = globals.connection;
+                console.log("Creating connection was successful.");
                 next(null);
             }
         };
@@ -136,25 +141,19 @@ class AnalyticsApi {
         };
     }
 
-    addNewEvent(next) {
-        console.log('Sending Navigate event via AJAX...');
+    send(data, next) {
+        console.log('Sending event via AJAX...');
 
         var req = new XMLHttpRequest();
         var url = urls.addNewEvent;
-        var body = {
-            userName: "Anonymous",
-            connectionId: globals.connection,
-            referrer: document.referrer,
-            from: document.referrer,
-            to: window.location.href,
-            eventType: "Navigate"
-        };
+        var body = data;
         req.open("POST", url, true);
         req.setRequestHeader("Content-Type", "application/json");
         req.send(JSON.stringify(body));
         req.onreadystatechange = function () {
             if (req.readyState === 4) {
                 var result = JSON.parse(req.responseText);
+                console.log("Sending event via AJAX was successful.");
                 next(null);
             }
         };
@@ -175,7 +174,7 @@ class AnalyticsApi {
             var url = urls.closeConnection;
             req.open("POST", url, false);
             req.setRequestHeader("Content-Type", "application/json");
-            console.log("body: " + body);
+            console.log("Closing connection via AJAX was successful.");
             req.send(JSON.stringify(body));
         }
     }
