@@ -1,5 +1,5 @@
 How to use it:
-- var xa = new XAnalytics(options);
+    `var xa = new XAnalytics(options);`
 
 
 Possible options:
