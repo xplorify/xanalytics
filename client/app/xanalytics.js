@@ -43,7 +43,7 @@ class XAnalytics {
             pushState.apply(history, arguments);
             // fireEvents('pushState', arguments);  // Some event-handling function
             console.log("Inside push state: " + window.location.href);
-            onUrlChange();
+            self.onUrlChange();
         };
     }
 
