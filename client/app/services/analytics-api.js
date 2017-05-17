@@ -1,51 +1,54 @@
 import { globals } from "../models/globals";
 
-var urls = {
-    getOpenConnections: globals.serverUrl + "/api/getOpenConnections",
-    getAnalytics: globals.serverUrl + "/api/getAnalytics",
-    getGlobals: globals.serverUrl + "/api/ip/getGlobals",
-    createConnection: globals.serverUrl + "/api/createConnection",
-    addNewEvent: globals.serverUrl + "/api/addNewEvent",
-    closeConnection: globals.serverUrl + "/api/closeConnection",
-    getUserInfoUrl: globals.getUserInfoUrl,
-    addUserInfo: globals.serverUrl + "/api/addUserInfo"
-};
+
 var self = null;
 
-class AnalyticsApi {
+export default class AnalyticsApi {
     constructor() {
         self = this;
         self.sock = null;
         self.timeInterval = 2000;
         self.wsReopenTimer = null;
         self.wsResendTimer = null;
+        self.urls = {
+            getOpenConnections: globals.serverUrl + "/api/getOpenConnections",
+            getAnalytics: globals.serverUrl + "/api/getAnalytics",
+            getGlobals: globals.serverUrl + "/api/ip/getGlobals",
+            createConnection: globals.serverUrl + "/api/createConnection",
+            addNewEvent: globals.serverUrl + "/api/addNewEvent",
+            closeConnection: globals.serverUrl + "/api/closeConnection",
+            getUserInfoUrl: globals.getUserInfoUrl,
+            addUserInfo: globals.serverUrl + "/api/addUserInfo"
+        };
     }
 
     getOpenConnections(code, next) {
         console.log('Getting open connections...');
         var req = new XMLHttpRequest();
-        var url = urls.getOpenConnections;
+        var url = self.urls.getOpenConnections;
         if (code) {
             url = url + "?code=" + code;
         }
         req.open('GET', url, true);
         req.send(null);
-        req.onreadystatechange = function () {
+        req.onreadystatechange = function() {
             if (req.readyState === 4) {
                 var result = JSON.parse(req.responseText);
+                console.log("Getting open connections was successful.");
                 next(result.result);
             }
         };
-        req.onerror = function (err) {
+        req.onerror = function(err) {
             console.log(err);
             next({ error: true, message: req.responseText });
         }
     }
 
     getAnalytics(options, next) {
+        console.log("Getting Analytics..");
         var promise = Q.defer();
         var req = new XMLHttpRequest();
-        var url = urls.getAnalytics + "?";
+        var url = self.urls.getAnalytics + "?";
         var i = 0;
         for (var prop in options) {
             url = url + (i > 0 ? "&" : "") + prop + "=" + encodeURIComponent(options[prop]);
@@ -53,13 +56,14 @@ class AnalyticsApi {
         }
         req.open('GET', url, true);
         req.send(null);
-        req.onreadystatechange = function () {
+        req.onreadystatechange = function() {
             if (req.readyState === 4) {
                 var result = JSON.parse(req.responseText);
+                console.log("Getting Analytics was successful");
                 promise.resolve(result.result);
             }
         };
-        req.onerror = function () {
+        req.onerror = function() {
             promise.reject(req.responseText);
         }
         return promise.promise;
@@ -69,10 +73,10 @@ class AnalyticsApi {
         console.log('Getting globals...');
 
         var req = new XMLHttpRequest();
-        var url = urls.getGlobals;
+        var url = self.urls.getGlobals;
         req.open("GET", url, true);
         req.send(null);
-        req.onreadystatechange = function () {
+        req.onreadystatechange = function() {
             if (req.readyState === 4) {
                 var result = JSON.parse(req.responseText);
                 console.log("result " + result);
@@ -82,7 +86,7 @@ class AnalyticsApi {
                 next(null);
             }
         };
-        req.onerror = function (err) {
+        req.onerror = function(err) {
             console.log(err);
             next({ error: true, message: req.responseText });
         };
@@ -92,13 +96,13 @@ class AnalyticsApi {
         console.log('Getting user info...');
 
         var accessToken = window.sessionStorage["accessToken"] || window.localStorage["accessToken"];
-        if (accessToken && urls.getUserInfoUrl) {
+        if (accessToken && self.urls.getUserInfoUrl) {
             var req = new XMLHttpRequest();
-            var url = urls.getUserInfoUrl;
+            var url = self.urls.getUserInfoUrl;
             req.open("GET", url, true);
             req.setRequestHeader("Authorization", "Bearer " + accessToken);
             req.send(null);
-            req.onreadystatechange = function () {
+            req.onreadystatechange = function() {
                 if (req.readyState === 4) {
                     try {
                         var result = JSON.parse(req.responseText);
@@ -115,7 +119,7 @@ class AnalyticsApi {
                     next(null);
                 }
             };
-            req.onerror = function () {
+            req.onerror = function() {
                 next({ error: true, message: req.responseText });
             };
         } else {
@@ -127,7 +131,7 @@ class AnalyticsApi {
         console.log('Sending User Info via AJAX...');
 
         var req = new XMLHttpRequest();
-        var url = urls.addUserInfo;
+        var url = self.urls.addUserInfo;
         var userInfo = globals.userInfo;
         var body = {
             userName: globals.userName(),
@@ -139,14 +143,14 @@ class AnalyticsApi {
         req.open("POST", url, true);
         req.setRequestHeader("Content-Type", "application/json");
         req.send(JSON.stringify(body));
-        req.onreadystatechange = function () {
+        req.onreadystatechange = function() {
             if (req.readyState === 4) {
                 var result = JSON.parse(req.responseText);
                 console.log("Sending User Info via AJAX was successful.");
                 next(null);
             }
         };
-        req.onerror = function (err) {
+        req.onerror = function(err) {
             console.log(err);
             next({ error: true, message: err });
         };
@@ -156,7 +160,7 @@ class AnalyticsApi {
         console.log('Creating connection...');
 
         var req = new XMLHttpRequest();
-        var url = urls.createConnection;
+        var url = self.urls.createConnection;
         var body = {
             previousConnId: window.sessionStorage["connectionId"],
             userName: "Anonymous",
@@ -172,7 +176,7 @@ class AnalyticsApi {
         req.open("POST", url, true);
         req.setRequestHeader("Content-Type", "application/json");
         req.send(JSON.stringify(body));
-        req.onreadystatechange = function () {
+        req.onreadystatechange = function() {
             if (req.readyState === 4) {
                 var result = JSON.parse(req.responseText);
                 globals.connection = result.result._id;
@@ -181,7 +185,7 @@ class AnalyticsApi {
                 next(null);
             }
         };
-        req.onerror = function (err) {
+        req.onerror = function(err) {
             console.log(err);
             next({ error: true, message: err });
         };
@@ -191,19 +195,19 @@ class AnalyticsApi {
         console.log('Sending event via AJAX...');
 
         var req = new XMLHttpRequest();
-        var url = urls.addNewEvent;
+        var url = self.urls.addNewEvent;
         var body = data;
         req.open("POST", url, true);
         req.setRequestHeader("Content-Type", "application/json");
         req.send(JSON.stringify(body));
-        req.onreadystatechange = function () {
+        req.onreadystatechange = function() {
             if (req.readyState === 4) {
                 var result = JSON.parse(req.responseText);
                 console.log("Sending event via AJAX was successful.");
                 next(null);
             }
         };
-        req.onerror = function (err) {
+        req.onerror = function(err) {
             console.log(err);
             next({ error: true, message: err });
         };
@@ -211,13 +215,12 @@ class AnalyticsApi {
 
     closeConnection(next) {
         console.log('Closing connection via AJAX...');
-
+        var url = self.urls.closeConnection;
         var body = { connectionId: globals.connection };
         if (navigator.sendBeacon) {
-            navigator.sendBeacon(urls.closeConnection, JSON.stringify(body));
+            navigator.sendBeacon(url, JSON.stringify(body));
         } else {
             var req = new XMLHttpRequest();
-            var url = urls.closeConnection;
             req.open("POST", url, false);
             req.setRequestHeader("Content-Type", "application/json");
             console.log("Closing connection via AJAX was successful.");
@@ -225,5 +228,3 @@ class AnalyticsApi {
         }
     }
 }
-
-export let analyticsApi = new AnalyticsApi();

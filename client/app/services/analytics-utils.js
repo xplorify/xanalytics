@@ -3,7 +3,7 @@ import DetectRtcModel from "../models/detect-rtc";
 import { globals } from "../models/globals";
 
 var self = null;
-class AnalyticsUtils {
+export default class AnalyticsUtils {
     constructor() {
         self = this;
     }
@@ -17,5 +17,3 @@ class AnalyticsUtils {
         });
     }
 }
-
-export let analyticsUtils = new AnalyticsUtils();
