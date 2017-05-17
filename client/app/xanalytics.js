@@ -1,15 +1,14 @@
 import { globals } from "./models/globals";
-import { analyticsApi } from "./services/analytics-api";
-import { analyticsWs } from "./services/analytics-ws";
-import { analyticsUtils } from "./services/analytics-utils";
+import AnalyticsApi from "./services/analytics-api";
+import AnalyticsWs from "./services/analytics-ws";
+import AnalyticsUtils from "./services/analytics-utils";
+
 
 var self = null;
 class XAnalytics {
     constructor(options) {
         console.log("Constructing XAnalytics with options: " + JSON.stringify(options));
         self = this;
-        self.api = analyticsApi;
-        self.ws = analyticsWs;
 
         if (options) {
             if (options.getUserInfoUrl !== undefined) {
@@ -28,6 +27,12 @@ class XAnalytics {
                 globals.onData = options.onData;
             }
         }
+
+        // first update globals based on options, then instantiate API/WS
+        self.api = new AnalyticsApi();
+        self.ws = new AnalyticsWs();
+        self.utils = new AnalyticsUtils();
+
         self.init();
     }
 
@@ -39,7 +44,7 @@ class XAnalytics {
         window.addEventListener('unload', self.onUnload, false);
 
         var pushState = history.pushState;
-        history.pushState = function () {
+        history.pushState = function() {
             pushState.apply(history, arguments);
             // fireEvents('pushState', arguments);  // Some event-handling function
             console.log("Inside push state: " + window.location.href);
@@ -49,15 +54,15 @@ class XAnalytics {
 
     send(data) {
         console.log("Sending data: " + JSON.stringify(data));
-        analyticsWs.send(data, analyticsApi.send);
+        self.ws.send(data, self.api.send);
     }
 
     onLoad() {
         console.log("On page load...");
-        analyticsApi.getGlobals(function (err) {
-            analyticsUtils.detectRtc(function () {
-                analyticsApi.getUserInfo(function (err) {
-                    analyticsApi.createConnection(function (err) {
+        self.api.getGlobals(function(err) {
+            self.utils.detectRtc(function() {
+                self.api.getUserInfo(function(err) {
+                    self.api.createConnection(function(err) {
                         var userName = globals.userName();
                         var dataObj = {
                             userName: userName,
@@ -67,12 +72,12 @@ class XAnalytics {
                             eventType: "Navigate"
                         }
                         if (globals.detectRtc.isWebSocketsSupported) {
-                            analyticsWs.open(function (err) {
-                                analyticsWs.send(dataObj, analyticsApi.send);
+                            self.ws.open(function(err) {
+                                self.ws.send(dataObj, self.api.send);
                             });
                         } else {
                             //if web socket is not supported add new event using ajax request and also send message to admin
-                            analyticsApi.send(dataObj, function (err) {
+                            self.api.send(dataObj, function(err) {
                                 if (err) {
                                     console.log(err);
                                 }
@@ -93,13 +98,13 @@ class XAnalytics {
             to: window.location.href,
             eventType: "Navigate"
         }
-        analyticsWs.send(dataObj, analyticsApi.send);
+        self.ws.send(dataObj, self.api.send);
     }
 
     onUnload() {
         console.log("On unload...");
         if (!globals.detectRtc.isWebSocketsSupported) {
-            analyticsApi.closeConnection();
+            self.api.closeConnection();
         }
     }
 

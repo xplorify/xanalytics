@@ -1,17 +1,17 @@
 import { globals } from "../models/globals";
 import SockJS from "sockjs-client";
 
-var urls = {
-    ws: globals.serverUrl + "/echo"
-};
+
 var self = null;
 
-class AnalyticsWs {
+export default class AnalyticsWs {
     constructor() {
         self = this;
         self.sock = null;
         self.timeInterval = 2000;
-
+        self.urls = {
+            ws: globals.serverUrl + "/echo"
+        };
         // SockJS.CONNECTING = 0;
         // SockJS.OPEN = 1;
         // SockJS.CLOSING = 2;
@@ -20,31 +20,31 @@ class AnalyticsWs {
 
     open(next) {
         console.log('Opening WS...');
-        var sessionId = function () {
+        var sessionId = function() {
             return globals.connection;
         };
-        self.sock = new SockJS(urls.ws, null, {
+        self.sock = new SockJS(self.urls.ws, null, {
             sessionId: sessionId
         });
-        self.sock.onopen = function () {
+        self.sock.onopen = function() {
             console.log("ws opened.");
             if (self.wsReopenTimer) {
                 clearInterval(self.wsReopenTimer);
             }
         };
-        self.sock.onmessage = function (e) {
+        self.sock.onmessage = function(e) {
             console.log("message", e.data);
             if (globals.onData) {
                 globals.onData(e.data);
             }
         };
-        self.sock.onerror = function (e) {
+        self.sock.onerror = function(e) {
             console.log("ws error: ", e);
         };
-        self.sock.onclose = function () {
+        self.sock.onclose = function() {
             console.log("ws closed.");
             if (self.sock.readyState !== 1) {
-                self.wsReopenTimer = setInterval(function () {
+                self.wsReopenTimer = setInterval(function() {
                     if (self.sock.readyState === 3) {
                         console.log("trying to reopen ws...");
                         self.sock.onopen();
@@ -66,12 +66,12 @@ class AnalyticsWs {
         } else {
             var numberOfTrials = 10;
             console.log('WS not ready yet...');
-            var wsResendTimer = setInterval(function () {
+            var wsResendTimer = setInterval(function() {
                 if (numberOfTrials == 0) {
                     clearInterval(wsResendTimer);
                     console.log("Sending message via WS has failed. Checking if fallback has been provided...");
                     if (fallback) {
-                        fallback(dataObj, function (result) {
+                        fallback(dataObj, function(result) {
                             if (result && result.error) {
                                 console.log("Error occured during fallback call");
                             } else {
@@ -95,5 +95,3 @@ class AnalyticsWs {
         }
     }
 }
-
-export let analyticsWs = new AnalyticsWs();
