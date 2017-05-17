@@ -18,9 +18,8 @@ class AnalyticsWs {
         // SockJS.CLOSED = 3;
     }
 
-    open(next) {
+    open(onData, next) {
         console.log('Opening WS...');
-
         var sessionId = function () {
             return globals.connection;
         };
@@ -35,6 +34,9 @@ class AnalyticsWs {
         };
         self.sock.onmessage = function (e) {
             console.log("message", e.data);
+            if (globals.onData) {
+                globals.onData(e.data);
+            }
         };
         self.sock.onerror = function (e) {
             console.log("ws error: ", e);
@@ -72,8 +74,8 @@ class AnalyticsWs {
                         fallback(dataObj, function (result) {
                             if (result && result.error) {
                                 console.log("Error occured during fallback call");
-                            }else{
-                                
+                            } else {
+
                             }
                         });
                     } else {

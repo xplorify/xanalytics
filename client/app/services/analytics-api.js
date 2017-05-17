@@ -1,6 +1,8 @@
 import { globals } from "../models/globals";
 
 var urls = {
+    getOpenConnections: globals.serverUrl + "/api/getOpenConnections",
+    getAnalytics: globals.serverUrl + "/api/getAnalytics",
     getGlobals: globals.serverUrl + "/api/ip/getGlobals",
     createConnection: globals.serverUrl + "/api/createConnection",
     addNewEvent: globals.serverUrl + "/api/addNewEvent",
@@ -17,6 +19,50 @@ class AnalyticsApi {
         self.timeInterval = 2000;
         self.wsReopenTimer = null;
         self.wsResendTimer = null;
+    }
+
+    getOpenConnections(code, next) {
+        console.log('Getting open connections...');
+        var req = new XMLHttpRequest();
+        var url = urls.getOpenConnections;
+        if (code) {
+            url = url + "?code=" + code;
+        }
+        req.open('GET', url, true);
+        req.send(null);
+        req.onreadystatechange = function () {
+            if (req.readyState === 4) {
+                var result = JSON.parse(req.responseText);
+                next(result.result);
+            }
+        };
+        req.onerror = function (err) {
+            console.log(err);
+            next({ error: true, message: req.responseText });
+        }
+    }
+
+    getAnalytics(options, next) {
+        var promise = Q.defer();
+        var req = new XMLHttpRequest();
+        var url = urls.getAnalytics + "?";
+        var i = 0;
+        for (var prop in options) {
+            url = url + (i > 0 ? "&" : "") + prop + "=" + encodeURIComponent(options[prop]);
+            i++;
+        }
+        req.open('GET', url, true);
+        req.send(null);
+        req.onreadystatechange = function () {
+            if (req.readyState === 4) {
+                var result = JSON.parse(req.responseText);
+                promise.resolve(result.result);
+            }
+        };
+        req.onerror = function () {
+            promise.reject(req.responseText);
+        }
+        return promise.promise;
     }
 
     getGlobals(next) {

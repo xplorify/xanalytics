@@ -9,11 +9,10 @@ var analyticsService = {};
 analyticsService.Connection = mongoose.model("connections", connectionSchema);
 
 analyticsService.createConnection = function(data) {
-    console.log("inside create conn ");
+    console.log("Creating connection... " + JSON.stringify(data.body));
     return new Promise(function(resolve, reject) {
         var db = mongoose.createConnection(config.xplorifyDb, { auth: { authdb: "admin" } });
         var connection = analyticsService.getNewConnectionObject(db, data);
-        console.log("db: " + db);
         console.log("CONN OBJ " + connection);
         return connection.save(function(err, response) {
                 if (!err) {
@@ -184,6 +183,7 @@ analyticsService.closeConnection = function(connectionId) {
 };
 
 analyticsService.addNewEvent = function(data) {
+    console.log("Adding new event...");
     return new Promise(function(resolve, reject) {
         var db = mongoose.createConnection(config.xplorifyDb, { auth: { authdb: "admin" } });
         var connectionModel = db.model("connections", connectionSchema);
@@ -207,7 +207,7 @@ analyticsService.addNewEvent = function(data) {
         return connectionModel.findByIdAndUpdate(data.connectionId, updateObject, { new: true })
             .exec()
             .then(function(response) {
-                console.log("Result: " + response);
+                console.log("New event was sucessfully added: " + response);
                 resolve(response);
             })
             .catch(function(err) {

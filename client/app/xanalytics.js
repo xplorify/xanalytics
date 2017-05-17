@@ -21,6 +21,9 @@ class XAnalytics {
             if (options.application && options.application.url) {
                 globals.application.url = options.application.url;
             }
+            if (options.onData) {
+                globals.onData = options.onData;
+            }
         }
         self.init();
     }
@@ -88,6 +91,10 @@ class XAnalytics {
         if (!globals.detectRtc.isWebSocketsSupported) {
             analyticsApi.closeConnection();
         }
+    }
+
+    setOnData(onData){
+        globals.onData = onData;
     }
 }
 

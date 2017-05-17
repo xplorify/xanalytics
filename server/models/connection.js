@@ -2,8 +2,8 @@
 
 var mongoose = require('mongoose');
 
-var connectionShema = {
-    connectionSchema: mongoose.Schema({
+var connectionShema =
+    mongoose.Schema({
         previousConnectionId: { type: String, index: true },
         userName: { type: String, index: true },
         startDate: { type: Date, index: true },
@@ -27,7 +27,6 @@ var connectionShema = {
             date: Date,
             info: Object
         }]
-    })
-};
+    });
 
 module.exports = connectionShema;

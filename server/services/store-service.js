@@ -22,7 +22,7 @@ storeService.removeUser = function(connectionId) {
 
 storeService.notifyAdmin = function(info) {
     // find admin connection and send him the connections count
-    console.log("Preparing to send message to admins with conection ids:  " + Object.keys(storeModel.admin));
+    console.log("Preparing to send message to admins with connection ids:  " + Object.keys(storeModel.admin));
     var infoString = JSON.stringify(info);
     console.log("Message: " + infoString);
     for (var k in storeModel.admin) {

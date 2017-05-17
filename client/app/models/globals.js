@@ -7,7 +7,8 @@ let result = {
     countryCode: null,
     connection: null,
     detectRtc: {},
-    userInfo: null
+    userInfo: null,
+    onData: null
 };
 result.userName = function () {
     var userName = result.userInfo
