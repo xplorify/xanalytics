@@ -8,6 +8,9 @@ class XAnalytics {
     constructor(options) {
         console.log("Constructing XAnalytics with options: " + JSON.stringify(options));
         self = this;
+        self.api = analyticsApi;
+        self.ws = analyticsWs;
+        
         if (options) {
             if (options.getUserInfoUrl !== undefined) {
                 globals.getUserInfoUrl = options.getUserInfoUrl;
