@@ -7,3 +7,4 @@ Run:
                 -v /xplorify/cert:/cert \
                 -e NODE_ENV="tst" \
 		xplorify/analytics`
+
