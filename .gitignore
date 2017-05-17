@@ -1,4 +1,5 @@
 server/node_modules/
 client/node_modules/
+client/npm-debug*
 client/dist/
 cert/certificate.pfx
