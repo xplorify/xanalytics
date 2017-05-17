@@ -17,7 +17,7 @@ analyticsWs.onClose = function(conn) {
             var infoObj = {
                 removeConnection: connectionId
             };
-            analyticsService.notifyAdmin(infoObj);
+            storeService.notifyAdmin(infoObj);
         });
 };
 
@@ -28,17 +28,17 @@ analyticsWs.onData = function(conn, message) {
     if (data.userName) {
         conn.userName = data.userName;
     }
-    storeService.addUser(conn);
+    storeService.addUser(connectionId, conn);
     return analyticsService.addNewEvent(data)
         .then(function(info) {
-            analyticsService.notifyAdmin(info);
+            storeService.notifyAdmin(info);
         });
 };
 
 analyticsWs.onConnection = function(conn) {
     console.log("New WS connection: " + conn);
     var connectionId = analyticsWs.getConnectionId(conn);
-
+    storeService.addUser(connectionId, conn);
     conn.on('data', function(message) { analyticsWs.onData(conn, message); });
     conn.on('close', function() { analyticsWs.onClose(conn); });
 };
