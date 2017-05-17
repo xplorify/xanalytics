@@ -10,7 +10,7 @@ class XAnalytics {
         self = this;
         self.api = analyticsApi;
         self.ws = analyticsWs;
-        
+
         if (options) {
             if (options.getUserInfoUrl !== undefined) {
                 globals.getUserInfoUrl = options.getUserInfoUrl;
@@ -34,10 +34,17 @@ class XAnalytics {
     init() {
         console.log("Initializing event handlers...");
         window.addEventListener('load', self.onLoad);
-        window.addEventListener('pushstate', self.onUrlChange);
         window.addEventListener('popstate', self.onUrlChange);
         window.addEventListener('hashchange', self.onUrlChange);
         window.addEventListener('unload', self.onUnload, false);
+
+        var pushState = history.pushState;
+        history.pushState = function () {
+            pushState.apply(history, arguments);
+            // fireEvents('pushState', arguments);  // Some event-handling function
+            console.log("Inside push state: " + window.location.href);
+            onUrlChange();
+        };
     }
 
     send(data) {
@@ -96,7 +103,7 @@ class XAnalytics {
         }
     }
 
-    setOnData(onData){
+    setOnData(onData) {
         globals.onData = onData;
     }
 }
