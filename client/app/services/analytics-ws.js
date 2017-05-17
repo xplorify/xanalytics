@@ -18,7 +18,7 @@ class AnalyticsWs {
         // SockJS.CLOSED = 3;
     }
 
-    open(onData, next) {
+    open(next) {
         console.log('Opening WS...');
         var sessionId = function () {
             return globals.connection;
