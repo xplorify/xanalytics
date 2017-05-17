@@ -34,6 +34,7 @@ export default class AnalyticsApi {
         req.onreadystatechange = function() {
             if (req.readyState === 4) {
                 var result = JSON.parse(req.responseText);
+                console.log("Getting open connections was successful.");
                 next(result.result);
             }
         };
@@ -44,6 +45,7 @@ export default class AnalyticsApi {
     }
 
     getAnalytics(options, next) {
+        console.log("Getting Analytics..");
         var promise = Q.defer();
         var req = new XMLHttpRequest();
         var url = self.urls.getAnalytics + "?";
@@ -57,6 +59,7 @@ export default class AnalyticsApi {
         req.onreadystatechange = function() {
             if (req.readyState === 4) {
                 var result = JSON.parse(req.responseText);
+                console.log("Getting Analytics was successful");
                 promise.resolve(result.result);
             }
         };

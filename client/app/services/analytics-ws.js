@@ -8,7 +8,7 @@ export default class AnalyticsWs {
     constructor() {
         self = this;
         self.sock = null;
-        self.timeInterval = 2000;
+        self.timeInterval = globals.timeInterval;
         self.urls = {
             ws: globals.serverUrl + "/echo"
         };
@@ -27,26 +27,26 @@ export default class AnalyticsWs {
             sessionId: sessionId
         });
         self.sock.onopen = function() {
-            console.log("ws opened.");
+            console.log("WS opened.");
             if (self.wsReopenTimer) {
                 clearInterval(self.wsReopenTimer);
             }
         };
         self.sock.onmessage = function(e) {
-            console.log("message", e.data);
+            console.log("Message", e.data);
             if (globals.onData) {
                 globals.onData(e.data);
             }
         };
         self.sock.onerror = function(e) {
-            console.log("ws error: ", e);
+            console.log("WS error: ", e);
         };
         self.sock.onclose = function() {
-            console.log("ws closed.");
+            console.log("WS closed.");
             if (self.sock.readyState !== 1) {
                 self.wsReopenTimer = setInterval(function() {
                     if (self.sock.readyState === 3) {
-                        console.log("trying to reopen ws...");
+                        console.log("Trying to reopen WS...");
                         self.sock.onopen();
                     }
 
@@ -64,7 +64,7 @@ export default class AnalyticsWs {
             var data = JSON.stringify(dataObj);
             self.sock.send(data);
         } else {
-            var numberOfTrials = 10;
+            var numberOfTrials = globals.numberOfTrials;
             console.log('WS not ready yet...');
             var wsResendTimer = setInterval(function() {
                 if (numberOfTrials == 0) {
@@ -73,13 +73,13 @@ export default class AnalyticsWs {
                     if (fallback) {
                         fallback(dataObj, function(result) {
                             if (result && result.error) {
-                                console.log("Error occured during fallback call");
+                                console.log("Error occured during fallback call.");
                             } else {
 
                             }
                         });
                     } else {
-                        console.log("No fallback was provided");
+                        console.log("No fallback was provided.");
                     }
                 }
 
