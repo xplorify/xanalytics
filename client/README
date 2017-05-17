@@ -1,0 +1,10 @@
+How to use it:
+- var xa = new XAnalytics(options);
+
+
+Possible options:
+- getUserInfoUrl: url to obtain user information based on token stored in local storage or session storage
+- serverUrl: url where to log the analytics data
+- application: json object 
+    - code: application code as identifier 
+    - url: application url

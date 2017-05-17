@@ -1,6 +1,7 @@
 var config = {};
 config.env = "prd";
 config.httpsPort = 444;
+config.jwtSecret = "pvpnCCZfwOF85pBjbOebZiYIDhZ3w9LZrKwBZ7152K89mPCOHtbRlmr5Z91ci4L";
 config.xplorifyDb = "mongodb://XplorifyAdmin:Xp12345!@live.xplorify.net:1212/xplorifydb";
 config.serverUrl = "https://live.xplorify.net:444";
 config.freeGeoIpUrl = "http://138.201.48.14:1234/json";

@@ -1,23 +1,21 @@
 "use strict";
 
 var mongoose = require('mongoose'),
-    config = require("../../config"),
-    connectionSchema = require("./models/connection").connectionSchema,
+    config = require("../config"),
+    connectionSchema = require("../models/connection"),
     util = require('util');
 mongoose.Promise = require('bluebird');
 var analyticsService = {};
 analyticsService.Connection = mongoose.model("connections", connectionSchema);
 
 analyticsService.createConnection = function(data) {
-    console.log("inside create conn ");
+    console.log("Creating connection... " + JSON.stringify(data.body));
     return new Promise(function(resolve, reject) {
         var db = mongoose.createConnection(config.xplorifyDb, { auth: { authdb: "admin" } });
         var connection = analyticsService.getNewConnectionObject(db, data);
-        console.log("db: " + db);
         console.log("CONN OBJ " + connection);
         return connection.save(function(err, response) {
                 if (!err) {
-                    // console.log("Result: " + response);
                     resolve(response);
                 } else {
                     reject(new Error(err));
@@ -77,8 +75,30 @@ analyticsService.getAnalytics = function(data) {
         var db = mongoose.createConnection(config.xplorifyDb, { auth: { authdb: "admin" } });
         var connectionModel = db.model("connections", connectionSchema);
         console.log("before find");
-        console.log("username: " + data.username);
-        var query = { '$match': { "userName": data.username, "startDate": { "$lt": new Date(data.to), "$gt": new Date(data.from) } } }
+        var query = data.navigateTo ?
+            data.groupBy ? [
+                { '$match': { "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) }, "events.url": data.navigateTo } },
+                { '$group': { "_id": '$' + data.groupBy, "connections": { $push: "$$ROOT" } } }
+            ] : { '$match': { "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) }, "events.url": data.navigateTo } } :
+            data.groupBy ? [
+                { '$match': { "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) } } },
+                { '$group': { "_id": '$' + data.groupBy, "connections": { $push: "$$ROOT" } } }
+            ] : { '$match': { "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) } } }
+
+        if (data.username) {
+            query.$match.userName = data.username;
+        }
+        if (data.ipAddress) {
+            query.$match.remoteAddress = data.ipAddress;
+        }
+        if (data.countryCode) {
+            query.$match.countryCode = data.countryCode;
+        }
+        if (data.referrer) {
+            query.$match.referrer = data.referrer;
+        }
+
+        console.log("query " + JSON.stringify(query));
         return connectionModel.aggregate(query)
             .exec(function(err, response) {
                 if (!err) {
@@ -116,7 +136,7 @@ analyticsService.closeOpenConnections = function() {
     });
 };
 
-analyticsService.getConnectionByConnectionId = function(id) {
+analyticsService.getConnectionById = function(id) {
     return new Promise(function(resolve, reject) {
         var db = mongoose.createConnection(config.xplorifyDb, { auth: { authdb: "admin" } });
         var connectionModel = db.model("connections", connectionSchema);
@@ -163,6 +183,7 @@ analyticsService.closeConnection = function(connectionId) {
 };
 
 analyticsService.addNewEvent = function(data) {
+    console.log("Adding new event...");
     return new Promise(function(resolve, reject) {
         var db = mongoose.createConnection(config.xplorifyDb, { auth: { authdb: "admin" } });
         var connectionModel = db.model("connections", connectionSchema);
@@ -171,11 +192,10 @@ analyticsService.addNewEvent = function(data) {
             $push: {
                 events: {
                     eventType: data.eventType,
+                    url: data.to,
                     date: new Date().toISOString(),
                     info: {
                         roomId: data.roomId,
-                        from: data.from,
-                        to: data.to,
                         loginType: data.loginType
                     }
                 }
@@ -184,6 +204,36 @@ analyticsService.addNewEvent = function(data) {
         if (isUserNamePresent) {
             updateObject.$set = { userName: data.userName };
         }
+        return connectionModel.findByIdAndUpdate(data.connectionId, updateObject, { new: true })
+            .exec()
+            .then(function(response) {
+                console.log("New event was sucessfully added: " + response);
+                resolve(response);
+            })
+            .catch(function(err) {
+                reject(new Error(err));
+            })
+            .finally(function() {
+                db.close();
+            });
+    });
+};
+
+analyticsService.addUserInfo = function(data) {
+    return new Promise(function(resolve, reject) {
+        var db = mongoose.createConnection(config.xplorifyDb, { auth: { authdb: "admin" } });
+        var connectionModel = db.model("connections", connectionSchema);
+        var isUserNamePresent = data.userName && data.userName !== "Anonymous";
+        var updateObject = {
+            $set: {
+                 userName: data.userName,
+                 userInfo: {
+                     firstName: data.firstName,
+                     lastName: data.lastName,
+                     email: data.email
+                 }
+            }
+        };
         return connectionModel.findByIdAndUpdate(data.connectionId, updateObject, { new: true })
             .exec()
             .then(function(response) {
@@ -210,14 +260,14 @@ analyticsService.getNewConnectionObject = function(db, data) {
         referrer: data.body.referrer,
         application: data.body.application,
         events: [{
-            eventType: data.body.eventType
+            eventType: data.body.eventType,
+            date: new Date().toISOString(),
+            url: data.body.to
         }]
     };
     var connectionModel = db.model("connections", connectionSchema);
     var connection = new connectionModel(obj);
     return connection;
 };
-
-
 
 module.exports = analyticsService;

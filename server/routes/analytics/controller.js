@@ -1,11 +1,26 @@
 "use strict";
 
-var mongoose = require("mongoose");
-var analyticsService = require("../services/analytics/analytics-service");
-var storeService = require("../services/store/store-service");
+var analyticsService = require("../../services/analytics-service");
+var storeService = require("../../services/store-service");
 
-module.exports = function(app) {
-    app.get("/getConnections", function(req, res) {
+
+module.exports = {
+    getConnection: function(req, res) {
+        res.header("Content-Type", "application/json");
+        var id = req.params.connectionId;
+        console.log(id);
+        return analyticsService
+            .getConnectionById(id)
+            .then(function(result) {
+                console.log("result " + result);
+                res.send({ result: result });
+            })
+            .catch(function(err) {
+                res.status(500);
+                res.send({ error: err });
+            });
+    },
+    getConnections: function(req, res) {
         res.header("Content-Type", "application/json");
         return analyticsService
             .getConnections()
@@ -17,27 +32,8 @@ module.exports = function(app) {
                 res.status(500);
                 res.send({ error: err });
             });
-    });
-
-    app.get("/getConnection/:connectionId", function(req, res) {
-        "use strict";
-        res.header("Content-Type", "application/json");
-        var id = req.params.connectionId;
-        console.log(id);
-        return analyticsService
-            .getConnectionByConnectionId(id)
-            .then(function(result) {
-                console.log("result " + result);
-                res.send({ result: result });
-            })
-            .catch(function(err) {
-                res.status(500);
-                res.send({ error: err });
-            });
-    });
-
-    app.get("/getOpenConnections", function(req, res) {
-        "use strict";
+    },
+    getOpenConnections: function(req, res) {
         var code = req.query.code;
         console.log("code " + code);
         res.header("Content-Type", "application/json");
@@ -51,14 +47,17 @@ module.exports = function(app) {
                 res.status(500);
                 res.send({ error: err });
             });
-    });
-
-    app.get("/getAnalytics", function(req, res) {
-        "use strict";
+    },
+    getAnalytics: function(req, res) {
         var data = {
             from: req.query.from,
             to: req.query.to,
-            username: req.query.username
+            username: req.query.username,
+            countryCode: req.query.countryCode,
+            ipAddress: req.query.ipAddress,
+            referrer: req.query.referrer,
+            navigateTo: req.query.navigateTo,
+            groupBy: req.query.groupBy
         };
         console.log("data " + JSON.stringify(data));
         res.header("Content-Type", "application/json");
@@ -72,10 +71,8 @@ module.exports = function(app) {
                 res.status(500);
                 res.send({ error: err });
             });
-    });
-
-    app.post("/createConnection", function(req, res) {
-        "use strict";
+    },
+    createConnection: function(req, res) {
         res.header("Content-Type", "application/json");
         var data = {
             body: req.body
@@ -105,10 +102,8 @@ module.exports = function(app) {
                 res.status(500);
                 res.send({ error: err });
             });
-    });
-
-    app.post("/addNewEvent", function(req, res) {
-        "use strict";
+    },
+    addNewEvent: function(req, res) {
         res.header("Content-Type", "application/json");
         console.log("Add new event " + JSON.stringify(req.body));
         console.log("create connection request start");
@@ -122,10 +117,22 @@ module.exports = function(app) {
                 res.status(500);
                 res.send({ error: err });
             });
-    });
-
-    app.post("/closeConnection", function(req, res) {
-        "use strict";
+    },
+    addUserInfo: function(req, res) {
+        res.header("Content-Type", "application/json");
+        console.log("Add new event " + JSON.stringify(req.body));
+        console.log("create connection request start");
+        return analyticsService
+            .addUserInfo(req.body)
+            .then(function(result) {
+                res.send({ result: result });
+            })
+            .catch(function(err) {
+                res.status(500);
+                res.send({ error: err });
+            });
+    },
+    closeConnection: function(req, res) {
         res.header("Content-Type", "application/json");
         console.log("Add new event " + JSON.stringify(req.body.connectionId));
         console.log("create connection request start");
@@ -145,5 +152,5 @@ module.exports = function(app) {
                 res.status(500);
                 res.send({ error: err });
             });
-    });
+    }
 };

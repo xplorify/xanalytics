@@ -9,7 +9,7 @@ var readline = require('readline').createInterface({
 });
 var cipher = require('./cipher');
 var collection;
-var keystore = path.resolve(__dirname, 'cert/.woogeen.keystore');
+var keystore = path.resolve(__dirname, '.woogeen.keystore');
 var allComps = ['sample'];
 
 console.log('Will generate passphrase store for basic server.');

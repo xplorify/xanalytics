@@ -1,0 +1,1 @@
+var xAnalytics = new XAnalytics();
