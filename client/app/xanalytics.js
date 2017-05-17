@@ -23,6 +23,12 @@ class XAnalytics {
             if (options.application && options.application.url) {
                 globals.application.url = options.application.url;
             }
+            if (options.timeInterval) {
+                globals.timeInterval = options.timeInterval;
+            }
+            if (options.numberOfTrials) {
+                globals.numberOfTrials = options.numberOfTrials;
+            }
             if (options.onData) {
                 globals.onData = options.onData;
             }
