@@ -1,10 +1,13 @@
 server/node_modules/
 client/node_modules/
+dashboard/node_modules/
 
 client/dist/
+dashboard/dist/
 
 cert/certificate.pfx
 
 client/npm-debug*
+dashboard/npm-debug*
 server/npm-debug*
 npm-debug*
