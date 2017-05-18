@@ -68,12 +68,13 @@ export default class AnalyticsWs {
             var numberOfTrials = globals.numberOfTrials;
             console.log('WS not ready yet...');
             var wsResendTimer = setInterval(function() {
-                if (numberOfTrials <= -5){
+                dataObj.connectionId = globals.connection;
+
+                if (numberOfTrials <= -5) {
                     clearInterval(wsResendTimer);
                     console.log("Sending message because connection was not initialized.");
                     return;
                 }
-                dataObj.connectionId = globals.connection;
                 if (numberOfTrials <= 0 && globals.initialized) {
                     clearInterval(wsResendTimer);
                     console.log("Sending message via WS has failed. Checking if fallback has been provided...");

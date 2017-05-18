@@ -16,6 +16,7 @@ let result = {
     countryCode: null,
     connection: null,
     detectRtc: {},
+    authToken: null,
     userInfo: null
 };
 result.userName = function() {

@@ -59,43 +59,39 @@ class XAnalytics {
     }
 
     send(data) {
-        console.log("Sending data: " + JSON.stringify(data));
-        self.ws.send(data, self.api.send);
+        var accessToken = window.sessionStorage["accessToken"] || window.localStorage["accessToken"];
+        if (accessToken && globals.authToken != accessToken) {
+            self.api.getUserInfo(function() {
+                globals.authToken = accessToken;
+                console.log("Sending data: " + JSON.stringify(data));
+                self.ws.send(data, self.api.send);
+            });
+        } else {
+            console.log("Sending data: " + JSON.stringify(data));
+            self.ws.send(data, self.api.send);
+        }
     }
 
     onLoad() {
         console.log("On page load...");
         self.api.getGlobals(function(err) {
-            if (!err){
+            if (!err) {
                 self.utils.detectRtc(function() {
-                self.api.getUserInfo(function(err) {
                     self.api.createConnection(function(err) {
-                        var userName = globals.userName();
-                        var dataObj = {
-                            userName: userName,
-                            connectionId: globals.connection,
-                            referrer: document.referrer,
-                            to: window.location.href,
-                            eventType: "Navigate"
-                        }
-                        if (globals.detectRtc.isWebSocketsSupported) {
+                        if (!err) {
+                            var dataObj = {
+                                referrer: document.referrer,
+                                to: window.location.href,
+                                eventType: "Navigate"
+                            }
                             self.ws.open(function(err) {
-                                self.ws.send(dataObj, self.api.send);
+                                self.send(dataObj);
                             });
-                        } else {
-                            //if web socket is not supported add new event using ajax request and also send message to admin
-                            self.api.send(dataObj, function(err) {
-                                if (err) {
-                                    console.log(err);
-                                }
-                            });
+                            globals.initialized = true;
                         }
-                        globals.initialized = true;
                     });
-                })
-            });
+                });
             }
-            
         });
     }
 
