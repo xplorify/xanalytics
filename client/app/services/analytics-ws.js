@@ -59,33 +59,40 @@ export default class AnalyticsWs {
     send(dataObj, fallback) {
         console.log('Sending Navigate event via WS...');
 
-        if (self && self.sock && self.sock.readyState === 1) {
+        if (self && self.sock && self.sock.readyState === 1 && globals.initialized) {
             console.log('WS ready...');
+            dataObj.connectionId = globals.connection;
             var data = JSON.stringify(dataObj);
             self.sock.send(data);
         } else {
             var numberOfTrials = globals.numberOfTrials;
             console.log('WS not ready yet...');
             var wsResendTimer = setInterval(function() {
-                if (numberOfTrials == 0) {
+                if (numberOfTrials <= -5){
+                    clearInterval(wsResendTimer);
+                    console.log("Sending message because connection was not initialized.");
+                    return;
+                }
+                dataObj.connectionId = globals.connection;
+                if (numberOfTrials <= 0 && globals.initialized) {
                     clearInterval(wsResendTimer);
                     console.log("Sending message via WS has failed. Checking if fallback has been provided...");
                     if (fallback) {
                         fallback(dataObj, function(result) {
                             if (result && result.error) {
                                 console.log("Error occured during fallback call.");
-                            } else {
-
+                                return;
                             }
                         });
                     } else {
                         console.log("No fallback was provided.");
+                        return;
                     }
                 }
 
                 var data = JSON.stringify(dataObj);
                 console.log("Trying to send message: " + data);
-                if (self && self.sock && self.sock.readyState === 1) {
+                if (self && self.sock && self.sock.readyState === 1 && globals.initialized) {
                     console.log('WS ready...');
                     self.sock.send(data);
                     clearInterval(wsResendTimer);

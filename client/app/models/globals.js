@@ -7,9 +7,11 @@ let result = {
     timeInterval: 2000,
     numberOfTrials: 5,
     onData: null,
+    
 
 
     // output
+    initialized: false,
     ipAddress: null,
     countryCode: null,
     connection: null,

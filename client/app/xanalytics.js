@@ -66,7 +66,8 @@ class XAnalytics {
     onLoad() {
         console.log("On page load...");
         self.api.getGlobals(function(err) {
-            self.utils.detectRtc(function() {
+            if (!err){
+                self.utils.detectRtc(function() {
                 self.api.getUserInfo(function(err) {
                     self.api.createConnection(function(err) {
                         var userName = globals.userName();
@@ -89,9 +90,12 @@ class XAnalytics {
                                 }
                             });
                         }
+                        globals.initialized = true;
                     });
                 })
             });
+            }
+            
         });
     }
 
