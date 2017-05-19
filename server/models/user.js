@@ -14,7 +14,7 @@ var userSchema = new Schema({
     roles: [{
         type: String,
         enum: ['admin', 'teacher', 'student'],
-        default: 'student'
+        default: 'admin'
     }]
 }, {
     timestamps: true

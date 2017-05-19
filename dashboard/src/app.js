@@ -1,14 +1,21 @@
-import {PLATFORM} from 'aurelia-pal';
+import { PLATFORM } from 'aurelia-pal';
+import '../assets/css/w3-version4.css';
+import '../assets/css/w3.css';
+import { route } from './routes';
+import { globals } from '../globals';
+import { XAnalytics } from "xplorify.analytics.client/dist/app";
 
 export class App {
+  constructor() {
+    var options = { application: globals.application, serverUrl: globals.serverUrl, getUserInfoUrl: globals.getUserInfoLocation };
+    globals.xAnalytics = new window.XAnalytics(options);
+  }
+
   configureRouter(config, router) {
-    config.title = 'Aurelia';
-    config.map([
-      { route: ['', 'welcome'], name: 'welcome',      moduleId: PLATFORM.moduleName('./welcome'),      nav: true, title: 'Welcome' },
-      { route: 'users',         name: 'users',        moduleId: PLATFORM.moduleName('./users'),        nav: true, title: 'Github Users' },
-      { route: 'child-router',  name: 'child-router', moduleId: PLATFORM.moduleName('./child-router'), nav: true, title: 'Child Router' }
-    ]);
+    config.title = 'Admin Dashboard';
+    config.map(route);
 
     this.router = router;
   }
+
 }

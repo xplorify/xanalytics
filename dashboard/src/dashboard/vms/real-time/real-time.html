@@ -1,0 +1,100 @@
+<template>
+  <div class="alert alert-info font-size-larger text-center">
+    <div class="row">
+      <span class="col-md-4 margin-right-2">
+<span class="col-md-7">
+    <select value.bind="selectedApplication" change.trigger="onChange()">
+        <option value="">-Choose Application-</option>
+        <option value="${application}" repeat.for="application of applications">${application.code}</option>
+    </select>
+  </span>
+      <span class="col-md-3">
+      <button class="w3-btn w3-small w3-green margin-right-2" click.delegate ="refresh()">
+            <i class="fa fa-refresh"></i>
+        </button>
+    </span>
+      </span>
+      <span class="col-md-4">
+           <i class="fa fa-info-circle margin-right-1"></i>
+           <span>Connections count</span>
+           <span>${getConnectionsCount()}</span>
+      </span>
+    </div>
+  </div>
+  <div class="col-md-12">
+    <div repeat.for="connections of getGroupedConnections">
+      <div class="panel panel-info border-radius-0">
+        <div class="panel-heading hand-pointer" data-toggle="collapse" data-bind="attr: { href: '#' + to + 'Collapse', 'data-parent': '#' + to + 'Accordion' }"
+          href="" data-parent="">
+          <h5 class="panel-title">
+            <div class="row">
+              <div class="col-xs-12 col-sm-12 col-lg-9 col-md-9">
+                <span data-bind="tooltip: {title: $root.resources().navigateTo + ' ' + $data.connections[0].conn.lastNavigateEvent().url(), placement: 'top'}">
+                                <button class="w3-btn w3-small w3-blue" data-bind="click: function(){ return $root.goToUrl($data)}">
+                                <i class="fa fa-reply"></i>
+                            </button>
+                                </span>
+                <span data-bind="text: to"></span>
+                <a data-toggle="collapse" data-bind="attr: { href: '#' + to + 'Collapse', 'data-parent': '#' + to + 'Accordion' }" data-parent="">
+                            </a>
+              </div>
+              <div class="col-xs-12 col-sm-6 col-lg-3 col-md-3">
+                <span class="pull-right">
+                                <span class="badge" data-bind="text: $data.connections.length"></span>
+                </span>
+              </div>
+            </div>
+          </h5>
+        </div>
+        <div class="collapse" data-bind="attr: { id: to + 'Collapse' }">
+          <br/>
+          <div class="panel-body">
+            <ul class="list-group ">
+              <!-- ko foreach: connections -->
+              <li data-bind="attr: { id: conn.id() }" class="list-group-item">
+                <!-- ko if: $root.isNotAnonymous(conn.userName()) -->
+                <a data-bind="attr: { href: $root.getProfileUrl(conn)}">
+                                <span data-bind="text: conn.userName()"></span>
+                            </a>,
+                <!--/ko-->
+                <!-- ko if: !$root.isNotAnonymous(conn.userName()) -->
+                <span data-bind="text: conn.userName()"></span>,
+                <!--/ko-->
+                <span data-bind="text: $root.getCountry(conn.countryCode())"></span>,
+                <span data-bind="text: conn.remoteAddress()"></span>,
+                <span data-bind="with : conn.detectRtc()">
+                                      <span data-bind="text: browser.name"></span> (
+                <span data-bind="text: browser.version"></span> ),
+                <span data-bind="text: osName"></span> (
+                <span data-bind="text: osVersion"></span> )
+                <span class="pull-right">
+                                  <button class="w3-btn w3-small w3-green" data-bind="visible: hasMicrophone">
+                                     <i class="fa fa-microphone"></i>
+                                </button>
+                                <button class="w3-btn w3-small w3-red" data-bind="visible: !hasMicrophone">
+                                    <i class="fa fa-microphone-slash"></i>
+                                 </button>
+                                <button class="w3-btn w3-small w3-green" data-bind="visible: hasWebcam">
+                                   <i class="fa fa-video-camera"></i>
+                                </button>
+                                <button class="w3-btn w3-small w3-red" data-bind="visible: !hasWebcam">
+                                    <i class="fa fa-video-camera"></i>
+                                </button>
+                                <button class="w3-btn w3-small w3-green" data-bind="visible: hasSpeakers">
+                                   <i class="fa fa-volume-up"></i>
+                                </button>
+                                <button class="w3-btn w3-small w3-red" data-bind="visible: !hasSpeakers">
+                                    <i class="fa fa-volume-off"></i>
+                                </button>
+                                </span>
+                </span>
+              </li>
+
+              <!--/ko-->
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
