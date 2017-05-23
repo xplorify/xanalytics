@@ -1,27 +1,22 @@
-import { PLATFORM } from 'aurelia-pal';
-import '../assets/css/w3-version4.css';
-import '../assets/css/accordionStyles.css';
-import '../assets/css/w3.css';
-import { route } from './routes';
-import { globals } from '../globals';
-import { XAnalytics } from "xplorify.analytics.client/dist/app";
+import { routes } from './routes';
+import { globals } from './models/globals';
+import { XAnalytics } from 'xplorify.analytics.client/dist/app';
 
 export class App {
   constructor() {
-    var options = { application: globals.application, serverUrl: globals.serverUrl, getUserInfoUrl: globals.getUserInfoLocation };
+    let options = {
+      application: globals.application,
+      serverUrl: globals.serverUrl,
+      getUserInfoUrl: globals.getUserInfoLocation
+    };
     globals.xAnalytics = new window.XAnalytics(options);
   }
 
   configureRouter(config, router) {
     config.title = 'Admin Dashboard';
     config.options.pushState = true;
-    config.map(route);
+    config.map(routes);
 
     this.router = router;
   }
-
-  activate(){
-    console.log("In activate");
-  }
-
 }

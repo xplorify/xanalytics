@@ -1,0 +1,19 @@
+<template>
+  <div class="w3-row">
+    <i class="fa fa-info-circle"></i>
+    <span>Connections count</span>
+    <span>${getConnectionsCount}</span>
+  </div>
+  <div class="w3-row">
+    <select value.bind="selectedApplication" change.trigger="onChange()">
+      <option value="">-Choose Application-</option>
+      <option model.bind="application" repeat.for="application of applications">${application.code}</option>
+    </select>
+  </div>
+  <div class="w3-row">
+    <button class="w3-btn w3-small w3-green" click.delegate="refresh()">
+      <i class="fa fa-refresh"></i>
+    </button>
+  </div>
+</div>
+</template>

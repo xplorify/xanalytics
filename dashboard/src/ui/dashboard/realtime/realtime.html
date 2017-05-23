@@ -1,0 +1,18 @@
+<template>
+  <require from="./ui/accordion"></require>
+  <require from="./ui/filter"></require>
+  <div class="w3-row">
+    <div class="w3-col s4">
+      <div class="w3-row">
+        <filter analytics-model.bind="analyticsModel" on-change.bind="onChange">
+        </filter>
+      </div>
+    </div>
+    <div class="w3-col s8">
+      <div class="w3-row" repeat.for="accordion of getAccordions">
+        <accordion accordion.bind="accordion"></accordion>
+      </div>
+    </div>
+  </div>
+  
+</template>
