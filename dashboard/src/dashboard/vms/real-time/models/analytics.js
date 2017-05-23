@@ -1,27 +1,30 @@
-import { computedFrom } from 'aurelia-framework';
 import * as _ from "underscore";
-import {ObserverLocator} from 'aurelia-framework';
-import {inject} from 'aurelia-framework'; // or from 'aurelia-framework'
+import { inject } from 'aurelia-framework';
+import { BindingEngine } from 'aurelia-binding';
+import { computedFrom } from 'aurelia-framework';
+import { sort } from '../../../../../services/sort';
 
 let self;
-@inject(ObserverLocator)
-class AnalyticsModel {
-    constructor(observerLocator) {
+export class AnalyticsModel {
+
+    constructor(bindingEngine) {
+
         this.connections = [];
-        this.arrayObserver = observerLocator.getArrayObserver;
-        this.arrayObserver(this.connections).subscribe(() => console.log(this.connections));
-        // Dispose of observer when you are done via: subscription.dispose();
+        this.bindingEngine = bindingEngine;
         self = this;
+        let subscription = this.bindingEngine.collectionObserver(this.connections)
+            .subscribe(splices => console.log(splices));
     }
 
-    groupByUrl() {
-        if (self && self.connections()) {
+    @computedFrom('connections')
+    get groupByUrl() {
+        if (self && self.connections) {
             var lastUrls = [];
-            _.each(self.connections(), function (item) {
-                if (item.lastNavigateEvent() && item.lastNavigateEvent().url()) {
+            _.each(self.connections, function (item) {
+                if (item.lastNavigateEvent && item.lastNavigateEvent.url) {
                     lastUrls.push({
                         conn: item,
-                        to: item.lastNavigateEvent().toFormatted()
+                        to: item.lastNavigateEvent.toFormatted
                     });
                 }
             });
@@ -41,16 +44,15 @@ class AnalyticsModel {
 
         return [];
     }
-    // @computedFrom('groupByUrl')
 
     groupByUrlAndCode(code) {
-        if (self && self.connections()) {
+        if (self && self.connections) {
             var lastUrls = [];
-            _.each(self.connections(), function (item) {
-                if (item.lastNavigateEvent() && item.application().code === code) {
+            _.each(self.connections, function (item) {
+                if (item.lastNavigateEvent && item.application.code === code) {
                     lastUrls.push({
                         conn: item,
-                        to: item.lastNavigateEvent().toFormatted()
+                        to: item.lastNavigateEvent.toFormatted
                     });
                 }
             });
@@ -73,20 +75,20 @@ class AnalyticsModel {
 
     merge(conn) {
         //find existing connection
-        var existing = _.find(self.connections(), function (connection) {
-            return conn.id() === connection.id();
+        var existing = _.find(self.connections, function (connection) {
+            return conn.id === connection.id;
         });
 
         if (existing) {
             //add missing events
-            var mergedEvents = existing.events().concat(conn.events());
+            var mergedEvents = existing.events.concat(conn.events);
             var events = sort.sortEventsByDateAscending(mergedEvents);
             var uniqueEvents = _.uniq(events, function (event) {
-                return event.id();
+                return event.id;
             })
-            existing.events(uniqueEvents);
-            existing.userName(conn.userName());
-            self.connections.valueHasMutated();
+            existing.events = uniqueEvents;
+            existing.userName = conn.userName;
+            // self.connections.valueHasMutated();
         }
         else {
             self.connections.push(conn);
@@ -94,8 +96,8 @@ class AnalyticsModel {
     }
 
     remove(connectionId) {
-        self.connections.remove(function (item) { return item.id() === connectionId; })
+        self.connections.remove(function (item) {
+            return item.id === connectionId;
+        });
     }
 }
-
-export let analyticsModel = new AnalyticsModel();

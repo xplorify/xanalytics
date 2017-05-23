@@ -1,5 +1,6 @@
 import { PLATFORM } from 'aurelia-pal';
 import '../assets/css/w3-version4.css';
+import '../assets/css/accordionStyles.css';
 import '../assets/css/w3.css';
 import { route } from './routes';
 import { globals } from '../globals';
@@ -13,9 +14,14 @@ export class App {
 
   configureRouter(config, router) {
     config.title = 'Admin Dashboard';
+    config.options.pushState = true;
     config.map(route);
 
     this.router = router;
+  }
+
+  activate(){
+    console.log("In activate");
   }
 
 }

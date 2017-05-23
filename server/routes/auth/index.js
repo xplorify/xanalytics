@@ -17,5 +17,9 @@ authRoutes.get(
     '/protected',
     requireAuth,
     controller.protected);
+authRoutes.get(
+    '/getUserInfo',
+    requireAuth,
+    controller.getUserInfo);
 
 module.exports = authRoutes;

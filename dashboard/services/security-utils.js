@@ -15,26 +15,6 @@ class SecurityUtils {
 
         return {};
     }
-
-    verifyStateMatch(fragment) {
-        var state;
-
-        if (typeof (fragment.access_token) !== "undefined") {
-            state = storage.getSession("state")
-            storage.removeSession("state");
-
-            if (state === null || fragment.state !== state) {
-                fragment.error = "invalid_state";
-            }
-        }
-    }
-
-    cleanUpLocation() {
-        window.location.hash = "";
-        if (history && typeof (history.pushState) !== "undefined") {
-            history.pushState("", document.title, location.pathname);
-        }
-    }
 }
 
 export let securityUtils = new SecurityUtils();

@@ -1,6 +1,6 @@
 let urls = {
     home: '',
-    dashboard: { realTime: "/dashboard/realTime", analytics: "/dashboard/analytics" }    
+    dashboard: { realTime: "/dashboard/", analytics: "/dashboard/analytics" }    
 };
 
 export let routes = {

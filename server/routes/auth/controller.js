@@ -94,6 +94,10 @@ module.exports = {
     protected: function(req, res, next) {
         res.send({ content: 'Success' });
     },
+    getUserInfo: function(req, res, next) {
+        console.log("Request user: " + JSON.stringify(req.user));
+        res.send(setUserInfo(req.user));
+    },
     roleAuthorization: function(roles) {
         return function(req, res, next) {
 

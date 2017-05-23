@@ -1,5 +1,5 @@
 ﻿import { globals } from '../globals';
-//
+
 var urls = {
     login: globals.serverUrl + '/api/auth/login',
     register: globals.serverUrl + '/api/auth/register',

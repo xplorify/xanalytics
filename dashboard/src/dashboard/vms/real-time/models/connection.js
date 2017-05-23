@@ -2,37 +2,74 @@ import { computedFrom } from 'aurelia-framework';
 import { observable } from 'aurelia-framework';
 import Event from './event';
 import DetectRtcModel from './detectRtc';
+import * as _ from "underscore";
+import { enums } from '../../../../../enums';
+import { sort } from '../../../../../services/sort';
 
-export default class Connection {
-    constructor(data) {
-        var self = this;
-        this.events = ko.observableArray([]);
-       
-        this.id = ko.observable(data._id ? data._id : null);
-        this.prevId = ko.observable(data.previousConnectionId ? data.previousConnectionId : null);
-        this.countryCode = ko.observable(data.countryCode ? data.countryCode : null);
-        this.userName = ko.observable(data.userName ? data.userName : null);
-        this.referrer = ko.observable(data.referrer ? data.referrer : null);
-        this.remoteAddress = ko.observable(data.remoteAddress ? data.remoteAddress : null);
-        this.detectRtc = ko.observable(data.detectRtc ? data.detectRtc : null);
-        this.application = ko.observable(data.application ? data.application : null);
+let self;
+export class Connection {
+    constructor(data, bindingEngine) {
+        self = this;
+        this.bindingEngine = bindingEngine;
+        this.events = [];
+        this.id = data && data._id ? data._id : null;
+        this.prevId = data && data.previousConnectionId ? data.previousConnectionId : null;
+        this.countryCode = data && data.countryCode ? data.countryCode : null;
+        this.userName = data && data.userName ? data.userName : null;
+        this.referrer = data && data.referrer ? data.referrer : null;
+        this.remoteAddress = data && data.remoteAddress ? data.remoteAddress : null;
+        this.detectRtc = data && data.detectRtc ? data.detectRtc : null;
+        this.application = data && data.application ? data.application : null;
+
+        let eventsSubscription = this.bindingEngine.collectionObserver(this.events)
+            .subscribe(splices => console.log(splices));
+        if (this.id) {
+            let idSubscription = this.bindingEngine.propertyObserver(this.id, 'id')
+                .subscribe((newValue, oldValue) => console.log(newValue));
+        }
+        if (this.prevId) {
+            let prevIdSubscription = this.bindingEngine.propertyObserver(this.prevId, 'prevId')
+                .subscribe((newValue, oldValue) => console.log(newValue));
+        }
+        if (this.countryCode) {
+            let countryCodeSubscription = this.bindingEngine.propertyObserver(this.countryCode, 'countryCode')
+                .subscribe((newValue, oldValue) => console.log(newValue));
+        }
+        if (this.userName) {
+            let userNameSubscription = this.bindingEngine.propertyObserver(this.userName, 'userName')
+                .subscribe((newValue, oldValue) => console.log(newValue));
+        }
+        if (this.referrer) {
+            let referrerSubscription = this.bindingEngine.propertyObserver(this.referrer, 'referrer')
+                .subscribe((newValue, oldValue) => console.log(newValue));
+        }
+        if (this.remoteAddress) {
+            let remoteAddressSubscription = this.bindingEngine.propertyObserver(this.remoteAddress, 'remoteAddress')
+                .subscribe((newValue, oldValue) => console.log(newValue));
+        }
+        if (this.detectRtc) {
+            let detectRtcSubscription = this.bindingEngine.propertyObserver(this.detectRtc, 'detectRtc')
+                .subscribe((newValue, oldValue) => console.log(newValue));
+        }
+        if (this.application) {
+            let applicationSubscription = this.bindingEngine.propertyObserver(this.application, 'application')
+                .subscribe((newValue, oldValue) => console.log(newValue));
+        }
 
         if (data.events && data.events.length) {
             var eventList = [];
             _.each(data.events, function (item) {
-                eventList.push(new Event(item));
+                eventList.push(new Event(item, self.bindingEngine));
             });
-            self.events(eventList);
+            self.events = eventList;
         }
-
-        this.lastNavigateEvent = ko.computed();
     }
 
-    @computedFrom('getLastNavigateEvent')
-    getLastNavigateEvent() {
-        if (self && self.events()) {
-            var navigateEvents = _.filter(self.events(), function (eventObj) {
-                return eventObj.eventType() === enums.eventLogs.navigate;
+    @computedFrom('events.url')
+    get lastNavigateEvent() {
+        if (self && self.events) {
+            var navigateEvents = _.filter(self.events, function (eventObj) {
+                return eventObj.eventType === enums.eventLogs.navigate;
             });
             var lastEvent = _.first(sort.sortEventsByDateDescending(navigateEvents));
 

@@ -31,14 +31,14 @@ export default class AnalyticsApi {
         }
         req.open('GET', url, true);
         req.send(null);
-        req.onreadystatechange = function() {
+        req.onreadystatechange = function () {
             if (req.readyState === 4) {
                 var result = JSON.parse(req.responseText);
                 console.log("Getting open connections was successful.");
                 next(result.result);
             }
         };
-        req.onerror = function(err) {
+        req.onerror = function (err) {
             console.log(err);
             next({ error: true, message: req.responseText });
         }
@@ -56,14 +56,14 @@ export default class AnalyticsApi {
         }
         req.open('GET', url, true);
         req.send(null);
-        req.onreadystatechange = function() {
+        req.onreadystatechange = function () {
             if (req.readyState === 4) {
                 var result = JSON.parse(req.responseText);
                 console.log("Getting Analytics was successful");
                 promise.resolve(result.result);
             }
         };
-        req.onerror = function() {
+        req.onerror = function () {
             promise.reject(req.responseText);
         }
         return promise.promise;
@@ -76,7 +76,7 @@ export default class AnalyticsApi {
         var url = self.urls.getGlobals;
         req.open("GET", url, true);
         req.send(null);
-        req.onreadystatechange = function() {
+        req.onreadystatechange = function () {
             if (req.readyState === 4) {
                 var result = JSON.parse(req.responseText);
                 console.log("result " + result);
@@ -86,7 +86,7 @@ export default class AnalyticsApi {
                 next(null);
             }
         };
-        req.onerror = function(err) {
+        req.onerror = function (err) {
             console.log(err);
             next({ error: true, message: req.responseText });
         };
@@ -100,9 +100,12 @@ export default class AnalyticsApi {
             var req = new XMLHttpRequest();
             var url = self.urls.getUserInfoUrl;
             req.open("GET", url, true);
-            req.setRequestHeader("Authorization", "Bearer " + accessToken);
+            if (!accessToken.startsWith("Bearer") && !accessToken.startsWith("JWT")) {
+                accessToken = "Bearer " + accessToken;
+            }
+            req.setRequestHeader("Authorization", accessToken);
             req.send(null);
-            req.onreadystatechange = function() {
+            req.onreadystatechange = function () {
                 if (req.readyState === 4) {
                     try {
                         var result = JSON.parse(req.responseText);
@@ -119,7 +122,7 @@ export default class AnalyticsApi {
                     next(null);
                 }
             };
-            req.onerror = function() {
+            req.onerror = function () {
                 next({ error: true, message: req.responseText });
             };
         } else {
@@ -143,14 +146,14 @@ export default class AnalyticsApi {
         req.open("POST", url, true);
         req.setRequestHeader("Content-Type", "application/json");
         req.send(JSON.stringify(body));
-        req.onreadystatechange = function() {
+        req.onreadystatechange = function () {
             if (req.readyState === 4) {
                 var result = JSON.parse(req.responseText);
                 console.log("Sending User Info via AJAX was successful.");
                 next(null);
             }
         };
-        req.onerror = function(err) {
+        req.onerror = function (err) {
             console.log(err);
             next({ error: true, message: err });
         };
@@ -176,7 +179,7 @@ export default class AnalyticsApi {
         req.open("POST", url, true);
         req.setRequestHeader("Content-Type", "application/json");
         req.send(JSON.stringify(body));
-        req.onreadystatechange = function() {
+        req.onreadystatechange = function () {
             if (req.readyState === 4) {
                 var result = JSON.parse(req.responseText);
                 globals.connection = result.result._id;
@@ -185,7 +188,7 @@ export default class AnalyticsApi {
                 next(null);
             }
         };
-        req.onerror = function(err) {
+        req.onerror = function (err) {
             console.log(err);
             next({ error: true, message: err });
         };
@@ -200,14 +203,14 @@ export default class AnalyticsApi {
         req.open("POST", url, true);
         req.setRequestHeader("Content-Type", "application/json");
         req.send(JSON.stringify(body));
-        req.onreadystatechange = function() {
+        req.onreadystatechange = function () {
             if (req.readyState === 4) {
                 var result = JSON.parse(req.responseText);
                 console.log("Sending event via AJAX was successful.");
                 next(null);
             }
         };
-        req.onerror = function(err) {
+        req.onerror = function (err) {
             console.log(err);
             next({ error: true, message: err });
         };

@@ -2,34 +2,40 @@
 import { Router } from 'aurelia-router';
 import { authenticationService } from "../../../../services/authentication-service";
 import { securityUtils } from "../../../../services/security-utils";
+import { security } from "../../../../services/security";
 import { routes } from '../../../../urls';
+import { enums } from '../../../../enums';
+import { globals } from '../../../../globals';
 
+let self;
 export class Login {
-     static inject() { return [Router]; }
+    static inject() { return [Router]; }
 
-  constructor(router){
-    this.router = router;
-  }
+    constructor(router) {
+        self = this;
+        this.router = router;
+    }
     userName = '';
     password = '';
     rememberMe = false;
-    //Getters can't be directly observed, so they must be dirty checked.
-    //However, if you tell Aurelia the dependencies, it no longer needs to dirty check the property.
-    //To optimize by declaring the properties that this getter is computed from, uncomment the line below
-    //as well as the corresponding import above.
-    //@computedFrom('firstName', 'lastName')
-    signIn() {
-        var self = this;
+    
+    login() {
         return authenticationService.login(self.userName, self.password)
             .then(function (result) {
                 console.log("result: " + JSON.stringify(result));
                 if (result && result.success && result.token) {
                     securityUtils.setAccessToken(result.token, self.rememberMe);
+                    var dataObj = {
+                        userName: self.userName ? self.userName : "Anonymous",
+                        referrer: document.referrer,
+                        eventType: enums.eventLogs.login,
+                        loginType: enums.loginType.local
+                    }
+                    globals.xAnalytics.send(dataObj);
+                    security.setAuthInfo(result);
                 }
+
                 return self.router.navigate(routes.urls.dashboard.realTime);
             });
-    }
-
-    canDeactivate() {
     }
 }

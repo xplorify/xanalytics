@@ -2,7 +2,7 @@ let result = {
     // input parameters
     xAnalytics: null,
     serverUrl: "https://localhost:444",
-    getUserInfoLocation: "http://localhost:17981/api/Account/GetUserInfo",
+    getUserInfoLocation: "https://localhost:444/api/auth/getUserInfo",
     application: {
         "code": "dev",
         "url": "http://localhost:8080"
