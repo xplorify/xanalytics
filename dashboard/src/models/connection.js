@@ -1,6 +1,5 @@
 import { computedFrom } from 'aurelia-framework';
 import Event from './event';
-import * as _ from 'underscore';
 import { enums } from './enums';
 import { sort } from './sort';
 
@@ -56,7 +55,7 @@ export class Connection {
 
     if (data.events && data.events.length) {
       let eventList = [];
-      _.each(data.events, function(item) {
+      data.events.forEach(function(item) {
         eventList.push(new Event(item, self.bindingEngine));
       });
       self.events = eventList;
@@ -66,10 +65,13 @@ export class Connection {
   @computedFrom('events.url')
   get lastNavigateEvent() {
     if (self && self.events) {
-      let navigateEvents = _.filter(self.events, function(eventObj) {
-        return eventObj.eventType === enums.eventLogs.navigate;
+      var navigateEvents = [];
+      self.events.forEach(function(eventObj) {
+        if(eventObj.eventType === enums.eventLogs.navigate){
+          navigateEvents.push(eventObj);
+        }
       });
-      let lastEvent = _.first(sort.sortEventsByDateDescending(navigateEvents));
+      let lastEvent = sort.sortEventsByDateDescending(navigateEvents)[0];
 
       return lastEvent;
     }

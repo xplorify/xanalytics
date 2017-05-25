@@ -2,12 +2,13 @@
 
 const urls = {
   login: globals.serverUrl + '/api/auth/login',
-  register: globals.serverUrl + '/api/auth/register'
+  register: globals.serverUrl + '/api/auth/register',
+  getUserInfo: globals.serverUrl + '/api/auth/getUserInfo'
 };
 
 class AuthService {
   login(userName, password) {
-    return new Promise(function(resolve, reject) {
+    return new Promise(function (resolve, reject) {
       let req = new XMLHttpRequest();
       let url = urls.login;
       let body = {
@@ -17,20 +18,20 @@ class AuthService {
       req.open('POST', url, true);
       req.setRequestHeader('Content-Type', 'application/json');
       req.send(JSON.stringify(body));
-      req.onreadystatechange = function() {
+      req.onreadystatechange = function () {
         if (req.readyState === 4) {
           let result = JSON.parse(req.responseText);
           resolve(result);
         }
       };
-      req.onerror = function() {
+      req.onerror = function () {
         reject(req.responseText);
       };
     });
   }
 
   register(data) {
-    return new Promise(function(resolve, reject) {
+    return new Promise(function (resolve, reject) {
       let req = new XMLHttpRequest();
       let url = urls.register;
       let body = {
@@ -43,17 +44,42 @@ class AuthService {
       req.open('POST', url, true);
       req.setRequestHeader('Content-Type', 'application/json');
       req.send(JSON.stringify(body));
-      req.onreadystatechange = function() {
+      req.onreadystatechange = function () {
         if (req.readyState === 4) {
           let result = JSON.parse(req.responseText);
           resolve(result);
         }
       };
-      req.onerror = function() {
+      req.onerror = function () {
         reject(req.responseText);
       };
     });
   }
+
+  getUserInfo() {
+    return new Promise(function (resolve, reject) {
+      let req = new XMLHttpRequest();
+      let url = urls.getUserInfo;
+      req.open('GET', url, true);
+      req.setRequestHeader('Content-Type', 'application/json');
+      var accessToken = window.sessionStorage["accessToken"] || window.localStorage["accessToken"];
+      if (!accessToken.startsWith("Bearer") && !accessToken.startsWith("JWT")) {
+        accessToken = globals.authSchema + accessToken;
+      }
+      req.setRequestHeader("Authorization", accessToken);
+      req.send(null);
+      req.onreadystatechange = function () {
+        if (req.readyState === 4) {
+          let result = JSON.parse(req.responseText);
+          resolve(result);
+        }
+      };
+      req.onerror = function () {
+        reject(req.responseText);
+      };
+    });
+  }
+
 }
 
 export let authService = new AuthService();

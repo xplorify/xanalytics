@@ -1,4 +1,3 @@
-import * as _ from 'underscore';
 import { computedFrom } from 'aurelia-framework';
 import { sort } from './sort';
 
@@ -17,7 +16,7 @@ export class AnalyticsModel {
   get groupByUrl() {
     if (self && self.connections) {
       let lastUrls = [];
-      _.each(self.connections, function(item) {
+      self.connections.forEach(function (item) {
         if (item.lastNavigateEvent && item.lastNavigateEvent.url) {
           lastUrls.push({
             conn: item,
@@ -26,7 +25,8 @@ export class AnalyticsModel {
         }
       });
 
-      let grouped = _.groupBy(lastUrls, 'to');
+
+      let grouped = self.groupBy(lastUrls, 'to');
 
       let normalized = [];
       for (let p in grouped) {
@@ -42,10 +42,17 @@ export class AnalyticsModel {
     return [];
   }
 
+  groupBy = function (array, key) {
+    return array.reduce(function (accumulator, currentValue) {
+      (accumulator[currentValue[key]] = accumulator[currentValue[key]] || []).push(currentValue);
+      return accumulator;
+    }, {});
+  };
+
   groupByUrlAndCode(code) {
     if (self && self.connections) {
       let lastUrls = [];
-      _.each(self.connections, function(item) {
+      self.connections.forEach(function (item) {
         if (item.lastNavigateEvent && item.application.code === code) {
           lastUrls.push({
             conn: item,
@@ -54,7 +61,7 @@ export class AnalyticsModel {
         }
       });
 
-      let grouped = _.groupBy(lastUrls, 'to');
+      let grouped = self.groupBy(lastUrls, 'to');
 
       let normalized = [];
       for (let p in grouped) {
@@ -72,27 +79,38 @@ export class AnalyticsModel {
 
   merge(conn) {
     //find existing connection
-    let existing = _.find(self.connections, function(connection) {
-      return conn.id === connection.id;
+    let existing = null;
+    self.connections.forEach(function (connection) {
+      if (conn.id === connection.id)
+        existing = connection;
     });
 
     if (existing) {
       //add missing events
       let mergedEvents = existing.events.concat(conn.events);
       let events = sort.sortEventsByDateAscending(mergedEvents);
-      let uniqueEvents = _.uniq(events, function(event) {
-        return event.id;
+      var uniqueEvents = []
+      events.forEach(function (event) {
+        var eventFound = false;
+        uniqueEvents.forEach(function (uniqueEvent) {
+          if (event.id == uniqueEvent.id) {
+            eventFound = true;
+          }
+        });
+        if (!eventFound) {
+          uniqueEvents.push(event);
+        }
       });
+      
       existing.events = uniqueEvents;
       existing.userName = conn.userName;
-      // self.connections.valueHasMutated();
     } else {
       self.connections.push(conn);
     }
   }
 
   remove(connectionId) {
-    self.connections.remove(function(item) {
+    self.connections.remove(function (item) {
       return item.id === connectionId;
     });
   }

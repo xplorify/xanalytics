@@ -1,4 +1,3 @@
-//import {computedFrom} from 'aurelia-framework';
 import { Router } from 'aurelia-router';
 import { authService } from '../../services/auth-service';
 import { routes } from '../../models/urls';
@@ -15,11 +14,7 @@ export class Login {
   firstName = '';
   lastName = '';
   email = '';
-  //Getters can't be directly observed, so they must be dirty checked.
-  //However, if you tell Aurelia the dependencies, it no longer needs to dirty check the property.
-  //To optimize by declaring the properties that this getter is computed from, uncomment the line below
-  //as well as the corresponding import above.
-  //@computedFrom('firstName', 'lastName')
+ 
   cancel() {
     let self = this;
     self.userName = '';

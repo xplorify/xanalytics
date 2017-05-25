@@ -1,8 +1,8 @@
-//import {computedFrom} from 'aurelia-framework';
 import { Router } from 'aurelia-router';
 import { authService } from '../../services/auth-service';
 import { securityUtils } from '../../services/security-utils';
 import { security } from '../../services/security';
+import { routeServicerout } from '../../services/route-service';
 import { routes } from '../../models/urls';
 import { enums } from '../../models/enums';
 import { globals } from '../../models/globals';
@@ -19,9 +19,13 @@ export class Login {
   password = '';
   rememberMe = false;
 
+  activate() {
+    return true;
+  }
+
   login() {
     return authService.login(self.userName, self.password)
-      .then(function(result) {
+      .then(function (result) {
         console.log('result: ' + JSON.stringify(result));
         if (result && result.success && result.token) {
           securityUtils.setAccessToken(result.token, self.rememberMe);
@@ -33,9 +37,10 @@ export class Login {
           };
           globals.xAnalytics.send(dataObj);
           security.setAuthInfo(result);
+          routeService.setRouteVisibility(true);
         }
 
         return self.router.navigate(routes.urls.dashboard.realTime);
       });
-  }
+  } 
 }

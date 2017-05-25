@@ -2,7 +2,6 @@ import { computedFrom } from 'aurelia-framework';
 import { globals } from '../../../models/globals';
 import { AnalyticsModel } from '../../../models/analytics';
 import { Connection } from '../../../models/connection';
-import * as _ from 'underscore';
 import { inject } from 'aurelia-framework';
 import { BindingEngine } from 'aurelia-binding';
 
@@ -56,7 +55,7 @@ export class RealTime {
   @computedFrom('selectedApplication')
   get getConnectionsCount() {
     let count = 0;
-    _.each(self.getGroupedConnections, function(groupedConnection) {
+    self.getGroupedConnections.forEach(function(groupedConnection) {
       count += groupedConnection.connections.length;
     });
 
@@ -93,7 +92,7 @@ export class RealTime {
         self.analyticsModel.merge(conn);
       }
     } else {
-      _.each(connections, function(connection) {
+      connections.forEach(function(connection) {
         let conn = new Connection(connection, self.bindingEngine);
         self.analyticsModel.merge(conn);
       });

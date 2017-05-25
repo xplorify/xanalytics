@@ -1,29 +1,42 @@
-export let routes = [{
-    route: [''],
-    name: 'welcome',
-    moduleId: PLATFORM.moduleName('ui/welcome/welcome'),
-    nav: true,
-    title: 'Welcome'
-  },
+export let routes = [
+  // {
+  //   route: [''],
+  //   name: 'welcome',
+  //   moduleId: PLATFORM.moduleName('ui/welcome/welcome'),
+  //   nav: true,
+  //   title: 'Welcome'
+  // },
   {
-    route: ['dashboard'],
+    route: [''],
     name: 'dashboard',
     moduleId: PLATFORM.moduleName('ui/dashboard/index'),
     nav: true,
-    title: 'Dashboard'
+    title: 'Dashboard',
+    isVisible: true,
+    auth: true
   },
   {
     route: ['login'],
     name: 'login',
     moduleId: PLATFORM.moduleName('ui/account/login'),
     nav: true,
-    title: 'Login'
+    title: 'Login',
+    isVisible: true,
   },
   {
     route: ['register'],
     name: 'register',
     moduleId: PLATFORM.moduleName('ui/account/register'),
     nav: true,
-    title: 'Register'
+    title: 'Register',
+    isVisible: true
+  },
+  {
+    route: ['logout'],
+    name: 'logout',
+    moduleId: PLATFORM.moduleName('ui/account/logout'),
+    nav: true,
+    title: 'Logout',
+    isVisible: true
   }
 ];
