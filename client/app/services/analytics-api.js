@@ -101,7 +101,7 @@ export default class AnalyticsApi {
             var url = self.urls.getUserInfoUrl;
             req.open("GET", url, true);
             if (!accessToken.startsWith("Bearer") && !accessToken.startsWith("JWT")) {
-                accessToken = "Bearer " + accessToken;
+                accessToken = globals.authSchema + accessToken;
             }
             req.setRequestHeader("Authorization", accessToken);
             req.send(null);

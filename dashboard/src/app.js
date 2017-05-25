@@ -8,7 +8,7 @@ import { XAnalytics } from "xplorify.analytics.client/dist/app";
 
 export class App {
   constructor() {
-    var options = { application: globals.application, serverUrl: globals.serverUrl, getUserInfoUrl: globals.getUserInfoLocation };
+    var options = { application: globals.application, serverUrl: globals.serverUrl, getUserInfoUrl: globals.getUserInfoLocation, authSchema: globals.authSchema };
     globals.xAnalytics = new window.XAnalytics(options);
   }
 
@@ -17,11 +17,11 @@ export class App {
     config.options.pushState = true;
     config.map(route);
 
+    return authenticationservice.getUserInfo()
+    .then(function(result){
+      
+    })
+
     this.router = router;
-  }
-
-  activate(){
-    console.log("In activate");
-  }
-
+  }  
 }
