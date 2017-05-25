@@ -1,0 +1,8 @@
+<template bindable="router">
+  <div class="w3-bar">
+    <div class="w3-bar-item w3-button w3-blue" repeat.for="row of router.navigation">
+      <a href.bind="row.href" class="w3-bar-item w3-button ${row.active ? 'w3-green' : ''}">${row.title}</a>
+    </div>
+  </div>
+  </div>
+</template>

@@ -1,0 +1,17 @@
+<template>
+  <require from="./accordion-panel"></require>
+  <div id.bind="accordion.id">
+    <button click.delegate="toggle(accordion)" class="w3-button w3-block w3-blue w3-left-align">
+      <span>${accordion.title}</span>
+      <span class="pull-right">
+        <span class="badge">${accordion.count}</span>
+      </span>
+    </button>
+    <div id.bind="panel.id" class="${accordion.isActive ? 'w3-show' : 'w3-hide'}">
+      <div repeat.for="panel of accordion.panels">
+        <accordion-panel panel.bind="panel">
+        </accordion-panel>
+      </div>
+    </div>
+  </div>
+</template>

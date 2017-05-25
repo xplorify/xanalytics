@@ -1,0 +1,17 @@
+<template>
+  <section class="au-animate">
+    <h2>${heading}</h2>
+    <div class="w3-row">
+      <div class="w3-col s3">
+        <ul>
+          <li repeat.for="row of router.navigation" class="${row.isActive ? 'active' : ''}">
+            <a href.bind="row.href">${row.title}</a>
+          </li>
+        </ul>
+      </div>
+      <div class="w3-col s9">
+        <router-view></router-view>
+      </div>
+    </div>
+  </section>
+</template>

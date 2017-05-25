@@ -118,6 +118,11 @@
     "isomorphic-fetch": "2.2.1",
     "jquery": "3.2.1",
     "underscore": "^1.8.3",
+<<<<<<< HEAD
     "xplorify.analytics.client": "^1.0.16"
+=======
+    "w3-css": "^4.0.4",
+    "xplorify.analytics.client": "^1.0.15"
+>>>>>>> 334a2cab08e7e5d90ab9bae0d8d16e44db7596cd
   }
 }
