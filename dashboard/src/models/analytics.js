@@ -14,20 +14,18 @@ export class AnalyticsModel {
 
   @computedFrom('connections')
   get groupByUrl() {
-    if (self && self.connections) {
+    if (self && self.connections && self.connections.length > 0) {
       let lastUrls = [];
       self.connections.forEach(function (item) {
         if (item.lastNavigateEvent && item.lastNavigateEvent.url) {
           lastUrls.push({
             conn: item,
-            to: item.lastNavigateEvent.toFormatted
+            to: self.getToFormatted(item.lastNavigateEvent.url)
           });
         }
       });
 
-
-      let grouped = self.groupBy(lastUrls, 'to');
-
+      let grouped = lastUrls && lastUrls.length > 0 ? self.groupBy(lastUrls, 'to') : [];
       let normalized = [];
       for (let p in grouped) {
         normalized.push({
@@ -43,11 +41,19 @@ export class AnalyticsModel {
   }
 
   groupBy = function (array, key) {
-    return array.reduce(function (accumulator, currentValue) {
+    var grouped = array.reduce(function (accumulator, currentValue) {
       (accumulator[currentValue[key]] = accumulator[currentValue[key]] || []).push(currentValue);
       return accumulator;
     }, {});
+
+    return grouped;
   };
+
+  getToFormatted(url) {
+    if (url) {
+      return url.replace(/[\/:\?=\.]/g, '_');
+    }
+  }
 
   groupByUrlAndCode(code) {
     if (self && self.connections) {
@@ -56,7 +62,7 @@ export class AnalyticsModel {
         if (item.lastNavigateEvent && item.application.code === code) {
           lastUrls.push({
             conn: item,
-            to: item.lastNavigateEvent.toFormatted
+            to: self.getToFormatted(item.lastNavigateEvent.url)
           });
         }
       });
@@ -101,7 +107,7 @@ export class AnalyticsModel {
           uniqueEvents.push(event);
         }
       });
-      
+
       existing.events = uniqueEvents;
       existing.userName = conn.userName;
     } else {
@@ -110,8 +116,12 @@ export class AnalyticsModel {
   }
 
   remove(connectionId) {
-    self.connections.remove(function (item) {
-      return item.id === connectionId;
-    });
+    var connection = this.connections.find(function (conn) {
+      return conn.id === connectionId;
+    })
+    let index = this.connections.indexOf(connection);
+    if (index !== -1) {
+      this.connections.splice(index, 1);
+    }
   }
 }

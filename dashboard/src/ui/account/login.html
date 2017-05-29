@@ -1,52 +1,54 @@
 <template>
-<div id="login">
-    <div class="container">
-        <br/>
-        <div class="row">
-            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4"></div>
-            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                <div class="w3-card-4" style="width:100%;">
-                    <header class="w3-panel w3-bottombar w3-border-blue">
-                        <div class="card-header">
-                            <i class="fa fa-id-card-o fa-lg" aria-hidden="true"></i>
-                            <h4> Sign In</h4>
-                        </div>
-                    </header>
-                    <div class="w3-container w3-padding-8">
-                        <div class="row">
-                            <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12">
-                                <h5 class="text-center text-info">Please enter your information</h5>
-                                <div class="form-group"></div>
-                                <div class="input-group">
-                                    <input type="text" value.bind="userName" class="form-control border-radius-0" id="un" placeholder="user name">
-                                    <span class="input-group-addon border-radius-0">
+    <div id="login">
+        <div class="container">
+            <br/>
+            <div class="row">
+                <div class="w3-col m6 l6 s12"></div>
+                <div class="w3-col m6 l6 s12">
+                    <div class="w3-card-4" style="width:100%;">
+                        <header class="w3-panel w3-bottombar w3-border-blue">
+                            <div class="card-header">
+                                <i class="fa fa-id-card-o fa-lg" aria-hidden="true"></i>
+                                <h4> Sign In</h4>
+                            </div>
+                        </header>
+                        <div class="w3-container w3-padding-8">
+                            <div class="row">
+                                <div class="w3-col m12 l6 s12">
+                                    <h5 class="text-center text-info">Please enter your information</h5>
+                                    <div class="form-group"></div>
+                                    <div class="input-group">
+                                        <input type="text" value.bind="userName" class="form-control border-radius-0" id="un" placeholder="user name">
+                                        <span class="input-group-addon border-radius-0">
                                         <i class="fa fa-user w3-text-blue"></i>
                                     </span>
-                                </div>
-                                <div class="form-group"></div>
-                                <div class="input-group">
-                                    <input class="form-control border-radius-0" type="password" value.bind="password" placeholder="password">
-                                    <span class="input-group-addon border-radius-0">
+                                    </div>
+                                    <div class="form-group"></div>
+                                    <div class="input-group">
+                                        <input class="form-control border-radius-0" type="password" value.bind="password" placeholder="password">
+                                        <span class="input-group-addon border-radius-0">
                                         <i class="fa fa-lock w3-text-blue"></i>
                                     </span>
-                                </div>
-                                <div class="form-group"></div>
-                                <div class="clearfix">
-                                    <span class="text-left w3-text-grey">
+                                    </div>
+                                    <div class="form-group"></div>
+                                    <div class="clearfix">
+                                        <span class="text-left w3-text-grey">
                                         <input type="checkbox" checked.bind="rememberMe"/>
                                         <span> RememberMe</span>
-                                    </span>
-                                </div>
-                                <button type="submit" click.delegate="login()" class="hidden-xs w3-btn w3-medium w3-blue w3-btn-block">
+                                        </span>
+                                    </div>
+                                    <button type="submit" click.delegate="login()" class="hidden-xs w3-btn w3-medium w3-blue w3-btn-block">
                                     <i class="fa fa-key"></i>
                                      Sign In
-                               </button>
-                            </div>                          
+                                    </button>
+                                    <div class="w3-row w3-margin"></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
-</div>
 </template>

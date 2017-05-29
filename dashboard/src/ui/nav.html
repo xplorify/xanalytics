@@ -1,11 +1,14 @@
-<template bindable="router">
-  <div class="w3-bar">
+<template bindable="router, logout, routes">
+    <div class="w3-bar w3-border w3-blue">
     <div  repeat.for="row of router.navigation">
       <div if.bind="row.config.isVisible">
         <div class="w3-bar-item w3-button w3-blue">
-        <a href.bind="row.href" class="w3-bar-item w3-button ${row.active ? 'w3-green' : ''}">${row.title}</a>
+        <a href.bind="row.href" class="w3-bar-item w3-button ${row.isActive ? 'w3-blue' : ''}">${row.title}</a>
       </div>
       </div>
     </div>
+     <div if.bind="routes.isLogoutVisible"  class="w3-bar-item w3-button w3-blue">
+        <button class="w3-bar-item w3-button" click.delegate="logout()">Logout</button>
+      </div>
   </div>
 </template>

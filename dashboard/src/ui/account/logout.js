@@ -2,7 +2,6 @@ import { Router } from 'aurelia-router';
 import { authService } from '../../services/auth-service';
 import { storage } from '../../services/storage';
 import { security } from '../../services/security';
-import { routeService } from '../../services/route-service';
 import { routes } from '../../models/urls';
 import { enums } from '../../models/enums';
 import { globals } from '../../models/globals';
@@ -17,6 +16,10 @@ export class Logout {
   }
 
   activate() {
+    return true;
+  }
+
+  attached() {
     return self.logout();
   }
 
@@ -32,21 +35,18 @@ export class Logout {
       storage.clear("accessToken");
       security.userInfo = null;
     }
-    security.setRouteVisibility(false);
-    return self.router.navigate("/login");
+    self.setRouteVisibility(false);
+    return self.router.navigate("/");
   }
 
-  removeRoute(arr, attr, value) {
-    var i = arr.length;
-    while (i--) {
-      if (arr[i]
-        && arr[i].hasOwnProperty(attr)
-        && (arguments.length > 2 && arr[i][attr] === value)) {
-
-        arr.splice(i, 1);
-
+  setRouteVisibility(isAuth) {
+    self.router.navigation.forEach(function (routeItem) {
+      if (routeItem.config.name === "dashboard" || routeItem.config.name == "logout") {
+        isAuth ? routeItem.config.isVisible = true : routeItem.config.isVisible = false;
+      } else {
+        isAuth ? routeItem.config.isVisible = false : routeItem.config.isVisible = true;
       }
-    }
-    return arr;
+    });
+    // self.router.refreshNavigation();
   }
 }

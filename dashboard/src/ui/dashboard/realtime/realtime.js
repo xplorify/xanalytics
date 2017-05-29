@@ -44,7 +44,7 @@ export class RealTime {
     return result;
   }
 
-  @computedFrom('selectedApplication')
+  @computedFrom('selectedApplication', 'analyticsModel.connections')
   get getGroupedConnections() {
     if (self.selectedApplication && self.selectedApplication.code) {
       return self.analyticsModel.groupByUrlAndCode(self.selectedApplication.code);
@@ -52,7 +52,7 @@ export class RealTime {
     return self.analyticsModel.groupByUrl;
   }
 
-  @computedFrom('selectedApplication')
+  @computedFrom('selectedApplication', 'analyticsModel.connections')
   get getConnectionsCount() {
     let count = 0;
     self.getGroupedConnections.forEach(function(groupedConnection) {
@@ -61,7 +61,6 @@ export class RealTime {
 
     return count;
   }
-
 
   activate() {
     globals.xAnalytics.setOnData(self.onData);
