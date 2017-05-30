@@ -36,7 +36,6 @@ export class Login {
           };
           globals.xAnalytics.send(dataObj);
           security.setAuthInfo(result);
-          // self.setRouteVisibility(true);
         }
 
         return self.router.navigate(routes.urls.dashboard.realTime);

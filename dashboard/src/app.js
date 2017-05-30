@@ -92,6 +92,11 @@ export class AuthorizeStep {
     if (accessToken !== undefined) {
       return authService.getUserInfo()
         .then(function (result) {
+          let dataObj = {
+            user: result,
+            token: accessToken
+          };
+          security.setAuthInfo(dataObj);
           return result && result._id != null;
         });
     } else {

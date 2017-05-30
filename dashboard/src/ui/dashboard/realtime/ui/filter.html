@@ -1,19 +1,22 @@
 <template>
   <div class="w3-row">
-    <i class="fa fa-info-circle"></i>
+    <span class="w3-col l10 m10 s10 w3-panel w3-pale-green w3-center">
+      <i class="fa fa-info-circle"></i>
     <span>Connections count</span>
     <span>${getConnectionsCount}</span>
+    </span>
   </div>
   <div class="w3-row">
-    <select value.bind="selectedApplication" change.trigger="onChange()">
-      <option value="">-Choose Application-</option>
+    <span class="w3-col l8 m8 s10">
+    <select value.bind="selectedApplication" change.trigger="onAppChange()">
+      <option>-Choose Application-</option>
       <option model.bind="application" repeat.for="application of applications">${application.code}</option>
     </select>
-  </div>
-  <div class="w3-row">
-    <button class="w3-btn w3-small w3-green" click.delegate="refresh()">
+    </span>
+    <span  class="w3-col l4 m4 s2">
+       <button class="w3-btn w3-small w3-green" click.delegate="refresh()">
       <i class="fa fa-refresh"></i>
     </button>
+    </span>
   </div>
-</div>
 </template>

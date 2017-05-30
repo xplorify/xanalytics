@@ -60,21 +60,5 @@ export class Connection {
       });
       self.events = eventList;
     }
-  }
-
-  @computedFrom('events.url')
-  get lastNavigateEvent() {
-    if (self && self.events) {
-      var navigateEvents = [];
-      self.events.forEach(function(eventObj) {
-        if(eventObj.eventType === enums.eventLogs.navigate){
-          navigateEvents.push(eventObj);
-        }
-      });
-      let lastEvent = sort.sortEventsByDateDescending(navigateEvents)[0];
-
-      return lastEvent;
-    }
-    return null;
-  }
+  } 
 }

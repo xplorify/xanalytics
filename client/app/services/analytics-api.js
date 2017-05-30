@@ -113,7 +113,7 @@ export default class AnalyticsApi {
                         globals.userInfo = result;
                         if (result && (result.userName || result.username)) {
                             console.log('Getting user info was successful.');
-                            addUserInfo(next);
+                            self.addUserInfo(next);
                             return;
                         }
                     } catch (e) {

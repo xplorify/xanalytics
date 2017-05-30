@@ -1,5 +1,7 @@
+import { observable } from 'aurelia-framework';
 import { computedFrom } from 'aurelia-framework';
 import { sort } from './sort';
+import { enums } from './enums';
 
 let self;
 export class AnalyticsModel {
@@ -8,19 +10,24 @@ export class AnalyticsModel {
     this.connections = [];
     this.bindingEngine = bindingEngine;
     self = this;
-    let subscription = this.bindingEngine.collectionObserver(this.connections)
-      .subscribe(splices => console.log(splices));
+    let subscription = self.bindingEngine.collectionObserver(self.connections)
+      .subscribe(self.connectionsChanged);
   }
+
+  connectionsChanged(splices) {
+      console.log("connections changed: " + splices);
+    }
 
   @computedFrom('connections')
   get groupByUrl() {
     if (self && self.connections && self.connections.length > 0) {
       let lastUrls = [];
       self.connections.forEach(function (item) {
-        if (item.lastNavigateEvent && item.lastNavigateEvent.url) {
+        var lastNavEvent = self.lastNavigateEvent(item.events);
+        if (lastNavEvent && lastNavEvent.url) {
           lastUrls.push({
             conn: item,
-            to: self.getToFormatted(item.lastNavigateEvent.url)
+            to: self.getToFormatted(lastNavEvent.url)
           });
         }
       });
@@ -55,14 +62,30 @@ export class AnalyticsModel {
     }
   }
 
+   lastNavigateEvent(events) {
+    if (events) {
+      var navigateEvents = [];
+      events.forEach(function(eventObj) {
+        if(eventObj.eventType === enums.eventLogs.navigate && eventObj.url){
+          navigateEvents.push(eventObj);
+        }
+      });
+      let lastEvent = sort.sortEventsByDateDescending(navigateEvents)[0];
+
+      return lastEvent;
+    }
+    return null;
+  }
+
   groupByUrlAndCode(code) {
     if (self && self.connections) {
       let lastUrls = [];
       self.connections.forEach(function (item) {
-        if (item.lastNavigateEvent && item.application.code === code) {
+        var lastNavEvent = self.lastNavigateEvent(item.events);
+        if (lastNavEvent && item.application.code === code) {
           lastUrls.push({
             conn: item,
-            to: self.getToFormatted(item.lastNavigateEvent.url)
+            to: self.getToFormatted(lastNavEvent.url)
           });
         }
       });
@@ -116,12 +139,12 @@ export class AnalyticsModel {
   }
 
   remove(connectionId) {
-    var connection = this.connections.find(function (conn) {
+    var connection = self.connections.find(function (conn) {
       return conn.id === connectionId;
-    })
-    let index = this.connections.indexOf(connection);
+    });
+    let index = self.connections.indexOf(connection);
     if (index !== -1) {
-      this.connections.splice(index, 1);
+      self.connections.splice(index, 1);
     }
   }
 }
