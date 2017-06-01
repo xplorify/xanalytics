@@ -1,0 +1,39 @@
+<template>
+  <require from="./accordion-panel"></require>
+  <div id.bind="connection.id" class="w3-margin">
+    <div class="w3-row w3-blue" click.delegate="toggle(connection)">
+      <div class="container">
+        ${connection.userName}, ${connection.remoteAddress}, ${connection.countryCode}, ${connection.referrer},
+        <span>
+        <span with.bind="connection.detectRtc">
+        <span>${browser.name} (${browser.version})</span>,
+        <span>${osName} (${osVersion})</span>,
+        <span class="w3-btn w3-small w3-green" if.bind="hasMicrophone">
+               <i class="fa fa-microphone"></i>
+             </span>
+        <span class="w3-btn w3-small w3-red" if.bind="!hasMicrophone">
+               <i class="fa fa-microphone-slash"></i>
+            </span>
+        <span class="w3-btn w3-small w3-green" if.bind="hasWebcam">
+                <i class="fa fa-video-camera"></i>
+           </span>
+        <span class="w3-btn w3-small w3-red" if.bind="!hasWebcam">
+               <i class="fa fa-video-camera"></i>
+            </span>
+        <span class="w3-btn w3-small w3-green" if.bind="hasSpeakers">
+                <i class="fa fa-volume-up"></i>
+           </span>
+        <span class="w3-btn w3-small w3-red" if.bind="!hasSpeakers">
+               <i class="fa fa-volume-off"></i>
+            </span>
+        </span>
+        </span>
+      </div>
+    </div>
+    <div class="${connection.isActive ? 'w3-show' : 'w3-hide'}">
+      <div repeat.for="connectionEvent of connection.events">
+        <accordion-panel connection-event.bind="connectionEvent"></accordion-panel>
+      </div>
+    </div>
+  </div>
+</template>

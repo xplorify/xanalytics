@@ -1,3 +1,16 @@
 <template>
-  TODO
+  <require from="./ui/accordion"></require>
+  <require from="./ui/filter"></require>
+  <div class="w3-row">     
+    <div class="w3-col s4">
+      <div class="w3-row">
+        <filter filter-form.bind="filterForm"></filter>
+      </div>
+    </div>
+    <div class="w3-col s8">
+      <div class="w3-row" repeat.for="connection of connections">
+        <accordion connection.bind="connection"></accordion>       
+      </div>
+    </div>
+  </div>
 </template>

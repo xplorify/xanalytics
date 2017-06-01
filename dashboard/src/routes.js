@@ -4,7 +4,7 @@ export class Routes {
     self = this;
     self.routes = [
       {
-        route: [''],
+        route: ['dashboard'],
         name: 'dashboard',
         moduleId: PLATFORM.moduleName('ui/dashboard/index'),
         nav: true,
@@ -27,7 +27,8 @@ export class Routes {
         nav: true,
         title: 'Register',
         isVisible: true
-      }
+      },
+      { route: '', redirect: 'dashboard' }
     ];
     self.isLogoutVisible = false;
   }

@@ -1,7 +1,6 @@
 <template>
   <section class="au-animate">
     <div class="w3-row">
-      <div class="container">
         <div class="w3-row w3-margin">
           <div repeat.for="row of router.navigation">
           <a href.bind="row.href">
@@ -11,7 +10,6 @@
             </div>
           </a>
           </div>
-        </div>
       </div>
       <div class="w3-col s9">
         <router-view></router-view>
