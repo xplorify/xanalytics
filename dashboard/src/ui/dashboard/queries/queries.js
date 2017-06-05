@@ -24,6 +24,8 @@ export class Queries {
     }
 
     self.connections = [];
+    self.count = null;
+    self.isGrouped = false;
     self.eventAggregator = eventAggregator;
     self.eventAggregator.subscribe(FilterChanged, data => self.onFilterChange(data));
   }
@@ -34,5 +36,8 @@ export class Queries {
 
   onFilterChange(filterResult) {
     self.connections = filterResult.data.connections;
+    self.count = filterResult.data.count;
+    self.filterForm = filterResult.data.filter;
+    self.isGrouped = self.filterForm.groupBy != "null";
   }
 }

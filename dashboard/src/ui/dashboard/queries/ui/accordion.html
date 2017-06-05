@@ -3,7 +3,8 @@
   <div id.bind="connection.id" class="w3-margin">
     <div class="w3-row w3-blue" click.delegate="toggle(connection)">
       <div class="container">
-        ${connection.userName}, ${connection.remoteAddress}, ${connection.countryCode}, ${connection.referrer},
+         <span if.bind="connection.userName"> ${connection.userName}</span>
+       , ${connection.remoteAddress}, ${connection.countryCode}, ${connection.referrer},
         <span>
         <span with.bind="connection.detectRtc">
         <span>${browser.name} (${browser.version})</span>,
@@ -31,9 +32,18 @@
       </div>
     </div>
     <div class="${connection.isActive ? 'w3-show' : 'w3-hide'}">
-      <div repeat.for="connectionEvent of connection.events">
-        <accordion-panel connection-event.bind="connectionEvent"></accordion-panel>
+      <div if.bind="filterForm.navigateTo">
+        <accordion-panel connection-event.bind="connection.events"></accordion-panel>
       </div>
+
+      <div if.bind="!filterForm.navigateTo">
+        <div if.bind="filterForm.groupBy != 'events.url'">
+        <div repeat.for="connectionEvent of connection.events">
+          <accordion-panel connection-event.bind="connectionEvent"></accordion-panel>
+        </div>
+        </div>
+      </div>
+
     </div>
   </div>
 </template>

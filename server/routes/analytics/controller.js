@@ -57,7 +57,8 @@ module.exports = {
             ipAddress: req.query.ipAddress,
             referrer: req.query.referrer,
             navigateTo: req.query.navigateTo,
-            groupBy: req.query.groupBy
+            groupBy: req.query.groupBy,
+            isDetailed: req.query.isDetailed
         };
         console.log("data " + JSON.stringify(data));
         res.header("Content-Type", "application/json");

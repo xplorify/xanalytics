@@ -34,7 +34,7 @@
             <label class="w3-text-blue">Detailed search</label>
           </p>
           <p>
-            <select value.bind="groupBy" class="w3-text-blue">
+            <select value.bind="groupBy" class="w3-text-blue"  disabled.bind="!isDetailed">
               <option value.bind="null">-Choose Grouping-</option>
               <option model.bind="grouping" repeat.for="grouping of groupings">${grouping}</option>
             </select>

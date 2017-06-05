@@ -2,7 +2,7 @@ import { bindable } from 'aurelia-framework';
 import { inject } from 'aurelia-framework';
 import { globals } from '../../../../models/globals';
 import { EventAggregator } from 'aurelia-event-aggregator';
-import {FilterChanged} from './filter-changed';
+import { FilterChanged } from './filter-changed';
 
 let self = null;
 @inject(EventAggregator)
@@ -33,8 +33,13 @@ export class Filter {
         if (result.error) {
           reject(result.message);
         } else {
-          self.connections = result;
-          self.onFilterChange();
+          if (self.filterForm.isDetailed) {
+            self.connections = result;
+             self.onFilterChange();
+          }else{
+             var count = result[0].count;
+             self.onFilterChange(count);
+          }         
           resolve(result);
         }
       });
@@ -71,12 +76,15 @@ export class Filter {
       data.groupBy = self.filterForm.groupBy;
     }
 
+    data.isDetailed = self.filterForm.isDetailed;
+
     return data;
   }
 
-  onFilterChange = function () {
+  onFilterChange = function (count) {
     var data = {
       connections: self.connections,
+      count: count,
       filter: self.filterForm
     }
     this.eventAggregator.publish(new FilterChanged(data));

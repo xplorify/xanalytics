@@ -1,15 +1,15 @@
 import { bindable } from 'aurelia-framework';
 
 let self;
-export class Accordion {
-@bindable connection;
+export class AccordionGrouped {
+@bindable conn;
 @bindable filterForm;
 
   constructor(){
     self = this;
   }
 
-  toggle(accordion) {
+  toggleGroup(accordion) {
     accordion.isActive = !accordion.isActive;
   }
 
@@ -17,6 +17,4 @@ export class Accordion {
     var url = accordion.panels[0].title;
     return self.router.navigate(url);
   }
-
-  
 }

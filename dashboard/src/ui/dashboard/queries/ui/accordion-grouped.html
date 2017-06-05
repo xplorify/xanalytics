@@ -1,0 +1,15 @@
+<template>
+  <require from="./accordion"></require>
+  <div id.bind="conn._id">
+    <div class="container">
+      <div class="w3-panel w3-indigo" click.delegate="toggleGroup(conn)">
+        ${conn._id}
+      </div>
+    </div>
+    <div class="${conn.isActive ? 'w3-show' : 'w3-hide'}">
+      <div class="w3-row" repeat.for="connection of conn.connections">
+        <accordion connection.bind="connection" filter-form.bind="filterForm"></accordion>
+      </div>
+    </div>
+  </div>
+</template>
