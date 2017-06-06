@@ -39,6 +39,12 @@
               <option model.bind="grouping" repeat.for="grouping of groupings">${grouping}</option>
             </select>
           </p>
+          <p>
+            <select value.bind="browser" class="w3-text-blue"  disabled.bind="!isDetailed">
+              <option value.bind="null">-Choose Browser-</option>
+              <option model.bind="browserName" repeat.for="browserName of browsers">${browserName}</option>
+            </select>
+          </p>
           <button class="w3-btn w3-blue" click.trigger="search()" disabled.bind="!canSearch">Search</button>
         </p>
       </form>

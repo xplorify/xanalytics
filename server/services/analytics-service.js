@@ -73,17 +73,35 @@ analyticsService.getOpenConnections = function (code) {
 analyticsService.getDetailedQuery = function (data) {
     var query = data.navigateTo
         ? data.groupBy
-            ? [{ '$unwind': { path: '$events', preserveNullAndEmptyArrays: false } },
-            { '$match': { "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) }, "events.url": data.navigateTo } },
-            { '$group': { "_id": '$' + data.groupBy, "connections": { $push: "$$ROOT" } } }
-            ]
+            ? data.groupBy === "events.url"
+                ? [
+                    { '$unwind': { path: '$events', preserveNullAndEmptyArrays: false } },
+                    { '$match': { "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) }, "events.url": data.navigateTo } },
+                    { '$group': { "_id": { "event_url": '$events.url', "connection_id": "$_id" }, "connections": { $push: "$$ROOT" }, "count": { "$sum": 1 } } },
+                    { "$group": { "_id": "$_id.event_url", "data": { $push: { "connections": "$connections", "count": "$count" } } } }
+                ]
+                : [
+                    { '$unwind': { path: '$events', preserveNullAndEmptyArrays: false } },
+                    { '$match': { "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) }, "events.url": data.navigateTo } },
+                    { '$group': { "_id": { "group_by": '$' + data.groupBy, "connection_id": "$_id" }, "connections": { $push: "$$ROOT" }, "count": { "$sum": 1 } } },
+                    { "$group": { "_id": "$_id.group_by", "data": { $push: { "connections": "$connections", "count": "$count" } } } }
+                ]
+
             : [{ '$unwind': { path: '$events', preserveNullAndEmptyArrays: false } },
-            { '$match': { "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) }, "events.url": data.navigateTo } }]
+            { '$match': { "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) }, "events.url": data.navigateTo } },
+            { '$group': { "_id": "$_id", 
+            "userName": { $first: "$userName" }, 
+            "remoteAddress": { $first: "$remoteAddress" }, 
+            "referrer": { $first: "$referrer" }, 
+            "detectRtc": { $first: "$detectRtc" }, 
+            "countryCode": { $first: "$countryCode" }, "events": { $addToSet: "$events" } } }]
         : data.groupBy
             ? data.groupBy === "events.url"
-                ? [{ '$unwind': { path: '$events', preserveNullAndEmptyArrays: false } },
-                { '$match': { "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) } } },
-                { '$group': { "_id": '$' + data.groupBy, "connections": { $push: "$$ROOT" } } }
+                ? [
+                    { '$unwind': { path: '$events', preserveNullAndEmptyArrays: false } },
+                    { '$match': { "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) } } },
+                    { '$group': { "_id": { "event_url": '$events.url', "connection_id": "$_id" }, "connections": { $push: "$$ROOT" }, "count": { "$sum": 1 } } },
+                    { "$group": { "_id": "$_id.event_url", "data": { $push: { "connections": "$connections", "count": "$count" } } } }
                 ]
                 : [
                     { '$match': { "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) } } },

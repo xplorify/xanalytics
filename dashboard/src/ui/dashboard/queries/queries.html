@@ -25,6 +25,11 @@
           <p if.bind="!filterForm.navigateTo  && !filterForm.isDetailed">The number of connections is: ${count}</p>
         </div>
       </div>
+      <div if.bind="!count && connections.length == 0" class="w3-margin">
+        <div class="w3-panel w3-blue w3-round-large w3-center">
+          <p>There aren't any connections</p>
+        </div>
+      </div>
     </div>
   </div>
 </template>

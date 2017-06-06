@@ -1,10 +1,9 @@
 <template>
   <require from="./accordion-panel"></require>
   <div id.bind="connection.id" class="w3-margin">
-    <div class="w3-row w3-blue" click.delegate="toggle(connection)">
-      <div class="container">
-         <span if.bind="connection.userName"> ${connection.userName}</span>
-       , ${connection.remoteAddress}, ${connection.countryCode}, ${connection.referrer},
+    <div class="container w3-blue" click.delegate="toggle(connection)">
+        <span if.bind="connection.userName"> ${connection.userName}</span> , ${connection.remoteAddress}, ${connection.countryCode},
+        ${connection.referrer},
         <span>
         <span with.bind="connection.detectRtc">
         <span>${browser.name} (${browser.version})</span>,
@@ -22,28 +21,22 @@
                <i class="fa fa-video-camera"></i>
             </span>
         <span class="w3-btn w3-small w3-green" if.bind="hasSpeakers">
-                <i class="fa fa-volume-up"></i>
-           </span>
+            <i class="fa fa-volume-up"></i>
+        </span>
         <span class="w3-btn w3-small w3-red" if.bind="!hasSpeakers">
                <i class="fa fa-volume-off"></i>
-            </span>
+         </span>
         </span>
+        <span class="w3-badge w3-right w3-green w3-center" if.bind="count">
+              ${count}
         </span>
-      </div>
     </div>
     <div class="${connection.isActive ? 'w3-show' : 'w3-hide'}">
-      <div if.bind="filterForm.navigateTo">
-        <accordion-panel connection-event.bind="connection.events"></accordion-panel>
-      </div>
-
-      <div if.bind="!filterForm.navigateTo">
-        <div if.bind="filterForm.groupBy != 'events.url'">
+      <div if.bind="connection.events && connection.events.length > 0">
         <div repeat.for="connectionEvent of connection.events">
           <accordion-panel connection-event.bind="connectionEvent"></accordion-panel>
         </div>
-        </div>
       </div>
-
     </div>
   </div>
 </template>

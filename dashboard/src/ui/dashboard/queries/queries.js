@@ -20,6 +20,7 @@ export class Queries {
       referrer: "",
       navigateTo: "",
       groupBy: "",
+      browser: "",
       isDetailed: false
     }
 

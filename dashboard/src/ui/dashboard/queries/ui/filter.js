@@ -13,6 +13,7 @@ export class Filter {
   constructor(eventAggregator) {
     self = this;
     this.groupings = ['userName', 'referrer', 'remoteAddress', 'countryCode', 'events.url'];
+    this.browsers = ['Chrome', 'Firefox', 'Safari', 'Others'];
     this.eventAggregator = eventAggregator;
     this.isRequesting = false;
   }
@@ -37,7 +38,7 @@ export class Filter {
             self.connections = result;
              self.onFilterChange();
           }else{
-             var count = result[0].count;
+             var count = result && result.length > 0 ? result[0].count : 0;
              self.onFilterChange(count);
           }         
           resolve(result);

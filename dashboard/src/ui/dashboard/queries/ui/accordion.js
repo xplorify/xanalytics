@@ -3,6 +3,7 @@ import { bindable } from 'aurelia-framework';
 let self;
 export class Accordion {
 @bindable connection;
+@bindable count;
 @bindable filterForm;
 
   constructor(){

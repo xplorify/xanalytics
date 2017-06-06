@@ -7,8 +7,15 @@
       </div>
     </div>
     <div class="${conn.isActive ? 'w3-show' : 'w3-hide'}">
-      <div class="w3-row" repeat.for="connection of conn.connections">
-        <accordion connection.bind="connection" filter-form.bind="filterForm"></accordion>
+      <div if.bind="conn.data">
+        <div class="w3-row" repeat.for="data of conn.data">
+          <accordion connection.bind="data.connections[0]" count.bind="data.count" filter-form.bind="filterForm"></accordion>
+        </div>
+      </div>
+      <div if.bind="!conn.data">
+        <div class="w3-row" repeat.for="connection of conn.connections">
+          <accordion connection.bind="connection" filter-form.bind="filterForm"></accordion>
+        </div>
       </div>
     </div>
   </div>
