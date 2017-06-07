@@ -12,12 +12,12 @@ export class Filter {
 
   constructor(eventAggregator) {
     self = this;
-    this.groupings = ['userName', 'referrer', 'remoteAddress', 'countryCode', 'events.url'];
+    this.groupings = ['userName', 'referrer', 'remoteAddress', 'countryCode', 'events.url', 'detectRtc.osName', 'detectRtc.browser.name'];
     this.browsers = ['Chrome', 'Firefox', 'Safari', 'Others'];
+    this.osNames = ['Windows', 'Android', 'Linux', 'iOS'];
     this.eventAggregator = eventAggregator;
     this.isRequesting = false;
   }
-
 
   get canSearch() {
     return self.filterForm.from != null && self.filterForm.to != null && !self.isRequesting;
@@ -75,6 +75,14 @@ export class Filter {
 
     if (self.filterForm.groupBy !== "null") {
       data.groupBy = self.filterForm.groupBy;
+    }
+
+    if (self.filterForm.browser !== "null") {
+      data.browser = self.filterForm.browser;
+    }
+
+    if (self.filterForm.operatingSystem !== "null") {
+      data.operatingSystem = self.filterForm.operatingSystem;
     }
 
     data.isDetailed = self.filterForm.isDetailed;

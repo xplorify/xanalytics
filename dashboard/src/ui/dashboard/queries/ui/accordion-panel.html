@@ -1,11 +1,11 @@
 <template>
-    <div class="w3-row w3-margin" with.bind="connectionEvent">
+    <div class="w3-row" css="margin-left: ${5}%; margin-top:${1}%" with.bind="connectionEvent">
         <span>${eventType}</span>,
-        <span if.bind="url">${url},</span>       
+        <span if.bind="url">${url},</span>
         <span if.bind="info">
             <span if.bind="info.loginType">${info.loginType},</span>
-            <span if.bind="info.roomId">${info.roomId},</span>
-            </span>       
+        <span if.bind="info.roomId">${info.roomId},</span>
+        </span>
         <span>${date}</span>
     </div>
 </template>

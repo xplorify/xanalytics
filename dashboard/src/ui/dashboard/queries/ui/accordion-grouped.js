@@ -3,6 +3,7 @@ import { bindable } from 'aurelia-framework';
 let self;
 export class AccordionGrouped {
 @bindable conn;
+@bindable totalCount;
 @bindable filterForm;
 
   constructor(){

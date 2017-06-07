@@ -21,6 +21,7 @@ export class Queries {
       navigateTo: "",
       groupBy: "",
       browser: "",
+      operatingSystem: "",
       isDetailed: false
     }
 

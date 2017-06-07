@@ -58,7 +58,9 @@ module.exports = {
             referrer: req.query.referrer,
             navigateTo: req.query.navigateTo,
             groupBy: req.query.groupBy,
-            isDetailed: req.query.isDetailed
+            isDetailed: req.query.isDetailed,
+            browser: req.query.browser,
+            operatingSystem: req.query.operatingSystem
         };
         console.log("data " + JSON.stringify(data));
         res.header("Content-Type", "application/json");

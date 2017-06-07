@@ -2,8 +2,16 @@
   <require from="./accordion"></require>
   <div id.bind="conn._id">
     <div class="container">
-      <div class="w3-panel w3-indigo" click.delegate="toggleGroup(conn)">
-        ${conn._id}
+      <div class="row">
+        <div class="w3-panel w3-indigo" click.delegate="toggleGroup(conn)">
+          <p class="w3-padding">
+            <span if.bind="conn._id != null"> ${conn._id}</span>
+            <span if.bind="conn._id == null"> null</span>
+            <span class="w3-badge w3-right w3-green" if.bind="totalCount">
+              ${totalCount}
+        </span>
+          </p>
+        </div>
       </div>
     </div>
     <div class="${conn.isActive ? 'w3-show' : 'w3-hide'}">
