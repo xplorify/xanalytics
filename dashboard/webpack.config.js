@@ -30,6 +30,7 @@ const cssRules = [
   }
 ];
 
+
 module.exports = ({ production, server, extractCss, coverage } = {}) => ({
   resolve: {
     extensions: ['.js'],

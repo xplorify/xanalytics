@@ -16,28 +16,29 @@ var app = express();
 
 // app.configure ya no existe
 app.use(errorhandler({
-    dumpExceptions: true,
-    showStack: true
+  dumpExceptions: true,
+  showStack: true
 }));
+
 
 app.use(require("morgan")("combined", { stream: logger.stream }));
 
-app.use(express.static("../dashboard"));
+app.use(express.static("../dashboard/dist"));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
-    extended: true
+  extended: true
 }));
 
-app.use(function (req, res, next) {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE");
-    res.header("Access-Control-Allow-Headers", "origin, content-type, Authorization");
-    res.header("Content-Type", "application/json");
-    if (req.method === "OPTIONS") {
-        res.send(200);
-    } else {
-        next();
-    }
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE");
+  res.header("Access-Control-Allow-Headers", "origin, content-type, Authorization");
+  res.header("Content-Type", "application/json");
+  if (req.method === "OPTIONS") {
+    res.send(200);
+  } else {
+    next();
+  }
 });
 
 // routes

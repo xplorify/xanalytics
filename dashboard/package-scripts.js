@@ -55,7 +55,7 @@ module.exports = {
     },
     build: 'nps webpack.build',
     webpack: {
-      default: 'nps webpack.server',
+      default: 'nps webpack.build.production',
       build: {
         before: rimraf('dist'),
         default: 'nps webpack.build.production',
