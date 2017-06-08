@@ -3,17 +3,18 @@
 var mongoose = require('mongoose'),
     config = require("../config"),
     connectionSchema = require("../models/connection"),
-    util = require('util');
+    util = require('util'),
+    logger = require('winston');
 mongoose.Promise = require('bluebird');
 var analyticsService = {};
 analyticsService.Connection = mongoose.model("connections", connectionSchema);
 
 analyticsService.createConnection = function (data) {
-    console.log("Creating connection... " + JSON.stringify(data.body));
+    logger.info("Creating connection... " + JSON.stringify(data.body));
     return new Promise(function (resolve, reject) {
         var db = mongoose.createConnection(config.xplorifyDb, { auth: { authdb: "admin" } });
         var connection = analyticsService.getNewConnectionObject(db, data);
-        console.log("CONN OBJ " + connection);
+        logger.info("CONN OBJ " + connection);
         return connection.save(function (err, response) {
             if (!err) {
                 resolve(response);
@@ -31,14 +32,14 @@ analyticsService.getConnections = function () {
     return new Promise(function (resolve, reject) {
         var db = mongoose.createConnection(config.xplorifyDb, { auth: { authdb: "admin" } });
         var connectionModel = db.model("connections", connectionSchema);
-        console.log("before find");
+        logger.info("before find");
         return connectionModel.find()
             .exec(function (err, response) {
                 if (!err) {
-                    console.log("Result: " + response);
+                    logger.info("Result: " + response);
                     resolve(response);
                 } else {
-                    console.log("err: " + err);
+                    logger.info("err: " + err);
                     reject(new Error(err));
                 }
             })
@@ -52,15 +53,15 @@ analyticsService.getOpenConnections = function (code) {
     return new Promise(function (resolve, reject) {
         var db = mongoose.createConnection(config.xplorifyDb, { auth: { authdb: "admin" } });
         var connectionModel = db.model("connections", connectionSchema);
-        console.log("before find");
+        logger.info("before find");
         var query = code ? { '$match': { 'endDate': { '$exists': false }, "events.eventType": "Navigate", "application.code": code } } : { '$match': { 'endDate': { '$exists': false }, "events.eventType": "Navigate" } }
         return connectionModel.aggregate(query)
             .exec(function (err, response) {
                 if (!err) {
-                    console.log("Result: " + response);
+                    logger.info("Result: " + response);
                     resolve(response);
                 } else {
-                    console.log("err: " + err);
+                    logger.info("err: " + err);
                     reject(new Error(err));
                 }
             })
@@ -526,11 +527,11 @@ analyticsService.getMatchQuery = function (query) {
     var queryMatch = null;
     if (Array.isArray(query)) {
         var matchQuery = query.filter(function (obj) {
-            console.log("obj: " + JSON.stringify(obj));
+            logger.info("obj: " + JSON.stringify(obj));
             return obj.$match;
         });
 
-        console.log("matchQuery: " + JSON.stringify(matchQuery));
+        logger.info("matchQuery: " + JSON.stringify(matchQuery));
         if (matchQuery) {
             queryMatch = matchQuery[0].$match;
         }
@@ -538,7 +539,7 @@ analyticsService.getMatchQuery = function (query) {
         queryMatch = query.$match;
     }
 
-    console.log("query match: " + JSON.stringify(queryMatch));
+    logger.info("query match: " + JSON.stringify(queryMatch));
     return queryMatch;
 }
 
@@ -546,16 +547,16 @@ analyticsService.getAnalytics = function (data) {
     return new Promise(function (resolve, reject) {
         var db = mongoose.createConnection(config.xplorifyDb, { auth: { authdb: "admin" } });
         var connectionModel = db.model("connections", connectionSchema);
-        console.log("before find is detailed search: " + data.isDetailed);
+        logger.info("before find is detailed search: " + data.isDetailed);
         var query = data.isDetailed === "true" ? analyticsService.getDetailedQuery(data) : analyticsService.getCountQuery(data);
-        console.log("query " + JSON.stringify(query));
+        logger.info("query " + JSON.stringify(query));
         return connectionModel.aggregate(query)
             .exec(function (err, response) {
                 if (!err) {
-                    console.log("Result: " + response);
+                    logger.info("Result: " + response);
                     resolve(response);
                 } else {
-                    console.log("err: " + err);
+                    logger.info("err: " + err);
                     reject(new Error(err));
                 }
             })
@@ -569,14 +570,14 @@ analyticsService.closeOpenConnections = function () {
     return new Promise(function (resolve, reject) {
         var db = mongoose.createConnection(config.xplorifyDb, { auth: { authdb: "admin" } });
         var connectionModel = db.model("connections", connectionSchema);
-        console.log("before update many");
+        logger.info("before update many");
         return connectionModel.updateMany({ endDate: undefined }, { $set: { endDate: new Date().toISOString() } })
             .exec(function (err, response) {
                 if (!err) {
-                    console.log("Result: " + response);
+                    logger.info("Result: " + response);
                     resolve(response);
                 } else {
-                    console.log("err: " + err);
+                    logger.info("err: " + err);
                     reject(new Error(err));
                 }
             })
@@ -590,14 +591,14 @@ analyticsService.getConnectionById = function (id) {
     return new Promise(function (resolve, reject) {
         var db = mongoose.createConnection(config.xplorifyDb, { auth: { authdb: "admin" } });
         var connectionModel = db.model("connections", connectionSchema);
-        console.log("before find");
+        logger.info("before find");
         return connectionModel.findById(id)
             .exec(function (err, response) {
                 if (!err) {
-                    console.log("Result: " + response);
+                    logger.info("Result: " + response);
                     resolve(response);
                 } else {
-                    console.log("err: " + err);
+                    logger.info("err: " + err);
                     reject(new Error(err));
                 }
             })
@@ -612,28 +613,28 @@ analyticsService.closeConnection = function (connectionId) {
         return new Promise(function (resolve, reject) {
             var db = mongoose.createConnection(config.xplorifyDb, { auth: { authdb: "admin" } });
             var connectionModel = db.model("connections", connectionSchema);
-            console.log("Before end date update");
+            logger.info("Before end date update");
             var endDate = new Date().toISOString();
             return connectionModel.update({ _id: connectionId }, {
                 $set: { endDate: endDate }
             })
                 .exec()
                 .then(function (result) {
-                    console.log("End date updated: " + result);
+                    logger.info("End date updated: " + result);
                     resolve(result);
                 });
         });
     } catch (e) {
-        console.log("Save failed");
-        console.log("Error: " + e);
+        logger.info("Save failed");
+        logger.info("Error: " + e);
     } finally {
-        console.log("finally block");
+        logger.info("finally block");
         return mongoose.disconnect();
     }
 };
 
 analyticsService.addNewEvent = function (data) {
-    console.log("Adding new event...");
+    logger.info("Adding new event...");
     return new Promise(function (resolve, reject) {
         var db = mongoose.createConnection(config.xplorifyDb, { auth: { authdb: "admin" } });
         var connectionModel = db.model("connections", connectionSchema);
@@ -657,7 +658,7 @@ analyticsService.addNewEvent = function (data) {
         return connectionModel.findByIdAndUpdate(data.connectionId, updateObject, { new: true })
             .exec()
             .then(function (response) {
-                console.log("New event was sucessfully added: " + response);
+                logger.info("New event was sucessfully added: " + response);
                 resolve(response);
             })
             .catch(function (err) {
@@ -687,7 +688,7 @@ analyticsService.addUserInfo = function (data) {
         return connectionModel.findByIdAndUpdate(data.connectionId, updateObject, { new: true })
             .exec()
             .then(function (response) {
-                console.log("Result: " + response);
+                logger.info("Result: " + response);
                 resolve(response);
             })
             .catch(function (err) {

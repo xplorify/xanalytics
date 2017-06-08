@@ -4,6 +4,7 @@ var jwt = require('jsonwebtoken');
 var passport = require('passport');
 var User = require('../../models/user');
 var config = require('../../config');
+var logger = require('winston');
 
 var validateRegister = require('./validators/validate-register');
 var validateLogin = require('./validators/validate-login');
@@ -34,7 +35,7 @@ module.exports = {
         }
         return passport.authenticate('local-login', (err, user) => {
             if (err) {
-                console.error(err);
+                logger.error(err);
                 if (err.name === 'IncorrectCredentialsError') {
                     return res.status(400).json({
                         success: false,
@@ -95,7 +96,7 @@ module.exports = {
         res.send({ content: 'Success' });
     },
     getUserInfo: function(req, res, next) {
-        console.log("Request user: " + JSON.stringify(req.user));
+        logger.info("Request user: " + JSON.stringify(req.user));
         res.send(setUserInfo(req.user));
     },
     roleAuthorization: function(roles) {

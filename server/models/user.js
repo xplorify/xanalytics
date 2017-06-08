@@ -3,7 +3,8 @@
 var mongoose = require('mongoose'),
     Schema = mongoose.Schema,
     mongoosePaginate = require('mongoose-paginate'),
-    bcrypt = require('bcryptjs');
+    bcrypt = require('bcryptjs'),
+    logger = require('winston');
 
 var userSchema = new Schema({
     firstname: { type: String, required: 'FirstNameInvalid' },
@@ -17,22 +18,22 @@ var userSchema = new Schema({
         default: 'admin'
     }]
 }, {
-    timestamps: true
-});
+        timestamps: true
+    });
 
 // userSchema.plugin(mongoosePaginate);
 
-userSchema.pre('save', function(next) {
+userSchema.pre('save', function (next) {
     var user = this;
     if (!user.isModified('password')) {
         return next();
     }
     var SALT_FACTOR = 10;
-    bcrypt.genSalt(SALT_FACTOR, function(err, salt) {
+    bcrypt.genSalt(SALT_FACTOR, function (err, salt) {
         if (err) {
             return next(err);
         }
-        bcrypt.hash(user.password, salt, function(err, hash) {
+        bcrypt.hash(user.password, salt, function (err, hash) {
             if (err) {
                 return next(err);
             }
@@ -42,14 +43,14 @@ userSchema.pre('save', function(next) {
     });
 });
 
-userSchema.methods.comparePassword = function(password, done) {
-    bcrypt.compare(password, this.password, function(err, isMatch) {
+userSchema.methods.comparePassword = function (password, done) {
+    bcrypt.compare(password, this.password, function (err, isMatch) {
         if (err) {
-            console.log('Error during password comparison: ' + err);
+            logger.error('Error during password comparison: ' + err);
             return done(err);
         }
         if (!isMatch) {
-            console.log('Passwords don\'t match.');
+            logger.error('Passwords don\'t match.');
         }
         done(err, isMatch);
     });

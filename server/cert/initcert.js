@@ -11,8 +11,9 @@ var cipher = require('./cipher');
 var collection;
 var keystore = path.resolve(__dirname, '.woogeen.keystore');
 var allComps = ['sample'];
+var logger = require('winston');
 
-console.log('Will generate passphrase store for basic server.');
+logger.info('Will generate passphrase store for basic server.');
 
 cipher.unlock(cipher.k, keystore, function cb(err, obj) {
     if (err || typeof collection !== 'object') {
@@ -24,7 +25,7 @@ cipher.unlock(cipher.k, keystore, function cb(err, obj) {
     function done() {
         readline.close();
         cipher.lock(cipher.k, collection, keystore, function cb(err) {
-            console.log(err || 'done!');
+            logger.info(err || 'done!');
         });
     }
 
@@ -33,7 +34,7 @@ cipher.unlock(cipher.k, keystore, function cb(err, obj) {
         if (component) {
             readline.question('Enter passphrase of certificate for ' + component +
                 ': ',
-                function(res) {
+                function (res) {
                     collection[component] = res;
                     ask(components, end);
                 });

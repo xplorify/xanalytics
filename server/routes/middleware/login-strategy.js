@@ -3,7 +3,8 @@
 var mongoose = require('mongoose'),
     config = require("../../config"),
     userSchema = require("../../models/user"),
-    PassportLocalStrategy = require('passport-local').Strategy;
+    PassportLocalStrategy = require('passport-local').Strategy,
+    logger = require("winston");
 
 mongoose.Promise = require('bluebird');
 
@@ -19,7 +20,7 @@ module.exports = new PassportLocalStrategy({
         password: password.trim()
     };
 
-    console.log('Trying to login user with credentials: ' + JSON.stringify(userData));
+    logger.info('Trying to login user with credentials: ' + JSON.stringify(userData));
     var db = mongoose.createConnection(config.xplorifyDb, { auth: { authdb: "admin" } });
     var userModel = db.model("users", userSchema);
 
@@ -36,7 +37,7 @@ module.exports = new PassportLocalStrategy({
 
                 return done(error);
             }
-            console.log('Comparing passwords: \'' + user.password + '\' and \'' + userData.password + '\'');
+            logger.info('Comparing passwords: \'' + user.password + '\' and \'' + userData.password + '\'');
             return user.comparePassword(userData.password, (passwordErr, isMatch) => {
                 if (err) {
                     return done(err);

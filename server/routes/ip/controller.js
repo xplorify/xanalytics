@@ -1,6 +1,7 @@
 "use strict";
 
 var ipService = require("../../services/ip-service");
+var logger = require("winston");
 
 module.exports = {
     getGlobals: function(request, res) {
@@ -17,12 +18,12 @@ module.exports = {
 
         return ipService.getGeoIpInfo(ip)
             .then(function(result) {
-                console.log("Ip Controller: " + result);
+                logger.info("Ip Controller: " + result);
                 res.send({ result: result });
             })
             .catch(function(err) {
                 res.status(500);
-                console.log("Ip Controller catch: " + err);
+                logger.info("Ip Controller catch: " + err);
                 res.send({ error: err });
             });
     }

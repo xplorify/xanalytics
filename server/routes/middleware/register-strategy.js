@@ -3,7 +3,8 @@
 var mongoose = require('mongoose'),
     config = require("../../config"),
     userSchema = require("../../models/user"),
-    PassportLocalStrategy = require('passport-local').Strategy;
+    PassportLocalStrategy = require('passport-local').Strategy,
+    logger = require("winston");
 
 mongoose.Promise = require('bluebird');
 
@@ -24,7 +25,7 @@ module.exports = new PassportLocalStrategy({
         roles: req.roles ? req.roles : ['admin']
 
     };
-    console.log('Trying to register user:' + JSON.stringify(userData));
+    logger.info('Trying to register user:' + JSON.stringify(userData));
     var db = mongoose.createConnection(config.xplorifyDb, { auth: { authdb: "admin" } });
     var userModel = db.model("users", userSchema);
 

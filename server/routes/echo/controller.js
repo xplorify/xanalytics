@@ -1,5 +1,6 @@
 var analyticsService = require("../../services/analytics-service");
 var storeService = require("../../services/store-service");
+var logger = require("winston");
 
 var controller = {};
 
@@ -9,7 +10,7 @@ controller.getConnectionId = function(conn) {
 
 controller.onData = function(conn, message) {
     var connectionId = controller.getConnectionId(conn);
-    console.log("New message received via connection '" + connectionId + "': " + message);
+    logger.info("New message received via connection '" + connectionId + "': " + message);
     var data = JSON.parse(message);
     if (data.userName) {
         conn.userName = data.userName;
@@ -24,7 +25,7 @@ controller.onData = function(conn, message) {
 controller.onClose = function(conn) {
     // find connection by connectionId and set end date
     var connectionId = controller.getConnectionId(conn);
-    console.log("Closing WS connection: " + conn);
+    logger.info("Closing WS connection: " + conn);
     return analyticsService.closeConnection(connectionId)
         .then(function() {
             storeService.removeUser(connectionId);
@@ -36,7 +37,7 @@ controller.onClose = function(conn) {
 };
 
 controller.onConnection = function(conn) {
-    console.log("New WS connection: " + conn);
+    logger.info("New WS connection: " + conn);
     var connectionId = controller.getConnectionId(conn);
     storeService.addUser(connectionId, conn);
     conn.on('data', function(message) { controller.onData(conn, message); });

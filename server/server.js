@@ -10,6 +10,7 @@ var express = require("express"),
     cipher = require("./cert/cipher"),
     config = require("./config"),
     analyticsService = require("./services/analytics-service");
+var logger = require('./log/log.js');
 
 var app = express();
 
@@ -18,14 +19,16 @@ app.use(errorhandler({
     dumpExceptions: true,
     showStack: true
 }));
-app.use(morgan("dev"));
+
+app.use(require("morgan")("combined", { stream: logger.stream }));
+
 app.use(express.static("../dashboard"));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
     extended: true
 }));
 
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE");
     res.header("Access-Control-Allow-Headers", "origin, content-type, Authorization");
@@ -45,10 +48,10 @@ const routes = require('./routes')(app);
 // then start HTTPS server
 // then start WS server
 analyticsService.closeOpenConnections()
-    .then(function() {
-        console.log('All open connections have been closed.');
+    .then(function () {
+        logger.info('All open connections have been closed.');
 
-        console.log('Initializing https server...');
+        logger.info('Initializing https server...');
         cipher.unlock(cipher.k, "./cert/.woogeen.keystore", function cb(err, obj) {
             if (!err) {
                 try {
@@ -59,7 +62,7 @@ analyticsService.closeOpenConnections()
                         }, app)
                         .listen(config.httpsPort);
 
-                    console.log('Initializing WS server...');
+                    logger.info('Initializing WS server...');
                     require('./routes/echo').init(server);
                 } catch (e) {
                     err = e;

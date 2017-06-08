@@ -1,10 +1,11 @@
 const validator = require('validator');
+var logger = require('winston');
 
 module.exports = function(payload) {
     const errors = {};
     let isFormValid = true;
     let message = '';
-    console.log('Validate register request has started...');
+    logger.info('Validate register request has started...');
     if (!payload || typeof payload.username !== 'string' || payload.username.trim().length === 0) {
         isFormValid = false;
         errors.username = 'Please provide your username.';
@@ -33,7 +34,7 @@ module.exports = function(payload) {
     if (!isFormValid) {
         message = 'Check the form for errors.';
     }
-    console.log('Validate register request has finished...');
+    logger.info('Validate register request has finished...');
     return {
         success: isFormValid,
         message,

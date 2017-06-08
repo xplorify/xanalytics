@@ -4,7 +4,8 @@ var mongoose = require('mongoose'),
     config = require("../../config"),
     userSchema = require("../../models/user"),
     JwtStrategy = require('passport-jwt').Strategy,
-    ExtractJwt = require('passport-jwt').ExtractJwt;
+    ExtractJwt = require('passport-jwt').ExtractJwt,
+    logger = require("winston");
 
 mongoose.Promise = require('bluebird');
 
@@ -18,13 +19,13 @@ var jwtOptions = {
     secretOrKey: config.jwtSecret
 };
 
-module.exports = new JwtStrategy(jwtOptions, function(payload, done) {
+module.exports = new JwtStrategy(jwtOptions, function (payload, done) {
     var db = mongoose.createConnection(config.xplorifyDb, { auth: { authdb: "admin" } });
     var userModel = db.model("users", userSchema);
     if (payload) {
-        console.log('User passed valid JWT token: ' + JSON.stringify(payload));
+        logger.info('User passed valid JWT token: ' + JSON.stringify(payload));
     } else {
-        console.log('User didn\'t passe valid JWT token.');
+        logger.info('User didn\'t passe valid JWT token.');
     }
     return userModel
         .findById(payload._id)
@@ -39,7 +40,7 @@ module.exports = new JwtStrategy(jwtOptions, function(payload, done) {
                 done(null, false);
             }
         })
-        .finally(function() {
+        .finally(function () {
             db.close();
         });
 });

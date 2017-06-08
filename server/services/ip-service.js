@@ -2,12 +2,13 @@
 
 var config = require("../config"),
     fetch = require("node-fetch"),
+    logger = require("winston"),
     ipService = {};
 
 ipService.getGeoIpInfo = function(ipAddress) {
-    console.log('IP address: ' + ipAddress);
+    logger.info('IP address: ' + ipAddress);
     var url = config.freeGeoIpUrl + "/" + ipAddress;
-    console.log("url: " + url);
+    logger.info("url: " + url);
     return fetch(url, {
             method: 'GET'
         })
