@@ -29,6 +29,6 @@ cd /
 git clone git@github.com:xplorify/xplorify-analytics.git
 cd /xplorify-analytics/dashboard 
 npm i
-npm start --build
+webpack -p
 cd /xplorify-analytics/server 
 npm i
