@@ -3,7 +3,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const { AureliaPlugin } = require('aurelia-webpack-plugin');
-const { optimize: { CommonsChunkPlugin }, ProvidePlugin } = require('webpack');
+const { optimize: { CommonsChunkPlugin }, ProvidePlugin, DefinePlugin } = require('webpack');
 
 // config helpers:
 const ensureArray = config =>
@@ -17,6 +17,15 @@ const outDir = path.resolve(__dirname, 'dist');
 const srcDir = path.resolve(__dirname, 'src');
 const nodeModulesDir = path.resolve(__dirname, 'node_modules');
 const baseUrl = '/';
+
+let DEBUG = !(JSON.stringify(process.env.NODE_ENV).replace(" ", "") === '"production"');
+let ENV = JSON.stringify(process.env.NODE_ENV);
+
+// console.log(require("../../../Learning/Angular/MyFirstApp/package.json"));
+let GLOBALS = {
+  '__ENV__': ENV,
+  '__DEV__': DEBUG
+};
 
 const cssRules = [
   { loader: 'css-loader' },
@@ -117,6 +126,7 @@ module.exports = ({ production, server, extractCss, coverage } = {}) => ({
     ]
   },
   plugins: [
+    new DefinePlugin(GLOBALS),
     new AureliaPlugin(),
     new ProvidePlugin({
       Promise: 'bluebird'
