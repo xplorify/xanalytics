@@ -3,7 +3,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const { AureliaPlugin } = require('aurelia-webpack-plugin');
-const { optimize: { CommonsChunkPlugin }, ProvidePlugin } = require('webpack');
+const { optimize: { CommonsChunkPlugin }, ProvidePlugin, DefinePlugin } = require('webpack');
 
 // config helpers:
 const ensureArray = config =>
@@ -29,6 +29,17 @@ const cssRules = [
     }
   }
 ];
+
+let DEBUG = !(JSON.stringify(process.env.NODE_ENV).replace(' ', '') === '"production"');
+let ENV = process.env.NODE_ENV.replace(' ', '');
+
+let GLOBALS = {
+  '__ENV__': ENV,
+  '__DEV__': DEBUG
+};
+
+console.log(GLOBALS);
+
 
 module.exports = ({ production, server, extractCss, coverage } = {}) => ({
   resolve: {
@@ -116,6 +127,7 @@ module.exports = ({ production, server, extractCss, coverage } = {}) => ({
     ]
   },
   plugins: [
+    new DefinePlugin(GLOBALS),
     new AureliaPlugin(),
     new ProvidePlugin({
       Promise: 'bluebird'
