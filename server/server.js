@@ -19,7 +19,7 @@ app.use(errorhandler({
     showStack: true
 }));
 app.use(morgan("dev"));
-app.use(express.static("../client"));
+app.use(express.static("../dashboard"));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
     extended: true
