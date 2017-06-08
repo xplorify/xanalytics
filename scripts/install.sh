@@ -27,9 +27,10 @@ echo "StrictHostKeyChecking no" >> /etc/ssh/ssh_config
 
 cd /
 git clone git@github.com:xplorify/xplorify-analytics.git
+
 cd /xplorify-analytics/dashboard 
 npm i
-npm update
-webpack -p
+npm start --webpack
+
 cd /xplorify-analytics/server 
 npm i
