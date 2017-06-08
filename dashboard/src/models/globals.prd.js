@@ -1,4 +1,4 @@
-let result = {
+module.exports = {
   // input parameters
   xAnalytics: null,
   serverUrl: 'https://live.xplorify.net:444',
@@ -34,4 +34,4 @@ let result = {
   ]
 };
 
-export let globals = result;
+// export let globals = result;

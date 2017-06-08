@@ -1,4 +1,3 @@
-let env = (production ? 'prd' : 'dev');
+let env = (__DEV__ ? 'dev' : 'prd');
 let result = require('./globals.' + env);
-console.log('Loading globals for environment : ' + env);
 export let globals = result;

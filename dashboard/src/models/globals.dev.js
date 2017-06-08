@@ -1,4 +1,4 @@
-let result = {
+module.exports = {
   // input parameters
   xAnalytics: null,
   serverUrl: 'https://localhost:444',
@@ -34,4 +34,4 @@ let result = {
   ]
 };
 
-export let globals = result;
+// export let globals = result;

@@ -18,14 +18,15 @@ const srcDir = path.resolve(__dirname, 'src');
 const nodeModulesDir = path.resolve(__dirname, 'node_modules');
 const baseUrl = '/';
 
-let DEBUG = !(JSON.stringify(process.env.NODE_ENV).replace(" ", "") === '"production"');
-let ENV = JSON.stringify(process.env.NODE_ENV);
-
-// console.log(require("../../../Learning/Angular/MyFirstApp/package.json"));
+let DEBUG = !(process.env.NODE_ENV && JSON.stringify(process.env.NODE_ENV).replace(' ', '') === '"production"');
+let ENV = JSON.stringify(process.env.NODE_ENV ? process.env.NODE_ENV : 'development');
 let GLOBALS = {
+  'process.env.NODE_ENV': process.env.NODE_ENV,
   '__ENV__': ENV,
   '__DEV__': DEBUG
 };
+
+console.log(GLOBALS);
 
 const cssRules = [
   { loader: 'css-loader' },
