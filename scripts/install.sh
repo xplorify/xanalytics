@@ -24,6 +24,7 @@ chmod 600 /repo-key
 echo "IdentityFile /repo-key" >> /etc/ssh/ssh_config
 echo "StrictHostKeyChecking no" >> /etc/ssh/ssh_config
 
+echo fs.inotify.max_user_watches=524288 | tee -a /etc/sysctl.conf && sysctl -p
 
 cd /
 git clone git@github.com:xplorify/xplorify-analytics.git
