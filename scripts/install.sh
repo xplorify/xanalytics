@@ -31,6 +31,5 @@ cd /xplorify-analytics/dashboard
 npm i
 npm update
 webpack -p
-
 cd /xplorify-analytics/server 
 npm i
