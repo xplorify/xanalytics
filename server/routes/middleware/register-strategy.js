@@ -21,7 +21,7 @@ module.exports = new PassportLocalStrategy({
         email: req.body.email.trim(),
         username: username.trim(),
         password: password.trim(),
-        roles: req.roles ? req.roles : ['student']
+        roles: req.roles ? req.roles : ['admin']
 
     };
     console.log('Trying to register user:' + JSON.stringify(userData));

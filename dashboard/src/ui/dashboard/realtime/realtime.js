@@ -2,36 +2,41 @@ import { computedFrom } from 'aurelia-framework';
 import { globals } from '../../../models/globals';
 import { AnalyticsModel } from '../../../models/analytics';
 import { Connection } from '../../../models/connection';
-import * as _ from 'underscore';
+import { ApplicationChanged } from './ui/application-changed';
 import { inject } from 'aurelia-framework';
 import { BindingEngine } from 'aurelia-binding';
+import { EventAggregator } from 'aurelia-event-aggregator';
 
 let self;
-@inject(BindingEngine)
+@inject(BindingEngine, EventAggregator)
 export class RealTime {
 
-  constructor(bindingEngine) {
+  constructor(bindingEngine, eventAggregator) {
     self = this;
     this.bindingEngine = bindingEngine;
     this.analyticsModel = new AnalyticsModel(bindingEngine);
+    this.selectedApplication = null;
+    this.eventAggregator = eventAggregator;
+
+    this.eventAggregator.subscribe(ApplicationChanged, msg => this.onChange(msg));
   }
 
   applications = globals.applications;
-  selectedApplication = null;
+  connectionsChanged = false;
 
   @computedFrom('getGroupedConnections')
   get getAccordions() {
     let groups = self.getGroupedConnections;
     let result = [];
-    groups.forEach(function(item) {
+    groups.forEach(function (item) {
       let accordion = {
         id: item.to,
         title: item.to,
         count: item.connections.length,
         panels: []
       };
-      item.connections.forEach(function(connection) {
-        let lastNavigateEvent = connection.conn.lastNavigateEvent;
+      item.connections.forEach(function (connection) {
+        let lastNavigateEvent = self.analyticsModel.lastNavigateEvent(connection.conn.events);
 
         accordion.panels.push({
           id: connection.conn.id,
@@ -45,24 +50,25 @@ export class RealTime {
     return result;
   }
 
-  @computedFrom('selectedApplication')
+  @computedFrom('selectedApplication', 'connectionsChanged')
   get getGroupedConnections() {
+    self.connectionsChanged = false;
     if (self.selectedApplication && self.selectedApplication.code) {
       return self.analyticsModel.groupByUrlAndCode(self.selectedApplication.code);
     }
     return self.analyticsModel.groupByUrl;
   }
 
-  @computedFrom('selectedApplication')
+  @computedFrom('selectedApplication', 'connectionsChanged')
   get getConnectionsCount() {
+    self.connectionsChanged = false;
     let count = 0;
-    _.each(self.getGroupedConnections, function(groupedConnection) {
+    self.getGroupedConnections.forEach(function (groupedConnection) {
       count += groupedConnection.connections.length;
     });
 
     return count;
   }
-
 
   activate() {
     globals.xAnalytics.setOnData(self.onData);
@@ -70,9 +76,9 @@ export class RealTime {
       .then(self.onData);
   }
 
-  getOpenConnections = function(code) {
-    return new Promise(function(resolve, reject) {
-      globals.xAnalytics.api.getOpenConnections(code, function(result) {
+  getOpenConnections = function (code) {
+    return new Promise(function (resolve, reject) {
+      globals.xAnalytics.api.getOpenConnections(code, function (result) {
         if (result.error) {
           reject(result.message);
         } else {
@@ -82,7 +88,8 @@ export class RealTime {
     });
   }
 
-  onData = function(connections) {
+  onData = function (connections) {
+    self.connectionsChanged = true;
     let isString = typeof connections === 'string';
     if (isString && connections !== 'null') {
       let connection = JSON.parse(connections);
@@ -93,15 +100,21 @@ export class RealTime {
         self.analyticsModel.merge(conn);
       }
     } else {
-      _.each(connections, function(connection) {
-        let conn = new Connection(connection, self.bindingEngine);
-        self.analyticsModel.merge(conn);
-      });
+      if (connections && connections.length > 0) {
+        connections.forEach(function (connection) {
+          let conn = new Connection(connection, self.bindingEngine);
+          self.analyticsModel.merge(conn);
+        });
+      }else{
+        self.analyticsModel.connections = [];
+      }
     }
   }
 
-  onChange = function() {
-    return self.getOpenConnections(self.selectedApplication ? self.selectedApplication.code : '')
-      .then(self.onData);
+  onChange = function (selectedApplication) {
+    if (selectedApplication) {
+      return self.getOpenConnections(selectedApplication.application ? selectedApplication.application.code : '')
+        .then(self.onData);
+    }
   }
 }

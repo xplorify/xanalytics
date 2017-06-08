@@ -1,0 +1,30 @@
+<template>
+  <require from="./accordion"></require>
+  <div id.bind="conn._id">
+    <div class="container">
+      <div class="row">
+        <div class="w3-panel w3-indigo" click.delegate="toggleGroup(conn)">
+          <p class="w3-padding">
+            <span if.bind="conn._id != null"> ${conn._id}</span>
+            <span if.bind="conn._id == null"> null</span>
+            <span class="w3-badge w3-right w3-green" if.bind="totalCount">
+              ${totalCount}
+        </span>
+          </p>
+        </div>
+      </div>
+    </div>
+    <div class="${conn.isActive ? 'w3-show' : 'w3-hide'}">
+      <div if.bind="conn.data">
+        <div class="w3-row" repeat.for="data of conn.data">
+          <accordion connection.bind="data.connections[0]" count.bind="data.count" filter-form.bind="filterForm"></accordion>
+        </div>
+      </div>
+      <div if.bind="!conn.data">
+        <div class="w3-row" repeat.for="connection of conn.connections">
+          <accordion connection.bind="connection" filter-form.bind="filterForm"></accordion>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>

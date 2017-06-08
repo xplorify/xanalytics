@@ -70,7 +70,4 @@ analyticsService.closeOpenConnections()
                 return process.exit();
             }
         });
-
-
-
     });

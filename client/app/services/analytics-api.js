@@ -46,7 +46,6 @@ export default class AnalyticsApi {
 
     getAnalytics(options, next) {
         console.log("Getting Analytics..");
-        var promise = Q.defer();
         var req = new XMLHttpRequest();
         var url = self.urls.getAnalytics + "?";
         var i = 0;
@@ -59,14 +58,14 @@ export default class AnalyticsApi {
         req.onreadystatechange = function () {
             if (req.readyState === 4) {
                 var result = JSON.parse(req.responseText);
-                console.log("Getting Analytics was successful");
-                promise.resolve(result.result);
+                console.log("Getting analytics was successful");
+                next(result.result);
             }
         };
-        req.onerror = function () {
-            promise.reject(req.responseText);
+        req.onerror = function (err) {
+            console.log(err);
+            next({ error: true, message: req.responseText });
         }
-        return promise.promise;
     }
 
     getGlobals(next) {
@@ -101,7 +100,7 @@ export default class AnalyticsApi {
             var url = self.urls.getUserInfoUrl;
             req.open("GET", url, true);
             if (!accessToken.startsWith("Bearer") && !accessToken.startsWith("JWT")) {
-                accessToken = "Bearer " + accessToken;
+                accessToken = globals.authSchema + accessToken;
             }
             req.setRequestHeader("Authorization", accessToken);
             req.send(null);
@@ -113,7 +112,7 @@ export default class AnalyticsApi {
                         globals.userInfo = result;
                         if (result && (result.userName || result.username)) {
                             console.log('Getting user info was successful.');
-                            addUserInfo(next);
+                            self.addUserInfo(next);
                             return;
                         }
                     } catch (e) {

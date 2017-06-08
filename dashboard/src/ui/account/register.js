@@ -1,8 +1,11 @@
-//import {computedFrom} from 'aurelia-framework';
 import { Router } from 'aurelia-router';
 import { authService } from '../../services/auth-service';
 import { routes } from '../../models/urls';
 import { inject } from 'aurelia-framework';
+import { securityUtils } from '../../services/security-utils';
+import { security } from '../../services/security';
+import { enums } from '../../models/enums';
+import { globals } from '../../models/globals';
 
 @inject(Router)
 export class Login {
@@ -15,11 +18,7 @@ export class Login {
   firstName = '';
   lastName = '';
   email = '';
-  //Getters can't be directly observed, so they must be dirty checked.
-  //However, if you tell Aurelia the dependencies, it no longer needs to dirty check the property.
-  //To optimize by declaring the properties that this getter is computed from, uncomment the line below
-  //as well as the corresponding import above.
-  //@computedFrom('firstName', 'lastName')
+ 
   cancel() {
     let self = this;
     self.userName = '';
@@ -42,9 +41,17 @@ export class Login {
     return authService.register(data)
       .then(function(result) {
         console.log('result: ' + JSON.stringify(result));
-        // if (result && result.success && result.token) {
-        //     securityUtils.setAccessToken(result.token, self.rememberMe);
-        // }
+       if (result && result.success && result.token) {
+          securityUtils.setAccessToken(result.token, self.rememberMe);
+          let dataObj = {
+            userName: self.userName ? self.userName : 'Anonymous',
+            referrer: document.referrer,
+            eventType: enums.eventLogs.register,
+            loginType: enums.loginType.local
+          };
+          globals.xAnalytics.send(dataObj);
+          security.setAuthInfo(result);
+        }
         return self.router.navigate(routes.urls.dashboard.realTime);
       });
   }

@@ -32,6 +32,9 @@ class XAnalytics {
             if (options.onData) {
                 globals.onData = options.onData;
             }
+            if (options.authSchema) {
+                globals.authSchema = options.authSchema;
+            }
         }
 
         // first update globals based on options, then instantiate API/WS

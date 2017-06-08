@@ -1,0 +1,64 @@
+<template>
+  <div class="w3-row">
+    <div class="w3-card-4">
+      <div class="w3-container w3-blue">
+        <h4>Filter</h6>
+      </div>
+      <form class="w3-container" with.bind="filterForm">
+        <div class="w3-row" style="margin-top:1%; position:relative">
+          <label class="w3-text-blue">From</label>
+          <abp-datetime-picker value.bind="from" options.bind="{ format: 'YYYY-MM-DD' }"></abp-datetime-picker>
+        </div>
+        <div class="w3-row" style="position:relative">
+          <label class="w3-text-blue">To</label>
+          <abp-datetime-picker value.bind="to" options.bind="{ format: 'YYYY-MM-DD' }"></abp-datetime-picker>
+        </div>
+        <p>
+          <p>
+            <label class="w3-text-blue"><b>Username</b></label>
+            <input class="w3-input w3-border" name="user name" type="text" value.bind="username"></p>
+          <p>
+            <label class="w3-text-blue"><b>Ip Address</b></label>
+            <input class="w3-input w3-border" name="ip address" type="text" value.bind="ipAddress"></p>
+          <p>
+            <label class="w3-text-blue"><b>Country Code</b></label>
+            <input class="w3-input w3-border" name="country code" type="text" value.bind="countryCode"></p>
+          <p>
+            <label class="w3-text-blue"><b>Referrer</b></label>
+            <input class="w3-input w3-border" name="referrer" type="text" value.bind="referrer"></p>
+          <p>
+            <label class="w3-text-blue"><b>Navigate To</b></label>
+            <input class="w3-input w3-border" name="navigate to" type="text" value.bind="navigateTo"></p>
+          <p>
+            <input class="w3-check" type="checkbox" checked.bind="isDetailed">
+            <label class="w3-text-blue">Detailed search</label>
+          </p>
+          <p>
+            <select value.bind="groupBy" class="w3-text-blue w3-white w3-btn w3-border w3-border-blue w3-block ${isDetailed ? '' : 'w3-disabled'}"
+              disabled.bind="!isDetailed">
+              <option value.bind="null">-Choose Grouping-</option>
+              <option model.bind="grouping" repeat.for="grouping of groupings">${grouping}</option>
+            </select>
+          </p>
+          <p>
+            <select value.bind="browser" class="w3-text-blue w3-white w3-btn w3-border w3-border-blue w3-block">
+              <option value.bind="null">-Choose Browser-</option>
+              <option model.bind="browserName" repeat.for="browserName of browsers">${browserName}</option>
+            </select>
+          </p>
+          <p>
+            <select value.bind="operatingSystem" class="w3-text-blue w3-white w3-btn w3-border w3-border-blue w3-block">
+              <option value.bind="null">-Choose Operating System-</option>
+              <option model.bind="osName" repeat.for="osName of osNames">${osName}</option>
+            </select>
+          </p>
+          <button class="w3-btn w3-block w3-blue" click.trigger="search()" disabled.bind="!canSearch">
+              <i class="fa fa-search"></i>
+               Search
+          </button>
+        </p>
+      </form>
+    </div>
+  </div>
+
+</template>

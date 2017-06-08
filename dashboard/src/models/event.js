@@ -30,13 +30,5 @@ export default class Event {
       let dateSubscription = self.bindingEngine.propertyObserver(self.date, 'date')
         .subscribe((newValue, oldValue) => console.log(newValue));
     }
-  }
-
-  @computedFrom('url')
-  get toFormatted() {
-    if (self.url) {
-      let to = self.url;
-      return to.replace(/[\/:\?=\.]/g, '_');
-    }
-  }
+  }  
 }

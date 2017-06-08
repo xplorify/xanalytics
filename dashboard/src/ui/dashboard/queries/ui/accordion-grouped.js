@@ -1,18 +1,16 @@
-import { Router } from 'aurelia-router';
-import { inject } from 'aurelia-framework';
 import { bindable } from 'aurelia-framework';
 
 let self;
-@inject(Router)
-export class Accordion {
-  @bindable accordion;
+export class AccordionGrouped {
+@bindable conn;
+@bindable totalCount;
+@bindable filterForm;
 
-  constructor(router){
-    this.router = router;
+  constructor(){
     self = this;
   }
 
-  toggle(accordion) {
+  toggleGroup(accordion) {
     accordion.isActive = !accordion.isActive;
   }
 

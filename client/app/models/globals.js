@@ -7,6 +7,7 @@ let result = {
     timeInterval: 2000,
     numberOfTrials: 5,
     onData: null,
+    authSchema: "Bearer ",
     
 
 

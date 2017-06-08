@@ -1,4 +1,3 @@
-//import {computedFrom} from 'aurelia-framework';
 import { Router } from 'aurelia-router';
 import { authService } from '../../services/auth-service';
 import { securityUtils } from '../../services/security-utils';
@@ -19,9 +18,13 @@ export class Login {
   password = '';
   rememberMe = false;
 
+  activate() {
+    return true;
+  }
+
   login() {
     return authService.login(self.userName, self.password)
-      .then(function(result) {
+      .then(function (result) {
         console.log('result: ' + JSON.stringify(result));
         if (result && result.success && result.token) {
           securityUtils.setAccessToken(result.token, self.rememberMe);
@@ -37,5 +40,15 @@ export class Login {
 
         return self.router.navigate(routes.urls.dashboard.realTime);
       });
+  }
+
+  setRouteVisibility(isAuth) {
+    self.router.navigation.forEach(function (routeItem) {
+      if (routeItem.config.name === "dashboard") {
+        routeItem.config.isVisible = isAuth;
+      } else {
+        routeItem.config.isVisible = !isAuth;
+      }
+    });
   }
 }

@@ -1,14 +1,12 @@
-import { Router } from 'aurelia-router';
-import { inject } from 'aurelia-framework';
 import { bindable } from 'aurelia-framework';
 
 let self;
-@inject(Router)
 export class Accordion {
-  @bindable accordion;
+@bindable connection;
+@bindable count;
+@bindable filterForm;
 
-  constructor(router){
-    this.router = router;
+  constructor(){
     self = this;
   }
 
@@ -20,4 +18,6 @@ export class Accordion {
     var url = accordion.panels[0].title;
     return self.router.navigate(url);
   }
+
+  
 }

@@ -1,5 +1,9 @@
 ﻿import { BindingEngine } from 'aurelia-binding';
 import { inject } from 'aurelia-framework';
+import { enums } from '../models/enums';
+import { routes } from '../models/urls';
+import { globals } from '../models/globals';
+import { storage } from './storage';
 
 let self;
 @inject(BindingEngine)

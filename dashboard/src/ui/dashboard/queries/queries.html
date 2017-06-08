@@ -1,3 +1,37 @@
 <template>
-  TODO
+  <require from="./ui/accordion"></require>
+  <require from="./ui/accordion-grouped"></require>
+  <require from="./ui/filter"></require>
+  <div class="w3-row">
+    <div class="w3-col s3">
+      <div class="w3-row">
+        <filter filter-form.bind="filterForm"></filter>
+      </div>
+    </div>
+    <div class="w3-rest">
+      <div if.bind="isGrouped">
+        <div class="w3-row" repeat.for="conn of connections">
+            <accordion-grouped conn.bind="conn" total-count.bind="conn.count" filter-form.bind="filterForm"></accordion-grouped>
+        </div>
+      </div>
+      <div if.bind="!isGrouped">
+        <div class="w3-row" repeat.for="connection of connections">
+        <accordion connection.bind="connection" filter-form.bind="filterForm"></accordion>
+      </div>
+      </div>
+      <div if.bind="count" class="w3-margin">
+        <div class="w3-panel w3-blue w3-round-large w3-center">
+          <p if.bind="filterForm.navigateTo && !filterForm.isDetailed" class="w3-margin">The number of events is: ${count}</p>
+          <p if.bind="!filterForm.navigateTo  && !filterForm.isDetailed" class="w3-margin">The number of connections is: ${count}</p>
+        </div>
+      </div>
+      <div if.bind="!count && connections.length == 0" class="w3-margin">
+        <div class="w3-panel w3-blue w3-round-large w3-center">
+          <p class="w3-margin">There aren't any connections
+             <i class="w3-large fa fa-exclamation-circle"></i>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
