@@ -32,6 +32,24 @@
           </p>
         </div>
       </div>
+      <!--paging-->
+        <div class="row  w3-center" data-bind="with: $root.filter">
+            <ul class="pagination">
+                <li>
+                    <a click.delegate ="firstPage()">|←</a>
+                </li>
+                <li>
+                    <a click.delegate ="previousPage()">|←</a>
+                </li>
+                
+                <li>
+                    <a click.delegate ="nextPage()">|←</a>
+                </li>
+                <li>
+                    <a click.delegate ="lastPage()">|←</a>
+                </li>
+            </ul>
+        </div>
     </div>
   </div>
 </template>

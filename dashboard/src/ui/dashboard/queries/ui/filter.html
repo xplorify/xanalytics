@@ -52,6 +52,12 @@
               <option model.bind="osName" repeat.for="osName of osNames">${osName}</option>
             </select>
           </p>
+           <p>
+            <select value.bind="application" class="w3-text-blue w3-white w3-btn w3-border w3-border-blue w3-block">
+              <option value.bind="null">-Choose Application-</option>
+              <option model.bind="app.code" repeat.for="app of applications">${app.code}</option>
+            </select>
+          </p>
           <button class="w3-btn w3-block w3-blue" click.trigger="search()" disabled.bind="!canSearch">
               <i class="fa fa-search"></i>
                Search

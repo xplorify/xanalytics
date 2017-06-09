@@ -12,9 +12,10 @@ export class Filter {
 
   constructor(eventAggregator) {
     self = this;
-    this.groupings = ['userName', 'referrer', 'remoteAddress', 'countryCode', 'events.url', 'detectRtc.osName', 'detectRtc.browser.name'];
+    this.groupings = ['userName', 'referrer', 'remoteAddress', 'countryCode', 'events.url', 'detectRtc.osName', 'detectRtc.browser.name', 'application.code'];
     this.browsers = ['Chrome', 'Firefox', 'Safari', 'Others'];
     this.osNames = ['Windows', 'Android', 'Linux', 'iOS'];
+    this.applications = globals.applications;
     this.eventAggregator = eventAggregator;
     this.isRequesting = false;
   }
@@ -36,11 +37,11 @@ export class Filter {
         } else {
           if (self.filterForm.isDetailed) {
             self.connections = result;
-             self.onFilterChange();
-          }else{
-             var count = result && result.length > 0 ? result[0].count : 0;
-             self.onFilterChange(count);
-          }         
+            self.onFilterChange();
+          } else {
+            var count = result && result.length > 0 ? result[0].count : 0;
+            self.onFilterChange(count);
+          }
           resolve(result);
         }
       });
@@ -83,6 +84,18 @@ export class Filter {
 
     if (self.filterForm.operatingSystem !== "null") {
       data.operatingSystem = self.filterForm.operatingSystem;
+    }
+
+    if (self.filterForm.application !== "null") {
+      data.application = self.filterForm.application;
+    }
+
+    if (self.filterForm.pageIndex) {
+      data.pageIndex = self.filterForm.pageIndex;
+    }
+
+    if (self.filterForm.pageSize) {
+      data.pageSize = self.filterForm.pageSize;
     }
 
     data.isDetailed = self.filterForm.isDetailed;

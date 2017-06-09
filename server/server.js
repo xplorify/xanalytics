@@ -23,7 +23,7 @@ app.use(errorhandler({
 
 app.use(require("morgan")("combined", { stream: logger.stream }));
 
-app.use(express.static(__dirname + "/../dashboard/dist"));
+app.use(express.static(__dirname + "/../dashboard"));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
   extended: true

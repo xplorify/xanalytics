@@ -60,6 +60,7 @@ module.exports = {
             groupBy: req.query.groupBy,
             isDetailed: req.query.isDetailed,
             browser: req.query.browser,
+            application: req.query.application,
             operatingSystem: req.query.operatingSystem
         };
         logger.info("data " + JSON.stringify(data));

@@ -22,7 +22,10 @@ export class Queries {
       groupBy: "",
       browser: "",
       operatingSystem: "",
-      isDetailed: false
+      application: "",
+      isDetailed: false,
+      pageSize: 10,
+      pageIndex: 0
     }
 
     self.connections = [];

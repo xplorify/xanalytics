@@ -39,7 +39,7 @@ analyticsService.getConnections = function () {
                     logger.info("Result: " + response);
                     resolve(response);
                 } else {
-                    logger.info("err: " + err);
+                    logger.error("err: " + err);
                     reject(new Error(err));
                 }
             })
@@ -61,7 +61,7 @@ analyticsService.getOpenConnections = function (code) {
                     logger.info("Result: " + response);
                     resolve(response);
                 } else {
-                    logger.info("err: " + err);
+                    logger.error("err: " + err);
                     reject(new Error(err));
                 }
             })
@@ -77,6 +77,27 @@ analyticsService.getOtherBrowsersQuery = function () {
         { "detectRtc.browser.name": { $ne: "Firefox" } },
         { "detectRtc.browser.name": { $ne: "Safari" } }];
     return query;
+}
+
+analyticsService.getGroupQuery = function () {
+    var query = {
+        "_id": "$_id",
+        "userName": { $first: "$userName" },
+        "remoteAddress": { $first: "$remoteAddress" },
+        "referrer": { $first: "$referrer" },
+        "detectRtc": { $first: "$detectRtc" },
+        "countryCode": { $first: "$countryCode" },
+        "application": { $first: "$application" },
+        "events": { $addToSet: "$events" }
+    };
+    return query;
+}
+
+analyticsService.getMatchQueryWithApplication = function (queryMatch, application) {
+    var querylength = JSON.stringify(queryMatch).length;
+    var stringifiedQuery = JSON.stringify(queryMatch).substring(0, querylength - 1);
+    var newQuery = stringifiedQuery + ', "application.code" : ' + '"' + application + '"}';
+    return JSON.parse(newQuery);
 }
 
 analyticsService.getDetailedQuery = function (data) {
@@ -200,15 +221,7 @@ analyticsService.getDetailedQuery = function (data) {
                             },
                         },
                         {
-                            '$group': {
-                                "_id": "$_id",
-                                "userName": { $first: "$userName" },
-                                "remoteAddress": { $first: "$remoteAddress" },
-                                "referrer": { $first: "$referrer" },
-                                "detectRtc": { $first: "$detectRtc" },
-                                "countryCode": { $first: "$countryCode" },
-                                "events": { $addToSet: "$events" }
-                            }
+                            '$group': analyticsService.getGroupQuery()
                         }]
                         : [{ '$unwind': { path: '$events', preserveNullAndEmptyArrays: false } },
                         {
@@ -218,69 +231,29 @@ analyticsService.getDetailedQuery = function (data) {
                             },
                         },
                         {
-                            '$group': {
-                                "_id": "$_id",
-                                "userName": { $first: "$userName" },
-                                "remoteAddress": { $first: "$remoteAddress" },
-                                "referrer": { $first: "$referrer" },
-                                "detectRtc": { $first: "$detectRtc" },
-                                "countryCode": { $first: "$countryCode" },
-                                "events": { $addToSet: "$events" }
-                            }
+                            '$group': analyticsService.getGroupQuery()
                         }]
                     : data.operatingSystem
                         ? [{ '$unwind': { path: '$events', preserveNullAndEmptyArrays: false } },
                         { '$match': { "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) }, "detectRtc.osName": data.operatingSystem, "events.url": data.navigateTo, "detectRtc.browser.name": data.browser } },
                         {
-                            '$group': {
-                                "_id": "$_id",
-                                "userName": { $first: "$userName" },
-                                "remoteAddress": { $first: "$remoteAddress" },
-                                "referrer": { $first: "$referrer" },
-                                "detectRtc": { $first: "$detectRtc" },
-                                "countryCode": { $first: "$countryCode" },
-                                "events": { $addToSet: "$events" }
-                            }
+                            '$group': analyticsService.getGroupQuery()
                         }]
                         : [{ '$unwind': { path: '$events', preserveNullAndEmptyArrays: false } },
                         { '$match': { "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) }, "events.url": data.navigateTo, "detectRtc.browser.name": data.browser } },
                         {
-                            '$group': {
-                                "_id": "$_id",
-                                "userName": { $first: "$userName" },
-                                "remoteAddress": { $first: "$remoteAddress" },
-                                "referrer": { $first: "$referrer" },
-                                "detectRtc": { $first: "$detectRtc" },
-                                "countryCode": { $first: "$countryCode" },
-                                "events": { $addToSet: "$events" }
-                            }
+                            '$group': analyticsService.getGroupQuery()
                         }]
                 : data.operatingSystem
                     ? [{ '$unwind': { path: '$events', preserveNullAndEmptyArrays: false } },
                     { '$match': { "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) }, "events.url": data.navigateTo, "detectRtc.osName": data.operatingSystem } },
                     {
-                        '$group': {
-                            "_id": "$_id",
-                            "userName": { $first: "$userName" },
-                            "remoteAddress": { $first: "$remoteAddress" },
-                            "referrer": { $first: "$referrer" },
-                            "detectRtc": { $first: "$detectRtc" },
-                            "countryCode": { $first: "$countryCode" },
-                            "events": { $addToSet: "$events" }
-                        }
+                        '$group': analyticsService.getGroupQuery()
                     }]
                     : [{ '$unwind': { path: '$events', preserveNullAndEmptyArrays: false } },
                     { '$match': { "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) }, "events.url": data.navigateTo } },
                     {
-                        '$group': {
-                            "_id": "$_id",
-                            "userName": { $first: "$userName" },
-                            "remoteAddress": { $first: "$remoteAddress" },
-                            "referrer": { $first: "$referrer" },
-                            "detectRtc": { $first: "$detectRtc" },
-                            "countryCode": { $first: "$countryCode" },
-                            "events": { $addToSet: "$events" }
-                        }
+                        '$group': analyticsService.getGroupQuery()
                     }]
         : data.groupBy
             ? data.groupBy === "events.url"
@@ -413,6 +386,9 @@ analyticsService.getDetailedQuery = function (data) {
     if (data.referrer) {
         queryMatch.referrer = data.referrer;
     }
+    if (data.application) {
+        queryMatch = analyticsService.getMatchQueryWithApplication(queryMatch, data.application);
+    }
 
     return query;
 }
@@ -519,6 +495,9 @@ analyticsService.getCountQuery = function (data) {
     if (data.referrer) {
         queryMatch.referrer = data.referrer;
     }
+    if (data.application) {
+        queryMatch = analyticsService.getMatchQueryWithApplication(queryMatch, data.application);
+    }
 
     return query;
 }
@@ -556,7 +535,7 @@ analyticsService.getAnalytics = function (data) {
                     logger.info("Result: " + response);
                     resolve(response);
                 } else {
-                    logger.info("err: " + err);
+                    logger.error("err: " + err);
                     reject(new Error(err));
                 }
             })
@@ -577,7 +556,7 @@ analyticsService.closeOpenConnections = function () {
                     logger.info("Result: " + response);
                     resolve(response);
                 } else {
-                    logger.info("err: " + err);
+                    logger.error("err: " + err);
                     reject(new Error(err));
                 }
             })
@@ -598,7 +577,7 @@ analyticsService.getConnectionById = function (id) {
                     logger.info("Result: " + response);
                     resolve(response);
                 } else {
-                    logger.info("err: " + err);
+                    logger.error("err: " + err);
                     reject(new Error(err));
                 }
             })
@@ -625,8 +604,8 @@ analyticsService.closeConnection = function (connectionId) {
                 });
         });
     } catch (e) {
-        logger.info("Save failed");
-        logger.info("Error: " + e);
+        logger.error("Save failed");
+        logger.error("Error: " + e);
     } finally {
         logger.info("finally block");
         return mongoose.disconnect();
