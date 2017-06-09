@@ -1,8 +1,6 @@
 FROM ubuntu:16.04
 MAINTAINER Goran Jovanov <goran.jovanov@gmail.com>
 
-VOLUME /cert
-
 # Environment variables
 ENV NVM_DIR /usr/local/.nvm
 ENV NODE_VERSION 7.7.3
