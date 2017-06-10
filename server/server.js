@@ -7,6 +7,7 @@ var express = require("express"),
   passport = require('passport'),
   fs = require("fs"),
   https = require("https"),
+  path = require("path"),
   cipher = require("./cert/cipher"),
   config = require("./config"),
   analyticsService = require("./services/analytics-service");
@@ -22,8 +23,11 @@ app.use(errorhandler({
 
 
 app.use(require("morgan")("combined", { stream: logger.stream }));
-
-app.use(express.static(__dirname + "/../dashboard"));
+app.get(['/register', '/login', '/dashboard'], function(req, res) {
+  res.header("Content-Type", "text/html");
+  res.sendFile(path.join(__dirname + "/../dashboard/dist/index.html"));
+});
+app.use(express.static(__dirname + "/../dashboard/dist/"));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
   extended: true
@@ -42,6 +46,7 @@ app.use(function(req, res, next) {
 });
 
 // routes
+
 const routes = require('./routes')(app);
 
 
