@@ -25,7 +25,14 @@ var connectionShema =
             eventType: String,
             url: { type: String, index: true },
             date: Date,
-            info: Object
+            info: Object,
+            search: {
+                level: { id: String, name: String },
+                category: { id: String, name: String },
+                language: { id: String, name: String },
+                origin: { code: String, name: String },
+                words: String
+            },
         }]
     });
 

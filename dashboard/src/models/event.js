@@ -8,6 +8,7 @@ export default class Event {
     self.eventType = data.eventType ? data.eventType : null;
     self.url = data.url ? data.url : null;
     self.info = data.info ? data.info : null;
+    self.search = data.search ? data.search : null;
     self.date = data.date ? new Date(data.date) : null;
 
     if (self.id) {
@@ -24,6 +25,10 @@ export default class Event {
     }
     if (self.info) {
       let infoSubscription = self.bindingEngine.propertyObserver(self.info, 'info')
+        .subscribe((newValue, oldValue) => console.log(newValue));
+    }
+     if (self.search) {
+      let searchSubscription = self.bindingEngine.propertyObserver(self.search, 'search')
         .subscribe((newValue, oldValue) => console.log(newValue));
     }
     if (self.date) {

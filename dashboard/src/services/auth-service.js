@@ -70,8 +70,13 @@ class AuthService {
       req.send(null);
       req.onreadystatechange = function () {
         if (req.readyState === 4) {
-          let result = JSON.parse(req.responseText);
-          resolve(result);
+          if (req.responseText === "Unauthorized") {
+            let result = { err: "Unauthorized" }
+            resolve(result);
+          } else {
+            let result = JSON.parse(req.responseText);
+            resolve(result);
+          }
         }
       };
       req.onerror = function () {

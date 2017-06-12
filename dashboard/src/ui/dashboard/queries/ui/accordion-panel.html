@@ -1,5 +1,10 @@
 <template>
     <div class="w3-row" css="margin-left: ${5}%; margin-top:${1}%" with.bind="connectionEvent">
+        <span if.bind="url"> 
+            <button class="w3-button w3-small w3-blue" click.delegate="goToUrl(url)">
+                <i class="fa fa-reply"></i>
+            </button>
+        </span>
         <span>${eventType}</span>,
         <span if.bind="url">${url},</span>
         <span if.bind="info">

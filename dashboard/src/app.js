@@ -92,12 +92,19 @@ export class AuthorizeStep {
     if (accessToken !== undefined) {
       return authService.getUserInfo()
         .then(function (result) {
-          let dataObj = {
-            user: result,
-            token: accessToken
-          };
-          security.setAuthInfo(dataObj);
-          return result && result._id != null;
+          if (result && result.err) {
+            storage.clear("accessToken");
+            security.userInfo = null;
+            self.setRouteVisibility(false);
+            return self.router.navigate("/login");
+          } else {
+            let dataObj = {
+              user: result,
+              token: accessToken
+            };
+            security.setAuthInfo(dataObj);
+            return result && result._id != null;
+          }
         });
     } else {
       return false;

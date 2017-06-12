@@ -2,32 +2,37 @@
   <require from="./accordion-panel"></require>
   <div id.bind="connection.id" class="w3-margin">
     <div class="container w3-blue" click.delegate="toggle(connection)">
-        <span if.bind="connection.userName"> ${connection.userName}</span> , ${connection.remoteAddress}, ${connection.countryCode},
-        ${connection.referrer},
-        <span>
+      <span if.bind="connection.referrer">
+        <button class="w3-button w3-small w3-blue" click.delegate="goToUrl(connection.referrer)">
+                <i class="fa fa-reply"></i>
+            </button>
+      </span>
+      <span if.bind="connection.userName"> ${connection.userName}</span> , ${connection.remoteAddress}, ${connection.countryCode},
+      ${connection.referrer},
+      <span>
         <span with.bind="connection.detectRtc">
         <span>${browser.name} (${browser.version})</span>,
-        <span>${osName} (${osVersion})</span>,
-        <span class="w3-btn w3-small w3-green" if.bind="hasMicrophone">
+      <span>${osName} (${osVersion})</span>,
+      <span class="w3-btn w3-small w3-green" if.bind="hasMicrophone">
                <i class="fa fa-microphone"></i>
              </span>
-        <span class="w3-btn w3-small w3-red" if.bind="!hasMicrophone">
+      <span class="w3-btn w3-small w3-red" if.bind="!hasMicrophone">
                <i class="fa fa-microphone-slash"></i>
             </span>
-        <span class="w3-btn w3-small w3-green" if.bind="hasWebcam">
+      <span class="w3-btn w3-small w3-green" if.bind="hasWebcam">
                 <i class="fa fa-video-camera"></i>
            </span>
-        <span class="w3-btn w3-small w3-red" if.bind="!hasWebcam">
+      <span class="w3-btn w3-small w3-red" if.bind="!hasWebcam">
                <i class="fa fa-video-camera"></i>
             </span>
-        <span class="w3-btn w3-small w3-green" if.bind="hasSpeakers">
+      <span class="w3-btn w3-small w3-green" if.bind="hasSpeakers">
             <i class="fa fa-volume-up"></i>
         </span>
-        <span class="w3-btn w3-small w3-red" if.bind="!hasSpeakers">
+      <span class="w3-btn w3-small w3-red" if.bind="!hasSpeakers">
                <i class="fa fa-volume-off"></i>
          </span>
-        </span>
-        <span class="w3-badge w3-right w3-green w3-center" if.bind="count">
+      </span>
+      <span class="w3-badge w3-right w3-green w3-center" if.bind="count">
               ${count}
         </span>
     </div>

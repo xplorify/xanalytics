@@ -59,6 +59,7 @@ module.exports = {
             navigateTo: req.query.navigateTo,
             groupBy: req.query.groupBy,
             isDetailed: req.query.isDetailed,
+            eventType: req.query.eventType,
             browser: req.query.browser,
             application: req.query.application,
             operatingSystem: req.query.operatingSystem

@@ -5,7 +5,17 @@
       <div class="row">
         <div class="w3-panel w3-indigo" click.delegate="toggleGroup(conn)">
           <p class="w3-padding">
-            <span if.bind="conn._id != null"> ${conn._id}</span>
+            <span if.bind="conn._id != null"> 
+              <span if.bind="filterForm.groupBy != 'events.url'">
+                ${conn._id}
+              </span>
+            <span if.bind="filterForm.groupBy === 'events.url'">
+                <button class="w3-button w3-tiny w3-indigo" click.delegate="goToUrl(conn._id)">
+                <i class="fa fa-reply"></i>
+            </button>
+             ${conn._id}
+              </span>
+            </span>
             <span if.bind="conn._id == null"> null</span>
             <span class="w3-badge w3-right w3-green" if.bind="totalCount">
               ${totalCount}

@@ -1,6 +1,7 @@
 import { bindable } from 'aurelia-framework';
 import { inject } from 'aurelia-framework';
 import { globals } from '../../../../models/globals';
+import { enums } from '../../../../models/enums';
 import { EventAggregator } from 'aurelia-event-aggregator';
 import { FilterChanged } from './filter-changed';
 
@@ -12,16 +13,29 @@ export class Filter {
 
   constructor(eventAggregator) {
     self = this;
-    this.groupings = ['userName', 'referrer', 'remoteAddress', 'countryCode', 'events.url', 'detectRtc.osName', 'detectRtc.browser.name', 'application.code'];
+    this.groupings = ['userName', 'referrer', 'remoteAddress', 'countryCode', 'events.url',
+      'events.search.origin.code', 'events.search.level.id', 'events.search.category.id', 'events.search.language.id',
+      'detectRtc.osName', 'detectRtc.browser.name', 'application.code'];
     this.browsers = ['Chrome', 'Firefox', 'Safari', 'Others'];
     this.osNames = ['Windows', 'Android', 'Linux', 'iOS'];
     this.applications = globals.applications;
+    this.eventLogs = self.getEventLogs();
     this.eventAggregator = eventAggregator;
     this.isRequesting = false;
   }
 
   get canSearch() {
     return self.filterForm.from != null && self.filterForm.to != null && !self.isRequesting;
+  }
+
+  getEventLogs = function () {
+    var eventNames = [];
+    for (var property in enums.eventLogs) {
+      if (enums.eventLogs.hasOwnProperty(property)) {
+        eventNames.push(enums.eventLogs[property]);
+      }
+    }
+    return eventNames;
   }
 
   search = function () {
@@ -35,7 +49,7 @@ export class Filter {
         if (result.error) {
           reject(result.message);
         } else {
-          if (self.filterForm.isDetailed) {
+          if (self.filterForm.isDetailed || (!self.filterForm.isDetailed && self.filterForm.groupBy !== "null")) {
             self.connections = result;
             self.onFilterChange();
           } else {
@@ -84,6 +98,10 @@ export class Filter {
 
     if (self.filterForm.operatingSystem !== "null") {
       data.operatingSystem = self.filterForm.operatingSystem;
+    }
+
+    if (self.filterForm.eventType !== "null") {
+      data.eventType = self.filterForm.eventType;
     }
 
     if (self.filterForm.application !== "null") {

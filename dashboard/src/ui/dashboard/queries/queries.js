@@ -23,6 +23,7 @@ export class Queries {
       browser: "",
       operatingSystem: "",
       application: "",
+      eventType: "",
       isDetailed: false,
       pageSize: 10,
       pageIndex: 0

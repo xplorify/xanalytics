@@ -5,7 +5,8 @@
   register: 'Register',
   navigate: 'Navigate',
   roomJoin: 'RoomJoin',
-  roomLeave: 'RoomLeave'
+  roomLeave: 'RoomLeave',
+  search: 'Search'
 };
 
 let loginType = {

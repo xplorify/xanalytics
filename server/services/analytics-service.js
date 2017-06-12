@@ -71,455 +71,212 @@ analyticsService.getOpenConnections = function (code) {
     });
 };
 
-analyticsService.getOtherBrowsersQuery = function () {
-    var query = [
-        { "detectRtc.browser.name": { $ne: "Chrome" } },
-        { "detectRtc.browser.name": { $ne: "Firefox" } },
-        { "detectRtc.browser.name": { $ne: "Safari" } }];
-    return query;
-}
-
-analyticsService.getGroupQuery = function () {
-    var query = {
-        "_id": "$_id",
-        "userName": { $first: "$userName" },
-        "remoteAddress": { $first: "$remoteAddress" },
-        "referrer": { $first: "$referrer" },
-        "detectRtc": { $first: "$detectRtc" },
-        "countryCode": { $first: "$countryCode" },
-        "application": { $first: "$application" },
-        "events": { $addToSet: "$events" }
-    };
-    return query;
-}
-
-analyticsService.getMatchQueryWithApplication = function (queryMatch, application) {
-    var querylength = JSON.stringify(queryMatch).length;
-    var stringifiedQuery = JSON.stringify(queryMatch).substring(0, querylength - 1);
-    var newQuery = stringifiedQuery + ', "application.code" : ' + '"' + application + '"}';
-    return JSON.parse(newQuery);
-}
-
 analyticsService.getDetailedQuery = function (data) {
-    var query = data.navigateTo
-        ? data.groupBy
-            ? data.groupBy === "events.url"
-                ? data.browser
-                    ? data.browser === "Others"
-                        ? data.operatingSystem
-                            ? [
-                                { '$unwind': { path: '$events', preserveNullAndEmptyArrays: false } },
-                                {
-                                    '$match': {
-                                        "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) }, "events.url": data.navigateTo,
-                                        "detectRtc.osName": data.operatingSystem,
-                                        "$and": analyticsService.getOtherBrowsersQuery()
-                                    },
-                                },
-                                { '$group': { "_id": { "event_url": '$events.url', "connection_id": "$_id" }, "connections": { $push: "$$ROOT" }, "count": { "$sum": 1 } } },
-                                { "$group": { "_id": "$_id.event_url", "data": { $push: { "connections": "$connections", "count": "$count" } }, "count": { $sum: "$count" } } }
-                            ]
-                            : [
-                                { '$unwind': { path: '$events', preserveNullAndEmptyArrays: false } },
-                                {
-                                    '$match': {
-                                        "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) }, "events.url": data.navigateTo,
-                                        "$and": analyticsService.getOtherBrowsersQuery()
-                                    },
-                                },
-                                { '$group': { "_id": { "event_url": '$events.url', "connection_id": "$_id" }, "connections": { $push: "$$ROOT" }, "count": { "$sum": 1 } } },
-                                { "$group": { "_id": "$_id.event_url", "data": { $push: { "connections": "$connections", "count": "$count" } }, "count": { $sum: "$count" } } }
-                            ]
-                        : data.operatingSystem
-                            ? [
-                                { '$unwind': { path: '$events', preserveNullAndEmptyArrays: false } },
-                                { '$match': { "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) }, "detectRtc.osName": data.operatingSystem, "events.url": data.navigateTo, "detectRtc.browser.name": data.browser } },
-                                { '$group': { "_id": { "event_url": '$events.url', "connection_id": "$_id" }, "connections": { $push: "$$ROOT" }, "count": { "$sum": 1 } } },
-                                { "$group": { "_id": "$_id.event_url", "data": { $push: { "connections": "$connections", "count": "$count" } }, "count": { $sum: "$count" } } }
-                            ]
-                            : [
-                                { '$unwind': { path: '$events', preserveNullAndEmptyArrays: false } },
-                                { '$match': { "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) }, "events.url": data.navigateTo, "detectRtc.browser.name": data.browser } },
-                                { '$group': { "_id": { "event_url": '$events.url', "connection_id": "$_id" }, "connections": { $push: "$$ROOT" }, "count": { "$sum": 1 } } },
-                                { "$group": { "_id": "$_id.event_url", "data": { $push: { "connections": "$connections", "count": "$count" } }, "count": { $sum: "$count" } } }
-                            ]
-                    : data.operatingSystem
-                        ? [
-                            { '$unwind': { path: '$events', preserveNullAndEmptyArrays: false } },
-                            { '$match': { "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) }, "events.url": data.navigateTo, "detectRtc.osName": data.operatingSystem } },
-                            { '$group': { "_id": { "event_url": '$events.url', "connection_id": "$_id" }, "connections": { $push: "$$ROOT" }, "count": { "$sum": 1 } } },
-                            { "$group": { "_id": "$_id.event_url", "data": { $push: { "connections": "$connections", "count": "$count" } }, "count": { $sum: "$count" } } }
-                        ]
-                        : [
-                            { '$unwind': { path: '$events', preserveNullAndEmptyArrays: false } },
-                            { '$match': { "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) }, "events.url": data.navigateTo } },
-                            { '$group': { "_id": { "event_url": '$events.url', "connection_id": "$_id" }, "connections": { $push: "$$ROOT" }, "count": { "$sum": 1 } } },
-                            { "$group": { "_id": "$_id.event_url", "data": { $push: { "connections": "$connections", "count": "$count" } }, "count": { $sum: "$count" } } }
-                        ]
-                : data.browser
-                    ? data.browser === "Others"
-                        ? data.operatingSystem
-                            ? [
-                                { '$unwind': { path: '$events', preserveNullAndEmptyArrays: false } },
-                                {
-                                    '$match': {
-                                        "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) }, "events.url": data.navigateTo,
-                                        "detectRtc.osName": data.operatingSystem,
-                                        "$and": analyticsService.getOtherBrowsersQuery()
-                                    },
-                                },
-                                { '$group': { "_id": { "group_by": '$' + data.groupBy, "connection_id": "$_id" }, "connections": { $push: "$$ROOT" }, "count": { "$sum": 1 } } },
-                                { "$group": { "_id": "$_id.group_by", "data": { $push: { "connections": "$connections", "count": "$count" } }, "count": { $sum: "$count" } } }
-                            ]
-                            : [
-                                { '$unwind': { path: '$events', preserveNullAndEmptyArrays: false } },
-                                {
-                                    '$match': {
-                                        "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) }, "events.url": data.navigateTo,
-                                        "$and": analyticsService.getOtherBrowsersQuery()
-                                    },
-                                },
-                                { '$group': { "_id": { "group_by": '$' + data.groupBy, "connection_id": "$_id" }, "connections": { $push: "$$ROOT" }, "count": { "$sum": 1 } } },
-                                { "$group": { "_id": "$_id.group_by", "data": { $push: { "connections": "$connections", "count": "$count" } }, "count": { $sum: "$count" } } }
-                            ]
-                        : data.operatingSystem
-                            ? [
-                                { '$unwind': { path: '$events', preserveNullAndEmptyArrays: false } },
-                                { '$match': { "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) }, "detectRtc.osName": data.operatingSystem, "events.url": data.navigateTo, "detectRtc.browser.name": data.browser } },
-                                { '$group': { "_id": { "group_by": '$' + data.groupBy, "connection_id": "$_id" }, "connections": { $push: "$$ROOT" }, "count": { "$sum": 1 } } },
-                                { "$group": { "_id": "$_id.group_by", "data": { $push: { "connections": "$connections", "count": "$count" } }, "count": { $sum: "$count" } } }
-                            ]
-                            : [
-                                { '$unwind': { path: '$events', preserveNullAndEmptyArrays: false } },
-                                { '$match': { "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) }, "events.url": data.navigateTo, "detectRtc.browser.name": data.browser } },
-                                { '$group': { "_id": { "group_by": '$' + data.groupBy, "connection_id": "$_id" }, "connections": { $push: "$$ROOT" }, "count": { "$sum": 1 } } },
-                                { "$group": { "_id": "$_id.group_by", "data": { $push: { "connections": "$connections", "count": "$count" } }, "count": { $sum: "$count" } } }
-                            ]
-                    : data.operatingSystem
-                        ? [
-                            { '$unwind': { path: '$events', preserveNullAndEmptyArrays: false } },
-                            { '$match': { "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) }, "detectRtc.osName": data.operatingSystem, "events.url": data.navigateTo } },
-                            { '$group': { "_id": { "group_by": '$' + data.groupBy, "connection_id": "$_id" }, "connections": { $push: "$$ROOT" }, "count": { "$sum": 1 } } },
-                            { "$group": { "_id": "$_id.group_by", "data": { $push: { "connections": "$connections", "count": "$count" } }, "count": { $sum: "$count" } } }
-                        ]
-                        : [
-                            { '$unwind': { path: '$events', preserveNullAndEmptyArrays: false } },
-                            { '$match': { "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) }, "events.url": data.navigateTo } },
-                            { '$group': { "_id": { "group_by": '$' + data.groupBy, "connection_id": "$_id" }, "connections": { $push: "$$ROOT" }, "count": { "$sum": 1 } } },
-                            { "$group": { "_id": "$_id.group_by", "data": { $push: { "connections": "$connections", "count": "$count" } }, "count": { $sum: "$count" } } }
-                        ]
+    let aggregate = [];
+    let groups = [];
+    let $unwind = {
+        '$unwind': {
+            path: '$events',
+            preserveNullAndEmptyArrays: false
+        }
+    }
+    let $match = data.navigateTo
+        ? { $match: { $and: [{ startDate: { "$gt": new Date(data.from), "$lt": new Date(data.to) } }, { "events.url": data.navigateTo }] } }
+        : { $match: { "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) } } };
 
-            : data.browser
-                ? data.browser === "Others"
-                    ? data.operatingSystem
-                        ? [{ '$unwind': { path: '$events', preserveNullAndEmptyArrays: false } },
-                        {
-                            '$match': {
-                                "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) }, "events.url": data.navigateTo,
-                                "detectRtc.osName": data.operatingSystem,
-                                "$and": analyticsService.getOtherBrowsersQuery()
-                            },
-                        },
-                        {
-                            '$group': analyticsService.getGroupQuery()
-                        }]
-                        : [{ '$unwind': { path: '$events', preserveNullAndEmptyArrays: false } },
-                        {
-                            '$match': {
-                                "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) }, "events.url": data.navigateTo,
-                                "$and": analyticsService.getOtherBrowsersQuery()
-                            },
-                        },
-                        {
-                            '$group': analyticsService.getGroupQuery()
-                        }]
-                    : data.operatingSystem
-                        ? [{ '$unwind': { path: '$events', preserveNullAndEmptyArrays: false } },
-                        { '$match': { "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) }, "detectRtc.osName": data.operatingSystem, "events.url": data.navigateTo, "detectRtc.browser.name": data.browser } },
-                        {
-                            '$group': analyticsService.getGroupQuery()
-                        }]
-                        : [{ '$unwind': { path: '$events', preserveNullAndEmptyArrays: false } },
-                        { '$match': { "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) }, "events.url": data.navigateTo, "detectRtc.browser.name": data.browser } },
-                        {
-                            '$group': analyticsService.getGroupQuery()
-                        }]
-                : data.operatingSystem
-                    ? [{ '$unwind': { path: '$events', preserveNullAndEmptyArrays: false } },
-                    { '$match': { "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) }, "events.url": data.navigateTo, "detectRtc.osName": data.operatingSystem } },
-                    {
-                        '$group': analyticsService.getGroupQuery()
-                    }]
-                    : [{ '$unwind': { path: '$events', preserveNullAndEmptyArrays: false } },
-                    { '$match': { "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) }, "events.url": data.navigateTo } },
-                    {
-                        '$group': analyticsService.getGroupQuery()
-                    }]
-        : data.groupBy
-            ? data.groupBy === "events.url"
-                ? data.browser
-                    ? data.browser === "Others"
-                        ? data.operatingSystem
-                            ? [
-                                { '$unwind': { path: '$events', preserveNullAndEmptyArrays: false } },
-                                {
-                                    '$match': {
-                                        "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) },
-                                        "detectRtc.osName": data.operatingSystem,
-                                        "$and": analyticsService.getOtherBrowsersQuery()
-                                    },
-                                },
-                                { '$group': { "_id": { "event_url": '$events.url', "connection_id": "$_id" }, "connections": { $push: "$$ROOT" }, "count": { "$sum": 1 } } },
-                                { "$group": { "_id": "$_id.event_url", "data": { $push: { "connections": "$connections", "count": "$count" } }, "count": { $sum: "$count" } } }
-                            ]
-                            : [
-                                { '$unwind': { path: '$events', preserveNullAndEmptyArrays: false } },
-                                {
-                                    '$match': {
-                                        "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) },
-                                        "$and": analyticsService.getOtherBrowsersQuery()
-                                    },
-                                },
-                                { '$group': { "_id": { "event_url": '$events.url', "connection_id": "$_id" }, "connections": { $push: "$$ROOT" }, "count": { "$sum": 1 } } },
-                                { "$group": { "_id": "$_id.event_url", "data": { $push: { "connections": "$connections", "count": "$count" } }, "count": { $sum: "$count" } } }
-                            ]
-                        : data.operatingSystem
-                            ? [
-                                { '$unwind': { path: '$events', preserveNullAndEmptyArrays: false } },
-                                { '$match': { "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) }, "detectRtc.osName": data.operatingSystem, "detectRtc.browser.name": data.browser } },
-                                { '$group': { "_id": { "event_url": '$events.url', "connection_id": "$_id" }, "connections": { $push: "$$ROOT" }, "count": { "$sum": 1 } } },
-                                { "$group": { "_id": "$_id.event_url", "data": { $push: { "connections": "$connections", "count": "$count" } }, "count": { $sum: "$count" } } }
-                            ]
-                            : [
-                                { '$unwind': { path: '$events', preserveNullAndEmptyArrays: false } },
-                                { '$match': { "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) }, "detectRtc.browser.name": data.browser } },
-                                { '$group': { "_id": { "event_url": '$events.url', "connection_id": "$_id" }, "connections": { $push: "$$ROOT" }, "count": { "$sum": 1 } } },
-                                { "$group": { "_id": "$_id.event_url", "data": { $push: { "connections": "$connections", "count": "$count" } }, "count": { $sum: "$count" } } }
-                            ]
-                    : data.operatingSystem
-                        ? [
-                            { '$unwind': { path: '$events', preserveNullAndEmptyArrays: false } },
-                            { '$match': { "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) }, "detectRtc.osName": data.operatingSystem } },
-                            { '$group': { "_id": { "event_url": '$events.url', "connection_id": "$_id" }, "connections": { $push: "$$ROOT" }, "count": { "$sum": 1 } } },
-                            { "$group": { "_id": "$_id.event_url", "data": { $push: { "connections": "$connections", "count": "$count" } }, "count": { $sum: "$count" } } }
-                        ]
-                        : [
-                            { '$unwind': { path: '$events', preserveNullAndEmptyArrays: false } },
-                            { '$match': { "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) } } },
-                            { '$group': { "_id": { "event_url": '$events.url', "connection_id": "$_id" }, "connections": { $push: "$$ROOT" }, "count": { "$sum": 1 } } },
-                            { "$group": { "_id": "$_id.event_url", "data": { $push: { "connections": "$connections", "count": "$count" } }, "count": { $sum: "$count" } } }
-                        ]
-                : data.browser
-                    ? data.browser === "Others"
-                        ? data.operatingSystem
-                            ? [
-                                {
-                                    '$match': {
-                                        "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) },
-                                        "detectRtc.osName": data.operatingSystem,
-                                        "$and": analyticsService.getOtherBrowsersQuery()
-                                    },
-                                },
-                                { '$group': { "_id": '$' + data.groupBy, "connections": { $push: "$$ROOT" }, "count": { "$sum": 1 } } }
-                            ]
-                            : [
-                                {
-                                    '$match': {
-                                        "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) },
-                                        "$and": analyticsService.getOtherBrowsersQuery()
-                                    },
-                                },
-                                { '$group': { "_id": '$' + data.groupBy, "connections": { $push: "$$ROOT" }, "count": { "$sum": 1 } } }
-                            ]
-                        : data.operatingSystem
-                            ? [
-                                { '$match': { "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) }, "detectRtc.browser.name": data.browser, "detectRtc.osName": data.operatingSystem } },
-                                { '$group': { "_id": '$' + data.groupBy, "connections": { $push: "$$ROOT" }, "count": { "$sum": 1 } } }
-                            ]
-                            : [
-                                { '$match': { "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) }, "detectRtc.browser.name": data.browser } },
-                                { '$group': { "_id": '$' + data.groupBy, "connections": { $push: "$$ROOT" }, "count": { "$sum": 1 } } }
-                            ]
-                    : data.operatingSystem
-                        ? [
-                            { '$match': { "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) }, "detectRtc.osName": data.operatingSystem } },
-                            { '$group': { "_id": '$' + data.groupBy, "connections": { $push: "$$ROOT" }, "count": { "$sum": 1 } } }
-                        ]
-                        : [
-                            { '$match': { "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) } } },
-                            { '$group': { "_id": '$' + data.groupBy, "connections": { $push: "$$ROOT" }, "count": { "$sum": 1 } } }
-                        ]
-            : data.browser
-                ? data.browser === "Others"
-                    ? data.operatingSystem
-                        ? {
-                            '$match': {
-                                "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) },
-                                "detectRtc.osName": data.operatingSystem,
-                                "$and": analyticsService.getOtherBrowsersQuery()
-                            },
-                        }
-                        : {
-                            '$match': {
-                                "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) },
-                                "$and": analyticsService.getOtherBrowsersQuery()
-                            },
-                        }
-                    : data.operatingSystem
-                        ? { '$match': { "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) }, "detectRtc.osName": data.operatingSystem, "detectRtc.browser.name": data.browser } }
-                        : { '$match': { "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) }, "detectRtc.browser.name": data.browser } }
-                : data.operatingSystem
-                    ? { '$match': { "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) }, "detectRtc.osName": data.operatingSystem, } }
-                    : { '$match': { "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) } } }
+    if (data.eventType) {
+        $match.$match.$and
+            ? $match.$match.$and.push({ "events.eventType": data.eventType })
+            : $match.$match.$and = [{ "events.eventType": data.eventType }];
+    }
+    if (data.operatingSystem) {
+        $match.$match.$and
+            ? $match.$match.$and.push({ "detectRtc.osName": data.operatingSystem })
+            : $match.$match.$and = [{ "detectRtc.osName": data.operatingSystem }];
+    }
+    if (data.browser && data.browser !== "Others") {
+        $match.$match.$and
+            ? $match.$match.$and.push({ "detectRtc.browser.name": data.browser })
+            : $match.$match.$and = [{ "detectRtc.browser.name": data.browser }];
+    }
+    if (data.browser && data.browser === "Others") {
+        if ($match.$match.$and) {
+            $match.$match.$and.push({ "detectRtc.browser.name": { $ne: "Chrome" } });
+            $match.$match.$and.push({ "detectRtc.browser.name": { $ne: "Firefox" } });
+            $match.$match.$and.push({ "detectRtc.browser.name": { $ne: "Safari" } });
+        } else {
+            $match.$match.$and = [
+                { "detectRtc.browser.name": { $ne: "Chrome" } },
+                { "detectRtc.browser.name": { $ne: "Firefox" } },
+                { "detectRtc.browser.name": { $ne: "Safari" } }
+            ];
+        }
+    }
 
-    var queryMatch = analyticsService.getMatchQuery(query);
+    if (data.groupBy) {
+        if (data.groupBy === "events.url") {
+            groups.push({
+                '$group': {
+                    "_id": { "event_url": '$events.url', "connection_id": "$_id" },
+                    "connections": { $push: "$$ROOT" },
+                    "count": { "$sum": 1 }
+                }
+            });
+            groups.push({
+                "$group": {
+                    "_id": "$_id.event_url",
+                    "data": { $push: { "connections": "$connections", "count": "$count" } },
+                    "count": { $sum: "$count" }
+                }
+            });
+        } else {
+            if (data.navigateTo) {
+                groups.push({
+                    '$group': { "_id": { "group_by": '$' + data.groupBy, "connection_id": "$_id" }, "connections": { $push: "$$ROOT" }, "count": { "$sum": 1 } }
+                });
+                groups.push({
+                    "$group": { "_id": "$_id.group_by", "data": { $push: { "connections": "$connections", "count": "$count" } }, "count": { $sum: "$count" } }
+                });
+            } else {
+                groups.push({
+                    '$group': { "_id": '$' + data.groupBy, "connections": { $push: "$$ROOT" }, "count": { "$sum": 1 } }
+                });
+            }
+        }
+    }
+    else {
+        if (data.navigateTo) {
+            groups.push({
+                '$group': {
+                    "_id": "$_id",
+                    "userName": { $first: "$userName" },
+                    "remoteAddress": { $first: "$remoteAddress" },
+                    "referrer": { $first: "$referrer" },
+                    "detectRtc": { $first: "$detectRtc" },
+                    "countryCode": { $first: "$countryCode" },
+                    "application": { $first: "$application" },
+                    "events": { $addToSet: "$events" }
+                }
+            });
+        }
+    }
 
     if (data.username) {
-        queryMatch.userName = data.username;
+        $match.$match.$and ? $match.$match.$and.push({ "userName": data.username }) : $match.$match.$and = [{ "userName": data.username }];
     }
     if (data.ipAddress) {
-        queryMatch.remoteAddress = data.ipAddress;
+        $match.$match.$and ? $match.$match.$and.push({ "remoteAddress": data.ipAddress }) : $match.$match.$and = [{ "remoteAddress": data.ipAddress }];
     }
     if (data.countryCode) {
-        queryMatch.countryCode = data.countryCode;
+        $match.$match.$and ? $match.$match.$and.push({ "countryCode": data.countryCode }) : $match.$match.$and = [{ "countryCode": data.countryCode }];
     }
     if (data.referrer) {
-        queryMatch.referrer = data.referrer;
+        $match.$match.$and ? $match.$match.$and.push({ "referrer": data.referrer }) : $match.$match.$and = [{ "referrer": data.referrer }];
     }
-    if (data.application) {
-        queryMatch = analyticsService.getMatchQueryWithApplication(queryMatch, data.application);
+    if ((data.groupBy && data.groupBy === "events.url") || data.navigateTo) {
+        aggregate.push($unwind);
     }
 
-    return query;
+    aggregate.push($match);
+    groups.forEach(function (g) {
+        aggregate.push(g);
+    });
+
+    return aggregate;
 }
 
 analyticsService.getCountQuery = function (data) {
-    var query = data.navigateTo
-        ? data.browser
-            ? data.browser === "Others"
-                ? data.operatingSystem
-                    ? [
-                        { '$unwind': '$events' },
-                        {
-                            '$match': {
-                                "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) }, "events.url": data.navigateTo, "detectRtc.osName": data.operatingSystem,
-                                "$and": analyticsService.getOtherBrowsersQuery()
-                            },
-                        },
-                        { '$group': { _id: null, count: { $sum: 1 } } }
-                    ]
-                    : [
-                        { '$unwind': '$events' },
-                        {
-                            '$match': {
-                                "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) }, "events.url": data.navigateTo,
-                                "$and": analyticsService.getOtherBrowsersQuery()
-                            },
-                        },
-                        { '$group': { _id: null, count: { $sum: 1 } } }
-                    ]
-                : data.operatingSystem
-                    ? [
-                        { '$unwind': '$events' },
-                        { '$match': { "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) }, "events.url": data.navigateTo, "detectRtc.browser.name": data.browser, "detectRtc.osName": data.operatingSystem } },
-                        { '$group': { _id: null, count: { $sum: 1 } } }
-                    ]
-                    : [
-                        { '$unwind': '$events' },
-                        { '$match': { "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) }, "events.url": data.navigateTo, "detectRtc.browser.name": data.browser } },
-                        { '$group': { _id: null, count: { $sum: 1 } } }
-                    ]
-            : data.operatingSystem
-                ? [
-                    { '$unwind': '$events' },
-                    { '$match': { "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) }, "events.url": data.navigateTo, "detectRtc.osName": data.operatingSystem } },
-                    { '$group': { _id: null, count: { $sum: 1 } } }
-                ]
-                : [
-                    { '$unwind': '$events' },
-                    { '$match': { "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) }, "events.url": data.navigateTo } },
-                    { '$group': { _id: null, count: { $sum: 1 } } }
-                ]
-        : data.browser
-            ? data.browser === "Others"
-                ? data.operatingSystem
-                    ? [
-                        {
-                            '$match': {
-                                "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) },
-                                "detectRtc.osName": data.operatingSystem,
-                                "$and": analyticsService.getOtherBrowsersQuery()
-                            }
-                        },
-                        { '$group': { _id: null, count: { $sum: 1 } } }
-                    ]
-                    : [
-                        {
-                            '$match': {
-                                "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) },
-                                "$and": analyticsService.getOtherBrowsersQuery()
-                            }
-                        },
-                        { '$group': { _id: null, count: { $sum: 1 } } }
-                    ]
-                : data.operatingSystem ?
-                    [
-                        { '$match': { "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) }, "detectRtc.browser.name": data.browser, "detectRtc.osName": data.operatingSystem } },
-                        { '$group': { _id: null, count: { $sum: 1 } } }
-                    ]
-                    : [
-                        { '$match': { "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) }, "detectRtc.browser.name": data.browser } },
-                        { '$group': { _id: null, count: { $sum: 1 } } }
-                    ]
-            : data.operatingSystem
-                ? [
-                    { '$match': { "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) }, "detectRtc.osName": data.operatingSystem } },
-                    { '$group': { _id: null, count: { $sum: 1 } } }
-                ]
-                : [
-                    { '$match': { "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) } } },
-                    { '$group': { _id: null, count: { $sum: 1 } } }
-                ]
+    let aggregate = [];
+    let groups = [];
+    let $unwind = {
+        '$unwind': {
+            path: '$events',
+            preserveNullAndEmptyArrays: false
+        }
+    }
+    let $match = data.navigateTo
+        ? { $match: { $and: [{ startDate: { "$gt": new Date(data.from), "$lt": new Date(data.to) } }, { "events.url": data.navigateTo }] } }
+        : { $match: { "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) } } };
 
-    var queryMatch = analyticsService.getMatchQuery(query);
+    if (data.operatingSystem) {
+        $match.$match.$and
+            ? $match.$match.$and.push({ "detectRtc.osName": data.operatingSystem })
+            : $match.$match.$and = [{ "detectRtc.osName": data.operatingSystem }];
+    }
+    if (data.browser && data.browser !== "Others") {
+        $match.$match.$and
+            ? $match.$match.$and.push({ "detectRtc.browser.name": data.browser })
+            : $match.$match.$and = [{ "detectRtc.browser.name": data.browser }];
+    }
+    if (data.browser && data.browser === "Others") {
+        if ($match.$match.$and) {
+            $match.$match.$and.push({ "detectRtc.browser.name": { $ne: "Chrome" } });
+            $match.$match.$and.push({ "detectRtc.browser.name": { $ne: "Firefox" } });
+            $match.$match.$and.push({ "detectRtc.browser.name": { $ne: "Safari" } });
+        } else {
+            $match.$match.$and = [
+                { "detectRtc.browser.name": { $ne: "Chrome" } },
+                { "detectRtc.browser.name": { $ne: "Firefox" } },
+                { "detectRtc.browser.name": { $ne: "Safari" } }
+            ];
+        }
+    }
+
+    if (data.groupBy) {
+        if (data.groupBy === "events.url") {
+            groups.push({
+                '$group': {
+                    "_id": { "event_url": '$events.url', "connection_id": "$_id" },
+                    "count": { "$sum": 1 }
+                }
+            });
+            groups.push({
+                "$group": {
+                    "_id": "$_id.event_url",
+                    "count": { $sum: "$count" }
+                }
+            });
+        } else {
+            if (data.navigateTo) {
+                groups.push({
+                    '$group': { "_id": { "group_by": '$' + data.groupBy, "connection_id": "$_id" }, "count": { "$sum": 1 } }
+                });
+                groups.push({
+                    "$group": { "_id": "$_id.group_by", "data": { $push: { "count": "$count" } }, "count": { $sum: "$count" } }
+                });
+            } else {
+                groups.push({
+                    '$group': { "_id": '$' + data.groupBy, "count": { "$sum": 1 } }
+                });
+            }
+        }
+    }
+    else {
+        groups.push({ '$group': { "_id": null, "count": { "$sum": 1 } } });
+    }
 
     if (data.username) {
-        queryMatch.userName = data.username;
+        $match.$match.$and ? $match.$match.$and.push({ "userName": data.username }) : $match.$match.$and = [{ "userName": data.username }];
     }
     if (data.ipAddress) {
-        queryMatch.remoteAddress = data.ipAddress;
+        $match.$match.$and ? $match.$match.$and.push({ "remoteAddress": data.ipAddress }) : $match.$match.$and = [{ "remoteAddress": data.ipAddress }];
     }
     if (data.countryCode) {
-        queryMatch.countryCode = data.countryCode;
+        $match.$match.$and ? $match.$match.$and.push({ "countryCode": data.countryCode }) : $match.$match.$and = [{ "countryCode": data.countryCode }];
     }
     if (data.referrer) {
-        queryMatch.referrer = data.referrer;
+        $match.$match.$and ? $match.$match.$and.push({ "referrer": data.referrer }) : $match.$match.$and = [{ "referrer": data.referrer }];
     }
-    if (data.application) {
-        queryMatch = analyticsService.getMatchQueryWithApplication(queryMatch, data.application);
-    }
-
-    return query;
-}
-
-analyticsService.getMatchQuery = function (query) {
-    var queryMatch = null;
-    if (Array.isArray(query)) {
-        var matchQuery = query.filter(function (obj) {
-            logger.info("obj: " + JSON.stringify(obj));
-            return obj.$match;
-        });
-
-        logger.info("matchQuery: " + JSON.stringify(matchQuery));
-        if (matchQuery) {
-            queryMatch = matchQuery[0].$match;
-        }
-    } else {
-        queryMatch = query.$match;
+    if ((data.groupBy && data.groupBy === "events.url") || data.navigateTo) {
+        aggregate.push($unwind);
     }
 
-    logger.info("query match: " + JSON.stringify(queryMatch));
-    return queryMatch;
+    aggregate.push($match);
+    groups.forEach(function (g) {
+        aggregate.push(g);
+    });
+
+    return aggregate;
 }
 
 analyticsService.getAnalytics = function (data) {
@@ -627,7 +384,8 @@ analyticsService.addNewEvent = function (data) {
                     info: {
                         roomId: data.roomId,
                         loginType: data.loginType
-                    }
+                    },
+                    search: data.search
                 }
             }
         };

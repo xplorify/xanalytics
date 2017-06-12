@@ -8,7 +8,7 @@
   </div>
   <div class="w3-row">
     <span class="w3-col l8 m8 s10">
-    <select value.bind="selectedApplication" change.trigger="onAppChange()">
+    <select value.bind="selectedApplication" class="w3-btn w3-block w3-border w3-border-blue" change.trigger="onAppChange()">
       <option>-Choose Application-</option>
       <option model.bind="application" repeat.for="application of applications">${application.code}</option>
     </select>
