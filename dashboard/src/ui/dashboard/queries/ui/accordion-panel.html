@@ -11,6 +11,13 @@
             <span if.bind="info.loginType">${info.loginType},</span>
         <span if.bind="info.roomId">${info.roomId},</span>
         </span>
+        <span if.bind="search">
+            <span if.bind="search.level" id.bind="search.level.id">${search.level.name},</span>
+            <span if.bind="search.category" id.bind="search.category.id">${search.category.name},</span>
+            <span if.bind="search.language" id.bind="search.language.id">${search.language.name},</span>
+            <span if.bind="search.origin"><span>${search.origin.code},</span><span> ${search.origin.name},</span></span>
+            <span if.bind="search.words">${search.words}</span>
+        </span>
         <span>${date}</span>
     </div>
 </template>

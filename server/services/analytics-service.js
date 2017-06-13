@@ -114,23 +114,24 @@ analyticsService.getDetailedQuery = function (data) {
     }
 
     if (data.groupBy) {
-        if (data.groupBy === "events.url") {
+        if (data.groupBy === "events.url" || data.groupBy === "events.search.level.id" || data.groupBy === "events.search.language.id"
+            || data.groupBy === "events.search.category.id" || data.groupBy === "events.search.origin.code") {
             groups.push({
                 '$group': {
-                    "_id": { "event_url": '$events.url', "connection_id": "$_id" },
+                    "_id": { "event_key": '$' + data.groupBy, "connection_id": "$_id" },
                     "connections": { $push: "$$ROOT" },
                     "count": { "$sum": 1 }
                 }
             });
             groups.push({
                 "$group": {
-                    "_id": "$_id.event_url",
+                    "_id": "$_id.event_key",
                     "data": { $push: { "connections": "$connections", "count": "$count" } },
                     "count": { $sum: "$count" }
                 }
             });
         } else {
-            if (data.navigateTo) {
+            if (data.navigateTo || data.eventType) {
                 groups.push({
                     '$group': { "_id": { "group_by": '$' + data.groupBy, "connection_id": "$_id" }, "connections": { $push: "$$ROOT" }, "count": { "$sum": 1 } }
                 });
@@ -145,7 +146,7 @@ analyticsService.getDetailedQuery = function (data) {
         }
     }
     else {
-        if (data.navigateTo) {
+        if (data.navigateTo || data.eventType) {
             groups.push({
                 '$group': {
                     "_id": "$_id",
@@ -173,7 +174,8 @@ analyticsService.getDetailedQuery = function (data) {
     if (data.referrer) {
         $match.$match.$and ? $match.$match.$and.push({ "referrer": data.referrer }) : $match.$match.$and = [{ "referrer": data.referrer }];
     }
-    if ((data.groupBy && data.groupBy === "events.url") || data.navigateTo) {
+    if (data.groupBy && (data.groupBy === "events.url" || data.groupBy === "events.search.level.id" || data.groupBy === "events.search.language.id"
+        || data.groupBy === "events.search.category.id" || data.groupBy === "events.search.origin.code") || data.navigateTo || data.eventType) {
         aggregate.push($unwind);
     }
 
@@ -198,6 +200,11 @@ analyticsService.getCountQuery = function (data) {
         ? { $match: { $and: [{ startDate: { "$gt": new Date(data.from), "$lt": new Date(data.to) } }, { "events.url": data.navigateTo }] } }
         : { $match: { "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) } } };
 
+    if (data.eventType) {
+        $match.$match.$and
+            ? $match.$match.$and.push({ "events.eventType": data.eventType })
+            : $match.$match.$and = [{ "events.eventType": data.eventType }];
+    }
     if (data.operatingSystem) {
         $match.$match.$and
             ? $match.$match.$and.push({ "detectRtc.osName": data.operatingSystem })
@@ -223,21 +230,22 @@ analyticsService.getCountQuery = function (data) {
     }
 
     if (data.groupBy) {
-        if (data.groupBy === "events.url") {
+        if (data.groupBy === "events.url" || data.groupBy === "events.search.level.id" || data.groupBy === "events.search.language.id"
+            || data.groupBy === "events.search.category.id" || data.groupBy === "events.search.origin.code") {
             groups.push({
                 '$group': {
-                    "_id": { "event_url": '$events.url', "connection_id": "$_id" },
+                    "_id": { "event_key": '$' + data.groupBy, "connection_id": "$_id" },
                     "count": { "$sum": 1 }
                 }
             });
             groups.push({
                 "$group": {
-                    "_id": "$_id.event_url",
+                    "_id": "$_id.event_key",
                     "count": { $sum: "$count" }
                 }
             });
         } else {
-            if (data.navigateTo) {
+            if (data.navigateTo || data.eventType) {
                 groups.push({
                     '$group': { "_id": { "group_by": '$' + data.groupBy, "connection_id": "$_id" }, "count": { "$sum": 1 } }
                 });
@@ -267,7 +275,8 @@ analyticsService.getCountQuery = function (data) {
     if (data.referrer) {
         $match.$match.$and ? $match.$match.$and.push({ "referrer": data.referrer }) : $match.$match.$and = [{ "referrer": data.referrer }];
     }
-    if ((data.groupBy && data.groupBy === "events.url") || data.navigateTo) {
+    if ((data.groupBy === "events.url" || data.groupBy === "events.search.level.id" || data.groupBy === "events.search.language.id"
+        || data.groupBy === "events.search.category.id" || data.groupBy === "events.search.origin.code") || data.navigateTo || data.eventType) {
         aggregate.push($unwind);
     }
 
@@ -285,7 +294,10 @@ analyticsService.getAnalytics = function (data) {
         var connectionModel = db.model("connections", connectionSchema);
         logger.info("before find is detailed search: " + data.isDetailed);
         var query = data.isDetailed === "true" ? analyticsService.getDetailedQuery(data) : analyticsService.getCountQuery(data);
-        logger.info("query " + JSON.stringify(query));
+        logger.info("query " + JSON.stringify(query), {
+            allowDiskUse: true,
+            cursor: {}
+        });
         return connectionModel.aggregate(query)
             .exec(function (err, response) {
                 if (!err) {
