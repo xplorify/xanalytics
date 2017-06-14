@@ -4,12 +4,13 @@
 3. On GitHub, go to [your repository] -> Settings -> Deploy keys
 
 Add something like this to your Dockerfile:
-ADD repo-key /
+
+`ADD repo-key /
 RUN \
   chmod 600 /repo-key && \  
   echo "IdentityFile /repo-key" >> /etc/ssh/ssh_config && \  
   echo -e "StrictHostKeyChecking no" >> /etc/ssh/ssh_config && \  
-  // your git clone commands here...
+  // your git clone commands here...`
 
 
 # Docker build
