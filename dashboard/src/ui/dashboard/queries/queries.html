@@ -11,13 +11,49 @@
     <div class="w3-rest">
       <div if.bind="isGrouped">
         <div class="w3-row" repeat.for="conn of connections">
-            <accordion-grouped conn.bind="conn" total-count.bind="conn.count" filter-form.bind="filterForm"></accordion-grouped>
+          <accordion-grouped conn.bind="conn" total-count.bind="conn.count" filter-form.bind="filterForm"></accordion-grouped>
         </div>
       </div>
       <div if.bind="!isGrouped">
-        <div class="w3-row" repeat.for="connection of connections">
-        <accordion connection.bind="connection" filter-form.bind="filterForm"></accordion>
-      </div>
+        <div class="container">
+          <div class="row">
+            <div if.bind="filterForm.isDetailed">
+              <div class="w3-panel w3-indigo" click.delegate="toggle()">
+                <p class="w3-padding">
+                  <span if.bind="filterForm.navigateTo || filterForm.eventType != 'null'">
+                    Events
+                  </span>
+                  <span if.bind="!filterForm.navigateTo && filterForm.eventType == 'null'">
+                    Connections
+                  </span>
+                  <span class="w3-badge w3-right w3-green" if.bind="totalCount">
+                     <span if.bind="connections && connections.length > 0">
+                       <span if.bind="filterForm.navigateTo || filterForm.eventType !='null'">
+                         ${eventsLength} /
+                       </span>
+                     <span if.bind="!filterForm.navigateTo && filterForm.eventType == 'null'">
+                       ${connections.length} /
+                    </span>
+                  </span> ${totalCount}
+                  </span>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="${showMore? 'w3-show' : 'w3-hide'}">
+          <div if.bind="connections && connections.length > 0">
+            <div class="w3-row" repeat.for="connection of connections">
+              <accordion connection.bind="connection" filter-form.bind="filterForm"></accordion>
+            </div>
+            <div if.bind="connections && connections.length > 0 && (((filterForm.navigateTo  || filterForm.eventType != 'null') && eventsLength < totalCount) || (!filterForm.navigateTo && filterForm.eventType == 'null' && connections.length < totalCount))" class="tablink w3-hover-light-grey w3-padding w3-center">
+              <a click.delegate="loadMore()">
+              <i class="fa fa-circle-o-notch"></i>
+              <span>Load More</span>
+          </a>
+            </div>
+          </div>
+        </div>
       </div>
       <div if.bind="count" class="w3-margin">
         <div class="w3-panel w3-blue w3-round-large w3-center">
@@ -25,31 +61,13 @@
           <p if.bind="!filterForm.navigateTo && filterForm.eventType =='null'  && !filterForm.isDetailed" class="w3-margin">The number of connections is: ${count}</p>
         </div>
       </div>
-      <div if.bind="!count && connections.length == 0" class="w3-margin">
+      <div if.bind="!count && totalCount == 0 && connections.length == 0" class="w3-margin">
         <div class="w3-panel w3-blue w3-round-large w3-center">
           <p class="w3-margin">There aren't any connections
-             <i class="w3-large fa fa-exclamation-circle"></i>
+            <i class="w3-large fa fa-exclamation-circle"></i>
           </p>
         </div>
       </div>
-      <!--paging
-        <div class="row  w3-center" data-bind="with: $root.filter">
-            <ul class="pagination">
-                <li>
-                    <a click.delegate ="firstPage()">|←</a>
-                </li>
-                <li>
-                    <a click.delegate ="previousPage()">|←</a>
-                </li>
-                
-                <li>
-                    <a click.delegate ="nextPage()">|←</a>
-                </li>
-                <li>
-                    <a click.delegate ="lastPage()">|←</a>
-                </li>
-            </ul>
-        </div>-->
     </div>
   </div>
 </template>

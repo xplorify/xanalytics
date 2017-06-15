@@ -81,6 +81,12 @@
               <option model.bind="grouping" repeat.for="grouping of groupings">${grouping}</option>
             </select>
           </p>
+          <p if.bind="isDetailed">
+            <select value.bind="$parent.pageSize" class="w3-text-blue w3-white w3-btn w3-border w3-border-blue w3-block">
+              <option value.bind="null">-Select Page Size-</option>
+              <option model.bind="size" repeat.for="size of pageSizeChoices">${size}</option>
+            </select>
+          </p>
           <button class="w3-btn w3-block w3-blue" click.trigger="search()" disabled.bind="!canSearch">
               <i class="fa fa-search"></i>
                Search

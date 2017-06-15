@@ -16,6 +16,9 @@ analyticsRoutes.get(
 analyticsRoutes.get(
     '/getAnalytics',
     controller.getAnalytics);
+analyticsRoutes.get(
+    '/getConnectionsByGroupKey',
+    controller.getConnectionsByGroupKey);
 
 // post
 analyticsRoutes.post(

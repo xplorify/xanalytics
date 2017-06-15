@@ -8,6 +8,7 @@ var mongoose = require('mongoose'),
 mongoose.Promise = require('bluebird');
 var analyticsService = {};
 analyticsService.Connection = mongoose.model("connections", connectionSchema);
+var ObjectId = mongoose.Types.ObjectId;
 
 analyticsService.createConnection = function (data) {
     logger.info("Creating connection... " + JSON.stringify(data.body));
@@ -71,23 +72,25 @@ analyticsService.getOpenConnections = function (code) {
     });
 };
 
-analyticsService.getDetailedQuery = function (data) {
-    let aggregate = [];
-    let groups = [];
-    let $unwind = {
-        '$unwind': {
-            path: '$events',
-            preserveNullAndEmptyArrays: false
-        }
-    }
+analyticsService.getMatchQuery = function (data) {
     let $match = data.navigateTo
         ? { $match: { $and: [{ startDate: { "$gt": new Date(data.from), "$lt": new Date(data.to) } }, { "events.url": data.navigateTo }] } }
         : { $match: { "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) } } };
 
+    if (data.lastId && data.isDetailed === "true") {
+        $match.$match.$and
+            ? $match.$match.$and.push({ "_id": { "$gt": ObjectId(data.lastId) } })
+            : $match.$match.$and = [{ "_id": { "$gt": ObjectId(data.lastId) } }];
+    }
     if (data.eventType) {
         $match.$match.$and
             ? $match.$match.$and.push({ "events.eventType": data.eventType })
             : $match.$match.$and = [{ "events.eventType": data.eventType }];
+    }
+    if (data.application) {
+        $match.$match.$and
+            ? $match.$match.$and.push({ "application.code": data.application })
+            : $match.$match.$and = [{ "application.code": data.application }];
     }
     if (data.operatingSystem) {
         $match.$match.$and
@@ -113,34 +116,52 @@ analyticsService.getDetailedQuery = function (data) {
         }
     }
 
+    return $match;
+}
+
+analyticsService.getDetailedQuery = function (data) {
+    let aggregate = [];
+    let groups = [];
+    let $sort = { $sort: { "_id": 1 } };
+    let $unwind = {
+        '$unwind': {
+            path: '$events',
+            preserveNullAndEmptyArrays: false
+        }
+    }
+    let $match = analyticsService.getMatchQuery(data);
+    let $limit = null;
+
+    if (data.pageSize && !data.groupBy) {
+        $limit = { '$limit': parseInt(data.pageSize) };
+    }
+
     if (data.groupBy) {
-        if (data.groupBy === "events.url" || data.groupBy === "events.search.level.id" || data.groupBy === "events.search.language.id"
-            || data.groupBy === "events.search.category.id" || data.groupBy === "events.search.origin.code") {
+        if (data.groupBy === "events.url" || data.groupBy === "events.search.level.name" || data.groupBy === "events.search.language.name"
+            || data.groupBy === "events.search.category.name" || data.groupBy === "events.search.origin.code") {
             groups.push({
                 '$group': {
                     "_id": { "event_key": '$' + data.groupBy, "connection_id": "$_id" },
-                    "connections": { $push: "$$ROOT" },
                     "count": { "$sum": 1 }
                 }
             });
             groups.push({
                 "$group": {
                     "_id": "$_id.event_key",
-                    "data": { $push: { "connections": "$connections", "count": "$count" } },
                     "count": { $sum: "$count" }
                 }
             });
         } else {
             if (data.navigateTo || data.eventType) {
                 groups.push({
-                    '$group': { "_id": { "group_by": '$' + data.groupBy, "connection_id": "$_id" }, "connections": { $push: "$$ROOT" }, "count": { "$sum": 1 } }
+                    '$group': { "_id": { "group_by": '$' + data.groupBy, "connection_id": "$_id" }, "count": { "$sum": 1 } }
                 });
                 groups.push({
-                    "$group": { "_id": "$_id.group_by", "data": { $push: { "connections": "$connections", "count": "$count" } }, "count": { $sum: "$count" } }
+                    "$group": { "_id": "$_id.group_by", "data": { $push: { "count": "$count" } }, "count": { $sum: "$count" } }
                 });
             } else {
                 groups.push({
-                    '$group': { "_id": '$' + data.groupBy, "connections": { $push: "$$ROOT" }, "count": { "$sum": 1 } }
+                    '$group': { "_id": '$' + data.groupBy, "count": { "$sum": 1 } }
                 });
             }
         }
@@ -162,20 +183,9 @@ analyticsService.getDetailedQuery = function (data) {
         }
     }
 
-    if (data.username) {
-        $match.$match.$and ? $match.$match.$and.push({ "userName": data.username }) : $match.$match.$and = [{ "userName": data.username }];
-    }
-    if (data.ipAddress) {
-        $match.$match.$and ? $match.$match.$and.push({ "remoteAddress": data.ipAddress }) : $match.$match.$and = [{ "remoteAddress": data.ipAddress }];
-    }
-    if (data.countryCode) {
-        $match.$match.$and ? $match.$match.$and.push({ "countryCode": data.countryCode }) : $match.$match.$and = [{ "countryCode": data.countryCode }];
-    }
-    if (data.referrer) {
-        $match.$match.$and ? $match.$match.$and.push({ "referrer": data.referrer }) : $match.$match.$and = [{ "referrer": data.referrer }];
-    }
-    if (data.groupBy && (data.groupBy === "events.url" || data.groupBy === "events.search.level.id" || data.groupBy === "events.search.language.id"
-        || data.groupBy === "events.search.category.id" || data.groupBy === "events.search.origin.code") || data.navigateTo || data.eventType) {
+    analyticsService.expandMatchQuery(data, $match);
+    if (data.groupBy && (data.groupBy === "events.url" || data.groupBy === "events.search.level.name" || data.groupBy === "events.search.language.name"
+        || data.groupBy === "events.search.category.name" || data.groupBy === "events.search.origin.code") || data.navigateTo || data.eventType) {
         aggregate.push($unwind);
     }
 
@@ -183,7 +193,114 @@ analyticsService.getDetailedQuery = function (data) {
     groups.forEach(function (g) {
         aggregate.push(g);
     });
+    aggregate.push($sort);
+    if (data.pageSize && !data.groupBy) {
+        aggregate.push($limit);
+    }
 
+    logger.info("aggregate: " + JSON.stringify(aggregate));
+    return aggregate;
+}
+
+analyticsService.getConnectionsByKey = function (data) {
+    let aggregate = [];
+    let groups = [];
+    let $sort = { $sort: { "_id": 1 } };
+    let $unwind = {
+        '$unwind': {
+            path: '$events',
+            preserveNullAndEmptyArrays: false
+        }
+    }
+    let $match = analyticsService.getMatchQuery(data);
+    let $limit = null;
+
+    if (data.pageSize) {
+        $limit = { '$limit': parseInt(data.pageSize) };
+    }
+
+    analyticsService.expandMatchQuery(data, $match);
+    var convertEventsToArray = false;
+
+    if (data.groupBy && (data.groupBy === "events.url" || data.groupBy === "events.search.level.name" || data.groupBy === "events.search.language.name"
+        || data.groupBy === "events.search.category.name" || data.groupBy === "events.search.origin.code") || data.navigateTo || data.eventType) {
+        aggregate.push($unwind);
+        convertEventsToArray = true;
+    }
+
+    if (data.key && data.groupBy) {
+        var matchObject;
+        switch (data.groupBy) {
+            case "userName":
+                matchObject = { "userName": data.key };
+                break;
+            case "remoteAddress":
+                matchObject = { "remoteAddress": data.key };
+                break;
+            case "countryCode":
+                matchObject = { "countryCode": data.key };
+                break;
+            case "referrer":
+                matchObject = { "referrer": data.key };
+                break;
+            case "events.url":
+                matchObject = { "events.url": data.key };
+                break;
+            case "events.search.origin.code":
+                matchObject = { "events.search.origin.code": data.key };
+                break;
+            case "events.search.level.name":
+                matchObject = { "events.search.level.name": data.key };
+                break;
+            case "events.search.language.name":
+                matchObject = { "events.search.language.name": data.key };
+                break;
+            case "events.search.category.name":
+                matchObject = { "events.search.category.name": data.key };
+                break;
+            case "detectRtc.browser.name":
+                matchObject = { "detectRtc.browser.name": data.key };
+                break;
+            case "detectRtc.osName":
+                matchObject = { "detectRtc.osName": data.key };
+                break;
+            case "application.code":
+                matchObject = { "application.code": data.key };
+                break;
+        }
+
+        $match.$match.$and
+            ? $match.$match.$and.push(matchObject)
+            : $match.$match.$and = [matchObject];
+    }
+
+    if (convertEventsToArray) {
+        groups.push({
+            '$group': {
+                "_id": "$_id",
+                "userName": { $first: "$userName" },
+                "remoteAddress": { $first: "$remoteAddress" },
+                "referrer": { $first: "$referrer" },
+                "detectRtc": { $first: "$detectRtc" },
+                "countryCode": { $first: "$countryCode" },
+                "application": { $first: "$application" },
+                "events": { $addToSet: "$events" }
+            }
+        });
+    }
+
+
+    aggregate.push($match);
+
+    groups.forEach(function (g) {
+        aggregate.push(g);
+    });
+    aggregate.push($sort);
+    if (data.pageSize) {
+        aggregate.push($limit);
+    }
+
+    logger.info("aggregate: " + JSON.stringify(aggregate));
     return aggregate;
 }
 
@@ -196,42 +313,11 @@ analyticsService.getCountQuery = function (data) {
             preserveNullAndEmptyArrays: false
         }
     }
-    let $match = data.navigateTo
-        ? { $match: { $and: [{ startDate: { "$gt": new Date(data.from), "$lt": new Date(data.to) } }, { "events.url": data.navigateTo }] } }
-        : { $match: { "startDate": { "$gt": new Date(data.from), "$lt": new Date(data.to) } } };
-
-    if (data.eventType) {
-        $match.$match.$and
-            ? $match.$match.$and.push({ "events.eventType": data.eventType })
-            : $match.$match.$and = [{ "events.eventType": data.eventType }];
-    }
-    if (data.operatingSystem) {
-        $match.$match.$and
-            ? $match.$match.$and.push({ "detectRtc.osName": data.operatingSystem })
-            : $match.$match.$and = [{ "detectRtc.osName": data.operatingSystem }];
-    }
-    if (data.browser && data.browser !== "Others") {
-        $match.$match.$and
-            ? $match.$match.$and.push({ "detectRtc.browser.name": data.browser })
-            : $match.$match.$and = [{ "detectRtc.browser.name": data.browser }];
-    }
-    if (data.browser && data.browser === "Others") {
-        if ($match.$match.$and) {
-            $match.$match.$and.push({ "detectRtc.browser.name": { $ne: "Chrome" } });
-            $match.$match.$and.push({ "detectRtc.browser.name": { $ne: "Firefox" } });
-            $match.$match.$and.push({ "detectRtc.browser.name": { $ne: "Safari" } });
-        } else {
-            $match.$match.$and = [
-                { "detectRtc.browser.name": { $ne: "Chrome" } },
-                { "detectRtc.browser.name": { $ne: "Firefox" } },
-                { "detectRtc.browser.name": { $ne: "Safari" } }
-            ];
-        }
-    }
+    let $match = analyticsService.getMatchQuery(data);
 
     if (data.groupBy) {
-        if (data.groupBy === "events.url" || data.groupBy === "events.search.level.id" || data.groupBy === "events.search.language.id"
-            || data.groupBy === "events.search.category.id" || data.groupBy === "events.search.origin.code") {
+        if (data.groupBy === "events.url" || data.groupBy === "events.search.level.name" || data.groupBy === "events.search.language.name"
+            || data.groupBy === "events.search.category.name" || data.groupBy === "events.search.origin.code") {
             groups.push({
                 '$group': {
                     "_id": { "event_key": '$' + data.groupBy, "connection_id": "$_id" },
@@ -263,6 +349,21 @@ analyticsService.getCountQuery = function (data) {
         groups.push({ '$group': { "_id": null, "count": { "$sum": 1 } } });
     }
 
+    analyticsService.expandMatchQuery(data, $match);
+    if ((data.groupBy === "events.url" || data.groupBy === "events.search.level.name" || data.groupBy === "events.search.language.name"
+        || data.groupBy === "events.search.category.name" || data.groupBy === "events.search.origin.code") || data.navigateTo || data.eventType) {
+        aggregate.push($unwind);
+    }
+
+    aggregate.push($match);
+    groups.forEach(function (g) {
+        aggregate.push(g);
+    });
+
+    return aggregate;
+}
+
+analyticsService.expandMatchQuery = function (data, $match) {
     if (data.username) {
         $match.$match.$and ? $match.$match.$and.push({ "userName": data.username }) : $match.$match.$and = [{ "userName": data.username }];
     }
@@ -275,30 +376,40 @@ analyticsService.getCountQuery = function (data) {
     if (data.referrer) {
         $match.$match.$and ? $match.$match.$and.push({ "referrer": data.referrer }) : $match.$match.$and = [{ "referrer": data.referrer }];
     }
-    if ((data.groupBy === "events.url" || data.groupBy === "events.search.level.id" || data.groupBy === "events.search.language.id"
-        || data.groupBy === "events.search.category.id" || data.groupBy === "events.search.origin.code") || data.navigateTo || data.eventType) {
-        aggregate.push($unwind);
-    }
-
-    aggregate.push($match);
-    groups.forEach(function (g) {
-        aggregate.push(g);
-    });
-
-    return aggregate;
 }
+
+analyticsService.getConnectionsByGroupKey = function (data) {
+    return new Promise(function (resolve, reject) {
+        var db = mongoose.createConnection(config.xplorifyDb, { auth: { authdb: "admin" } });
+        var connectionModel = db.model("connections", connectionSchema);
+        var query = analyticsService.getConnectionsByKey(data);
+        logger.info("query " + JSON.stringify(query));
+        return connectionModel.aggregate(query)
+            .allowDiskUse(true)
+            .exec(function (err, response) {
+                if (!err) {
+                    logger.info("Result: " + response);
+                    resolve(response);
+                } else {
+                    logger.error("err: " + err);
+                    reject(new Error(err));
+                }
+            })
+            .finally(function () {
+                db.close();
+            });
+    });
+};
 
 analyticsService.getAnalytics = function (data) {
     return new Promise(function (resolve, reject) {
         var db = mongoose.createConnection(config.xplorifyDb, { auth: { authdb: "admin" } });
         var connectionModel = db.model("connections", connectionSchema);
         logger.info("before find is detailed search: " + data.isDetailed);
-        var query = data.isDetailed === "true" ? analyticsService.getDetailedQuery(data) : analyticsService.getCountQuery(data);
-        logger.info("query " + JSON.stringify(query), {
-            allowDiskUse: true,
-            cursor: {}
-        });
+        var query = data.isDetailed === "true" && data.isFirstRequest === "false" ? analyticsService.getDetailedQuery(data) : analyticsService.getCountQuery(data);
+        logger.info("query " + JSON.stringify(query));
         return connectionModel.aggregate(query)
+            .allowDiskUse(true)
             .exec(function (err, response) {
                 if (!err) {
                     logger.info("Result: " + response);

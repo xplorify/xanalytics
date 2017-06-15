@@ -13,6 +13,7 @@ export default class AnalyticsApi {
         self.urls = {
             getOpenConnections: globals.serverUrl + "/api/getOpenConnections",
             getAnalytics: globals.serverUrl + "/api/getAnalytics",
+            getConnectionsByGroupKey: globals.serverUrl + "/api/getConnectionsByGroupKey",
             getGlobals: globals.serverUrl + "/api/ip/getGlobals",
             createConnection: globals.serverUrl + "/api/createConnection",
             addNewEvent: globals.serverUrl + "/api/addNewEvent",
@@ -59,6 +60,30 @@ export default class AnalyticsApi {
             if (req.readyState === 4) {
                 var result = JSON.parse(req.responseText);
                 console.log("Getting analytics was successful");
+                next(result.result);
+            }
+        };
+        req.onerror = function (err) {
+            console.log(err);
+            next({ error: true, message: req.responseText });
+        }
+    }
+
+     getConnectionsByGroupKey(options, next) {
+        console.log("Getting Connections By Group Key...");
+        var req = new XMLHttpRequest();
+        var url = self.urls.getConnectionsByGroupKey + "?";
+        var i = 0;
+        for (var prop in options) {
+            url = url + (i > 0 ? "&" : "") + prop + "=" + encodeURIComponent(options[prop]);
+            i++;
+        }
+        req.open('GET', url, true);
+        req.send(null);
+        req.onreadystatechange = function () {
+            if (req.readyState === 4) {
+                var result = JSON.parse(req.responseText);
+                console.log("Getting connections by group key was successful");
                 next(result.result);
             }
         };

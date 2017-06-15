@@ -120,6 +120,6 @@
     "isomorphic-fetch": "2.2.1",
     "jquery": "3.2.1",
     "w3-css": "^4.0.4",
-    "xplorify.analytics.client": "^1.0.20"
+    "xplorify.analytics.client": "^1.0.22"
   }
 }

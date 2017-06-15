@@ -62,12 +62,48 @@ module.exports = {
             eventType: req.query.eventType,
             browser: req.query.browser,
             application: req.query.application,
-            operatingSystem: req.query.operatingSystem
+            operatingSystem: req.query.operatingSystem,
+            pageSize: req.query.pageSize,
+            lastId: req.query.lastId,
+            key: req.query.key,
+            isFirstRequest: req.query.isFirstRequest,
         };
         logger.info("data " + JSON.stringify(data));
         res.header("Content-Type", "application/json");
         return analyticsService
             .getAnalytics(data)
+            .then(function (result) {
+                logger.info("result " + result);
+                res.send({ result: result });
+            })
+            .catch(function (err) {
+                res.status(500);
+                res.send({ error: err });
+            });
+    },
+    getConnectionsByGroupKey: function (req, res) {
+        var data = {
+            from: req.query.from,
+            to: req.query.to,
+            username: req.query.username,
+            countryCode: req.query.countryCode,
+            ipAddress: req.query.ipAddress,
+            referrer: req.query.referrer,
+            navigateTo: req.query.navigateTo,
+            groupBy: req.query.groupBy,
+            isDetailed: req.query.isDetailed,
+            eventType: req.query.eventType,
+            browser: req.query.browser,
+            application: req.query.application,
+            operatingSystem: req.query.operatingSystem,
+            pageSize: req.query.pageSize,
+            lastId: req.query.lastId,
+            key: req.query.key
+        };
+        logger.info("data " + JSON.stringify(data));
+        res.header("Content-Type", "application/json");
+        return analyticsService
+            .getConnectionsByGroupKey(data)
             .then(function (result) {
                 logger.info("result " + result);
                 res.send({ result: result });

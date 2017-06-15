@@ -35,6 +35,9 @@
       <span class="w3-badge w3-right w3-green w3-center" if.bind="count">
               ${count}
         </span>
+      <span class="w3-badge w3-right w3-green w3-center" if.bind="!count && connection.events.length > 0">
+              ${connection.events.length}
+        </span>
     </div>
     <div class="${connection.isActive ? 'w3-show' : 'w3-hide'}">
       <div if.bind="connection.events && connection.events.length > 0">
