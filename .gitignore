@@ -1,5 +1,5 @@
 server/node_modules/
-server/log/access.log
+server/log/access*
 client/node_modules/
 dashboard/node_modules/
 

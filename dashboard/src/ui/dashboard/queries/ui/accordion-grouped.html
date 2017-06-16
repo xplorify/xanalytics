@@ -1,5 +1,6 @@
 <template>
   <require from="./accordion"></require>
+  <require from="./events-length"></require>
   <div id.bind="conn._id">
     <div class="container">
       <div class="row">
@@ -21,7 +22,7 @@
               <span class="w3-badge w3-right w3-green" if.bind="totalCount">
              <span if.bind="conn.connections && conn.connections.length > 0">
                <span if.bind="filterForm.navigateTo || filterForm.groupBy ==='events.url' || filterForm.eventType !== 'null'">
-                  ${getLength(conn)} /
+                  ${conn.connections | eventsLength} /
                </span>
                <span if.bind="filterForm.groupBy !=='events.url' &&  filterForm.eventType === 'null' && !filterForm.navigateTo">
                  ${conn.connections.length} /
