@@ -113,6 +113,7 @@ export class RealTime {
 
   onChange = function (selectedApplication) {
     if (selectedApplication) {
+      self.analyticsModel.connections = [];
       return self.getOpenConnections(selectedApplication.application ? selectedApplication.application.code : '')
         .then(self.onData);
     }
