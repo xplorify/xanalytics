@@ -161,8 +161,8 @@ module.exports = {
     },
     addUserInfo: function (req, res) {
         res.header("Content-Type", "application/json");
-        logger.info("Add new event " + JSON.stringify(req.body));
-        logger.info("create connection request start");
+        logger.info("Add user info " + JSON.stringify(req.body));
+        logger.info("add user info request start");
         return analyticsService
             .addUserInfo(req.body)
             .then(function (result) {
@@ -176,7 +176,7 @@ module.exports = {
     closeConnection: function (req, res) {
         res.header("Content-Type", "application/json");
         logger.info("Add new event " + JSON.stringify(req.body.connectionId));
-        logger.info("create connection request start");
+        logger.info("close connection request start");
         var connectionId = req.body.connectionId;
         return analyticsService
             .closeConnection(connectionId)
