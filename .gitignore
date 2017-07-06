@@ -13,5 +13,4 @@ cert/certificate.pfx
 client/npm-debug*
 dashboard/npm-debug*
 server/npm-debug*
-server/log/access.log*
 npm-debug*

@@ -32,6 +32,7 @@ git clone git@github.com:xplorify/xplorify-analytics.git
 cd /xplorify-analytics/dashboard 
 npm i
 npm start webpack.build.production
+#npm run prd - dashboard
 
 cd /xplorify-analytics/server 
 npm i
