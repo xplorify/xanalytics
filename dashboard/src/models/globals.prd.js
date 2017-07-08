@@ -1,15 +1,15 @@
 module.exports = {
   // input parameters
   xAnalytics: null,
-  serverUrl: 'https://live.xplorify.net:444',
-  getUserInfoLocation: 'https://live.xplorify.net:444/api/auth/getUserInfo',
+  serverUrl: 'https://analytics.xplorify.net',
+  getUserInfoLocation: 'https://analytics.xplorify.net/api/auth/getUserInfo',
   application: {
     code: 'analytics',
-    url: 'https://live.xplorify.net:444'
+    url: 'https://analytics.xplorify.net'
   },
   applications: [{
       code: 'analytics',
-      url: 'https://live.xplorify.net:444'
+      url: 'https://analytics.xplorify.net'
     },
     {
       code: 'mk',
