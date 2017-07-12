@@ -32,6 +32,7 @@
     "passport-jwt": "^2.2.1",
     "passport-local": "^1.0.0",
     "rotating-file-stream": "^1.2.2",
+    "sendgrid": "^5.1.2",
     "sockjs": "^0.3.18",
     "validator": "^7.0.0",
     "winston": "^2.3.1"

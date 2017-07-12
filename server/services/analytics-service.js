@@ -120,6 +120,7 @@ analyticsService.getMatchQuery = function (data) {
 }
 
 analyticsService.getDetailedQuery = function (data) {
+    console.log("inside detailed query");
     let aggregate = [];
     let groups = [];
     let $sort = { $sort: { "_id": 1 } };
@@ -161,7 +162,11 @@ analyticsService.getDetailedQuery = function (data) {
                 });
             } else {
                 groups.push({
-                    '$group': { "_id": '$' + data.groupBy, "count": { "$sum": 1 } }
+                    '$group': {
+                        "_id": '$' + data.groupBy,
+                        "count": { "$sum": 1 },
+                        "data": { $push: "$$ROOT" }
+                    }
                 });
             }
         }
@@ -422,6 +427,127 @@ analyticsService.getAnalytics = function (data) {
             .finally(function () {
                 db.close();
             });
+    });
+};
+
+analyticsService.getTopTenLinksQuery = function (data) {
+    let aggregate = [];
+    let groups = [];
+    let $unwind = {
+        '$unwind': {
+            path: '$events',
+            preserveNullAndEmptyArrays: false
+        }
+    }
+    let $sort = { $sort: { "count": -1 } };
+    let $match = analyticsService.getMatchQuery(data);
+    let $limit = { '$limit': 10 };
+
+    groups.push({
+        '$group': {
+            "_id": { "event_key": '$' + data.groupBy, "connection_id": "$_id" },
+            "count": { "$sum": 1 }
+        }
+    });
+    groups.push({
+        "$group": {
+            "_id": "$_id.event_key",
+            "count": { $sum: "$count" }
+        }
+    });
+
+    analyticsService.expandMatchQuery(data, $match);
+    aggregate.push($unwind);
+    aggregate.push($match);
+    groups.forEach(function (g) {
+        aggregate.push(g);
+    });
+    aggregate.push($sort);
+    aggregate.push($limit);
+
+    return aggregate;
+}
+
+analyticsService.getTopTenLinks = function (data) {
+    return new Promise(function (resolve, reject) {
+        var db = mongoose.createConnection(config.xplorifyDb, { auth: { authdb: "admin" } });
+        var connectionModel = db.model("connections", connectionSchema);
+        data.groupBy = "events.url"
+        var query = analyticsService.getTopTenLinksQuery(data);
+        logger.info("query " + JSON.stringify(query));
+        return connectionModel.aggregate(query)
+            .allowDiskUse(true)
+            .exec(function (err, response) {
+                if (!err) {
+                    logger.info("Result: " + JSON.stringify(response));
+                    resolve(response);
+                } else {
+                    logger.error("err: " + err);
+                    reject(new Error(err));
+                }
+            })
+            .finally(function () {
+                db.close();
+            });
+    });
+};
+
+
+analyticsService.getGroupedAnalytics = function (data) {
+    return new Promise(function (resolve, reject) {
+        var db = mongoose.createConnection(config.xplorifyDb, { auth: { authdb: "admin" } });
+        var connectionModel = db.model("connections", connectionSchema);
+        data.groupBy = 'detectRtc.browser.name';
+        var browserQuery = analyticsService.getDetailedQuery(data);
+        data.groupBy = 'countryCode';
+        var countryCodeQuery = analyticsService.getDetailedQuery(data);
+        data.groupBy = 'remoteAddress';
+        var remoteAddressQuery = analyticsService.getDetailedQuery(data);
+        var browserResult;
+        var countryCodeResult;
+        var remoteAddressResult;
+        return connectionModel.aggregate(browserQuery)
+            .allowDiskUse(true)
+            .exec(function (err, response) {
+                if (!err) {
+                    browserResult = response;
+                    return connectionModel.aggregate(countryCodeQuery)
+                        .allowDiskUse(true)
+                        .exec(function (err, countryCodeResponse) {
+                            if (!err) {
+                                countryCodeResult = countryCodeResponse;
+                                return connectionModel.aggregate(remoteAddressQuery)
+                                    .allowDiskUse(true)
+                                    .exec(function (err, remoteAddressResponse) {
+                                        if (!err) {
+                                            remoteAddressResult = remoteAddressResponse;
+                                            var analytics = {
+                                                browserResult: browserResult,
+                                                countryCodeResult: countryCodeResult,
+                                                remoteAddressResult: remoteAddressResult
+                                            }
+                                            resolve(analytics);
+                                        } else {
+                                            logger.error("err: " + err);
+                                            reject(new Error(err));
+                                        }
+                                    })
+                                    .finally(function () {
+                                        logger.info("Connection closed");
+                                        db.close();
+                                    });
+                            } else {
+                                logger.error("err: " + err);
+                                reject(new Error(err));
+                            }
+                        });
+                }
+                else {
+                    logger.error("err: " + err);
+                    reject(new Error(err));
+                }
+            })
+
     });
 };
 

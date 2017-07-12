@@ -2,7 +2,7 @@
 
 var mongoose = require('mongoose');
 
-var connectionShema =
+var connectionSchema =
     mongoose.Schema({
         previousConnectionId: { type: String, index: true },
         userName: { type: String, index: true },
@@ -36,4 +36,4 @@ var connectionShema =
         }]
     });
 
-module.exports = connectionShema;
+module.exports = connectionSchema;

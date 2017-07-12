@@ -33,5 +33,11 @@ analyticsRoutes.post(
 analyticsRoutes.post(
     '/closeConnection',
     controller.closeConnection);
+analyticsRoutes.post(
+    '/sendDailyAnalytics',
+    controller.sendDailyAnalytics);
+analyticsRoutes.post(
+    '/sendWeeklyAnalytics',
+    controller.sendWeeklyAnalytics);
 
 module.exports = analyticsRoutes;

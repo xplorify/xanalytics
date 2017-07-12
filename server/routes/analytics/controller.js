@@ -1,6 +1,7 @@
 "use strict";
 
 var analyticsService = require("../../services/analytics-service");
+var emailService = require("../../services/email-service");
 var storeService = require("../../services/store-service");
 var logger = require("winston");
 
@@ -193,5 +194,43 @@ module.exports = {
                 res.status(500);
                 res.send({ error: err });
             });
+    },
+    sendDailyAnalytics: function (req, res) {
+        res.header("Content-Type", "application/json");
+        logger.info("Send daily analytics start " + JSON.stringify(req.body));
+        return analyticsService
+            .getGroupedAnalytics(req.body)
+            .then(function (result) {
+                return emailService.sendAnalytics(result)
+                    .then(function (response) {
+                        res.send({ result: response });
+                    });
+            })
+            .catch(function (err) {
+                console.log("Err " + err);
+                res.status(500);
+                res.send({ error: err });
+            });
+    },
+    sendWeeklyAnalytics: function (req, res) {
+        res.header("Content-Type", "application/json");
+        logger.info("Send weekly analytics start " + JSON.stringify(req.body));
+        var result;
+        return analyticsService.getGroupedAnalytics(req.body)
+            .then(function (groupedAnalytics) {
+                result = groupedAnalytics;
+                return analyticsService.getTopTenLinks(req.body)
+            })
+            .then(function (topTenLinks) {
+                return emailService.sendAnalytics(result, topTenLinks)
+            })
+            .then(function (response) {
+                res.send({ result: response });
+            })
+            .catch(function (err) {
+            console.log("Err " + err);
+            res.status(500);
+            res.send({ error: err });
+        });
     }
 };
