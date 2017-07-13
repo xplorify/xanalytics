@@ -201,7 +201,7 @@ module.exports = {
         return analyticsService
             .getGroupedAnalytics(req.body)
             .then(function (result) {
-                return emailService.sendAnalytics(result)
+                return emailService.sendAnalytics(result, null, req.body)
                     .then(function (response) {
                         res.send({ result: response });
                     });
@@ -222,7 +222,7 @@ module.exports = {
                 return analyticsService.getTopTenLinks(req.body)
             })
             .then(function (topTenLinks) {
-                return emailService.sendAnalytics(result, topTenLinks)
+                return emailService.sendAnalytics(result, topTenLinks, req.body)
             })
             .then(function (response) {
                 res.send({ result: response });

@@ -3,11 +3,13 @@
 var mongoose = require('mongoose'),
     config = require("../config"),
     connectionSchema = require("../models/connection"),
+    analyticsAggregateSchema = require("../models/analytics-aggregate"),
     util = require('util'),
     logger = require('winston');
 mongoose.Promise = require('bluebird');
 var analyticsService = {};
 analyticsService.Connection = mongoose.model("connections", connectionSchema);
+analyticsService.AnalyticsAggregate = mongoose.model("analyticsAggregates", analyticsAggregateSchema);
 var ObjectId = mongoose.Types.ObjectId;
 
 analyticsService.createConnection = function (data) {
@@ -706,5 +708,42 @@ analyticsService.getNewConnectionObject = function (db, data) {
     var connection = new connectionModel(obj);
     return connection;
 };
+
+analyticsService.getAnalyticsAggregateObject = function (db, data, topTenLinks) {
+    var obj = {
+        startDate: new Date().toISOString(),
+        data: data,
+    };
+
+    if (topTenLinks) {
+        obj.topTenLinks = topTenLinks
+        obj.isDaily = false;
+        obj.isWeekly = true;
+    } else {
+        obj.isDaily = true;
+        obj.isWeekly = false;
+    }
+    var analyticsAggregateModel = db.model("analyticsAggregates", analyticsAggregateSchema);
+    var analyticsAggregate = new analyticsAggregateModel(obj);
+    return analyticsAggregate;
+};
+
+analyticsService.createAnalyticsAggregate = function (data, topTenLinks) {
+    logger.info("Creating analytics aggregate... " + JSON.stringify(data));
+    return new Promise(function (resolve, reject) {
+        var db = mongoose.createConnection(config.xplorifyDb, { auth: { authdb: "admin" } });
+        var analyticsAggregate = analyticsService.getAnalyticsAggregateObject(db, data, topTenLinks);
+        return analyticsAggregate.save(function (err, response) {
+            if (!err) {
+                resolve(response);
+            } else {
+                reject(new Error(err));
+            }
+        })
+            .finally(function () {
+                db.close();
+            });
+    });
+}
 
 module.exports = analyticsService;
