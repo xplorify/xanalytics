@@ -6,7 +6,11 @@ import VueAxios from 'vue-axios';
 import App from './App';
 import router from './router';
 import "./init.js";
+// import 'babel-polyfill';
+import * as Bluebird from 'bluebird';
 
+// remove out if you don't want a Promise polyfill (remove also from webpack.config.js)
+Bluebird.config({ warnings: { wForgottenReturn: false } });
 Vue.use(VueAxios, axios)
 
 /* eslint-disable no-new */

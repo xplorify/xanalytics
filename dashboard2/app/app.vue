@@ -1,64 +1,102 @@
 <template>
   <div id="app">
-    <div class="w3-bar w3-white w3-wide w3-padding w3-card-2">
-      <router-link to="/" class="w3-bar-item w3-button">
-        <img src="../assets/images/logo/xplorify_logo.png">
+    <div class="w3-bar w3-border w3-blue">
+      <router-link to="/dashboard" v-if="isAuthenticated" class="w3-bar-item w3-button" active-class="active" exact>
+        Dashboard
       </router-link>
-      <!-- Float links to the right. Hide them on small screens -->
-      <div class="w3-right w3-hide-small">
-        <span v-if="isAuthenticated" class="w3-text-blue">
-          <span class="w3-bar-item">Welcome: {{globals.currentUser.username}}</span>
-        </span>
-        <router-link to="/rooms" v-if="isAuthenticated" class="w3-bar-item w3-button" active-class="active" exact>
-          Rooms
-        </router-link>
-        <router-link to="/login" v-if="!isAuthenticated" class="w3-bar-item w3-button" active-class="active" exact>
-          Login
-        </router-link>
-        <router-link to="/register" v-if="!isAuthenticated" class="w3-bar-item w3-button" active-class="active" exact>
-          Register
-        </router-link>
-        <a class="w3-bar-item w3-button" active-class="active" v-if="isAuthenticated" v-on:click="logout">Logout</a>
-      </div>
+      <router-link to="/login" v-if="!isAuthenticated" class="w3-bar-item w3-button" active-class="active" exact>
+        Login
+      </router-link>
+      <router-link to="/register" v-if="!isAuthenticated" class="w3-bar-item w3-button" active-class="active" exact>
+        Register
+      </router-link>
+      <a class="w3-bar-item w3-button" active-class="active" v-if="isAuthenticated" v-on:click="logout">Logout</a>
     </div>
-    <router-view></router-view>
+    <div class="page-host w3-container">
+      <router-view></router-view>
+    </div>
   </div>
 </template>
 
 <script>
-import { globals } from "./globals";
-import { config } from "./config";
-import { logger } from "./helpers/logger";
+import { globals } from './models/globals';
+import { XAnalytics } from 'xplorify.analytics.client/dist/app';
+import { storage } from './services/storage';
+import { security } from './services/security';
 import { authService } from './services/auth-service';
+import { enums } from './models/enums';
+import { route } from './models/urls';
+import router from './router';
 Promise = window.Promise || require('bluebird');
 
 export default {
   name: 'app',
   data() {
     return {
-      globals: globals
+      globals: globals,
+      isLogginOut: false,
+      isLogoutVisible: true,
+      options: {
+        application: globals.application,
+        serverUrl: globals.serverUrl,
+        getUserInfoUrl: globals.getUserInfoLocation,
+        authSchema: globals.authSchema
+      }
     }
   },
   created: function () {
-    return Promise.all([authService.getUserInfo()])
-      .then(function (response) {
-        if (response && response.success) {
-          return true;
-        }
-        else {
-          console.log(reponse.error);
-        }
-      })
-      .catch(function () { console.log('Unexisting user'); });
+    this.globals.xAnalytics = new window.XAnalytics(this.options);
+    this.isLogginOut = false;
+    this.isLogoutVisible = true;
+    if (this.isLogginOut) {
+      return false;
+    }
+    var accessToken = storage.get('accessToken');
+    console.log("accessToken: " + accessToken);
+    if (accessToken !== undefined) {
+      return authService.getUserInfo()
+        .then(function (result) {
+          if (result && result.err) {
+            storage.clear("accessToken");
+            security.userInfo = null;
+            // this.setRouteVisibility(false);
+            return router.push({ name: 'login' });
+          } else {
+            let dataObj = {
+              user: result,
+              token: accessToken
+            };
+            security.setAuthInfo(dataObj);
+            return result && result._id != null;
+          }
+        });
+    } else {
+      return false;
+    }
   },
   methods: {
     logout: function () {
-      return authService.logout();
+      this.isLogginOut = true;
+      this.isLogoutVisible = false;
+      console.log("Logging out");
+      var dataObj = {
+        userName: security.userInfo ? security.userInfo.userName : "Anonymous",
+        referrer: document.referrer,
+        eventType: enums.eventLogs.logout
+      }
+      this.globals.xAnalytics.send(dataObj);
+      if (security.userInfo && security.userInfo.accessToken) {
+        storage.clear("accessToken");
+        security.userInfo = null;
+      }
+      console.log("Inside logout, isAuth: false");
+      // this.setRouteVisibility(false);
+      return router.push({ name: 'login' });
     }
   },
   computed: {
     isAuthenticated: function () {
-      return this.globals.currentUser !== null;
+      return this.isLogoutVisible;
     }
   }
 }
@@ -67,7 +105,7 @@ export default {
 <style>
 #app {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased; 
+  -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 </style>

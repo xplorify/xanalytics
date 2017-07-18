@@ -1,5 +1,5 @@
 {
-  "name": "janusvideoroom",
+  "name": "dashboard",
   "version": "1.0.0",
   "description": "",
   "main": "webpack.config.js",
@@ -10,11 +10,12 @@
     "buildDev": "webpack --env=DEV",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Atanas Lazarovski",
+  "author": "Violeta Ivkovska",
   "license": "ISC",
   "dependencies": {
     "axios": "^0.16.2",
     "bluebird": "^3.5.0",
+    "eonasdan-bootstrap-datetimepicker": "^4.17.47",
     "html-webpack-plugin": "^2.29.0",
     "jquery": "^3.2.1",
     "toastr": "^2.1.2",
@@ -50,6 +51,9 @@
     "vue-html-loader": "^1.0.0",
     "vue-loader": "^7.3.0",
     "webpack": "^2.6.1",
-    "webpack-dev-server": "^2.4.5"
+    "webpack-dev-server": "^2.4.5",
+    "bootstrap": "3.3.7",
+    "w3-css": "^4.0.4",
+    "xplorify.analytics.client": "^1.0.22"
   }
 }

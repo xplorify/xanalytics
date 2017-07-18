@@ -1,91 +1,90 @@
-import axios from 'axios';
-import { storage } from "../services/storage-service";
-import { globals } from "../globals";
-import { config } from "../config";
-import router from '../router';
-Promise = window.Promise || require('bluebird');
+﻿import { globals } from '../models/globals';
 
-let self = null;
-
-let endpoints = {
-  login: "/api/auth/login",
-  register: "/api/auth/register",
-  getUserInfo: "/api/auth/getUserInfo"
+const urls = {
+  login: globals.serverUrl + '/api/auth/login',
+  register: globals.serverUrl + '/api/auth/register',
+  getUserInfo: globals.serverUrl + '/api/auth/getUserInfo'
 };
 
 class AuthService {
+  login(data) {
+    return new Promise(function (resolve, reject) {
+      let req = new XMLHttpRequest();
+      let url = urls.login;
+      let body = {
+        username: data.username,
+        password: data.password
+      };
+      req.open('POST', url, true);
+      req.setRequestHeader('Content-Type', 'application/json');
+      req.send(JSON.stringify(body));
+      req.onreadystatechange = function () {
+        if (req.readyState === 4) {
+          let result = JSON.parse(req.responseText);
+          resolve(result);
+        }
+      };
+      req.onerror = function () {
+        reject(req.responseText);
+      };
+    });
+  }
 
-  constructor() {
-    self = this;
+  register(data) {
+    return new Promise(function (resolve, reject) {
+      let req = new XMLHttpRequest();
+      let url = urls.register;
+      let body = {
+        username: data.username,
+        password: data.password,
+        firstname: data.firstname,
+        lastname: data.lastname,
+        email: data.email
+      };
+      req.open('POST', url, true);
+      req.setRequestHeader('Content-Type', 'application/json');
+      req.send(JSON.stringify(body));
+      req.onreadystatechange = function () {
+        if (req.readyState === 4) {
+          let result = JSON.parse(req.responseText);
+          resolve(result);
+        }
+      };
+      req.onerror = function () {
+        reject(req.responseText);
+      };
+    });
   }
 
   getUserInfo() {
-    const authHeader = storage.get("Token");
-    if (authHeader) {
-      const getUserInfoApi = `${config.settings.domainUrl}${endpoints.getUserInfo}`;
-      return axios.get(getUserInfoApi, {
-          headers: self.setHeaders()
-        })
-        .then(function(response) {
-          if (response && response.data) {
-            globals.currentUser = response.data;
+    return new Promise(function (resolve, reject) {
+      let req = new XMLHttpRequest();
+      let url = urls.getUserInfo;
+      req.open('GET', url, true);
+      req.setRequestHeader('Content-Type', 'application/json');
+      var accessToken = window.sessionStorage["accessToken"] || window.localStorage["accessToken"];
+      if (!accessToken.startsWith("Bearer") && !accessToken.startsWith("JWT")) {
+        accessToken = globals.authSchema + accessToken;
+      }
+      req.setRequestHeader("Authorization", accessToken);
+      req.send(null);
+      req.onreadystatechange = function () {
+        if (req.readyState === 4) {
+          if (req.responseText === "Unauthorized") {
+            let result = { err: "Unauthorized" }
+            resolve(result);
+          } else {
+            let result = JSON.parse(req.responseText);
+            resolve(result);
           }
-          return { response: response, success: true };
-        })
-        .catch(function(error) {
-          return { error: error, success: false };
-        });
-    }
-    return Promise.resolve();
-  }
-
-  login(input) {
-    const loginApi = `${config.settings.domainUrl}${endpoints.login}`;
-    return axios.post(loginApi, input)
-      .then(function(response) {
-        storage.set("Token", response.data.token, input.rememberme);
-        if (response && response.data && response.data.user) {
-          globals.currentUser = response.data.user;
         }
-        return { response: response, success: response.data.success };
-      })
-      .catch(function(error) {
-        return { error: error, success: false };
-      });
+      };
+      req.onerror = function () {
+        reject(req.responseText);
+      };
+    });
   }
 
-  logout() {
-    globals.currentUser = null;
-    return Promise.all([storage.clear("Token")])
-      .then(function() {
-        router.push('/');
-      });
-  }
-
-  register(input) {
-    const registerApi = `${config.settings.domainUrl}${endpoints.register}`;
-    input.roles = ["admin"];
-    return axios.post(registerApi, input)
-      .then(function(response) {
-        storage.set("Token", response.data.token);
-        if (response && response.data && response.data.user) {
-          globals.currentUser = response.data.user;
-        }
-        return { response: response, success: response.data.success };
-      })
-      .catch(function(error) {
-        return { error: error, success: false };
-      });
-  }
-
-  setHeaders() {
-    return {
-      'accept': 'application/json',
-      'accept-language': 'en_US',
-      'content-type': 'application/x-www-form-urlencoded',
-      'authorization': storage.get("Token")
-    }
-  }
 }
 
 export let authService = new AuthService();
