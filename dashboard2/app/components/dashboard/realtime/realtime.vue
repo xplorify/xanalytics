@@ -17,14 +17,14 @@
 import { globals } from '../../../models/globals';
 import { AnalyticsModel } from '../../../models/analytics';
 import { Connection } from '../../../models/connection';
-import { Accordion } from './ui/accordion';
 import Vue from 'vue';
 
-Vue.component('filter-tag', require('./ui/filter'));
+Vue.component('filter-tag', require('./ui/filter-tag'));
+Vue.component('accordion', require('./ui/accordion'));
 let self;
 export default {
 
-  name: 'accordion',
+  name: 'realtime',
   data() {
     return {
       globals: globals,
@@ -40,9 +40,6 @@ export default {
     self.globals.xAnalytics.setOnData(self.onData);
     return self.getOpenConnections()
       .then(self.onData);
-  },
-  components: {
-    'accordion': Accordion
   },
   methods: {
     getOpenConnections: function (code) {
@@ -79,11 +76,9 @@ export default {
       }
     },
     onChange: function (selectedApplication) {
-      if (selectedApplication) {
         self.analyticsModel.connections = [];
         return self.getOpenConnections(selectedApplication ? selectedApplication : '')
           .then(self.onData);
-      }
     }
   },
   computed: {
@@ -95,7 +90,8 @@ export default {
           id: item.to,
           title: item.to,
           count: item.connections.length,
-          panels: []
+          panels: [],
+          isActive: false
         };
         item.connections.forEach(function (connection) {
           let lastNavigateEvent = self.analyticsModel.lastNavigateEvent(connection.conn.events);

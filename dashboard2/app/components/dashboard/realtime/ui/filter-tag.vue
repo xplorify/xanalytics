@@ -9,9 +9,9 @@
         </div>
         <div class="w3-row">
             <span class="w3-col l8 m8 s10">
-                <select v-model="application" class="w3-btn w3-block w3-border w3-border-blue" v-on:click="onAppChange">
-                    <option disabled value="">-Choose Application-</option>
-                    <option v-for="application in applications" v-bind:key="application.code">{{application.code}}</option>
+                <select v-model="application" class="w3-btn w3-block w3-border w3-border-blue" v-on:change="onAppChange">
+                    <option value="">-Choose Application-</option>
+                    <option v-for="app in applications" v-bind:key="app.code">{{app.code}}</option>
                 </select>
             </span>
             <span class="w3-col l4 m4 s2">
@@ -29,17 +29,21 @@ import { globals } from '../../../../models/globals';
 export default {
 
     name: 'filter-tag',
-    props: ['selectedApplication', 'analyticsModel', 'onChange', 'getConnectionsCount'],
-    
+    props: ['selectedApplication', 'analyticsModel', 'getConnectionsCount'],
+
     data() {
         return {
             applications: globals.applications,
-            application: this.selectedApplication
+            application: this.selectedApplication,
+            analytics: this.analyticsModel
         }
+    },
+    created: function () {
+        this.application = "";
     },
     methods: {
         refresh: function () {
-            this.analyticsModel.connections = [];
+            this.analytics.connections = [];
             return this.$emit('on-change', this.application);
         },
         onAppChange: function () {
