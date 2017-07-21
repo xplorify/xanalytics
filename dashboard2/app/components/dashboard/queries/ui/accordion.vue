@@ -1,44 +1,45 @@
 <template>
-    <div v-bind:id="connection.id" class="w3-margin">
-        <div class="container w3-blue" v-on:click="toggle(connection)">
-            <span v-if="connection.referrer">
-                <button class="w3-button w3-small w3-blue" v-on:click="goToUrl(connection.referrer)">
+    <div v-bind:id="conn.id" class="w3-margin">
+        <div class="container w3-blue" v-on:click="toggle(conn)">
+            <span v-if="conn.referrer">
+                <button class="w3-button w3-small w3-blue" v-on:click="goToUrl(conn.referrer)">
                     <i class="fa fa-reply"></i>
                 </button>
             </span>
-            <span v-if="connection.userName"> {{connection.userName}}</span> , {{connection.remoteAddress}}, {{connection.countryCode}}, {{connection.referrer}},
+            <span v-if="conn.userName"> {{conn.userName}}</span> , {{conn.remoteAddress}}, {{conn.countryCode}}, {{conn.referrer}},
             <span>
-                <span>{{connection.detectRtc.browser.name}} ({{connection.detectRtc.browser.version}})</span>,
-                <span>{{connection.detectRtc.osName}} ({{connection.detectRtc.osVersion}})</span>,
-                <span class="w3-btn w3-small w3-green" v-if="connection.detectRtc.hasMicrophone">
+                <span>{{conn.detectRtc.browser.name}} ({{conn.detectRtc.browser.version}})</span>,
+                <span>{{conn.detectRtc.osName}} ({{conn.detectRtc.osVersion}})</span>,
+                <span class="w3-btn w3-small w3-green" v-if="conn.detectRtc.hasMicrophone">
                     <i class="fa fa-microphone"></i>
                 </span>
-                <span class="w3-btn w3-small w3-red" v-if="!connection.detectRtc.hasMicrophone">
+                <span class="w3-btn w3-small w3-red" v-if="!conn.detectRtc.hasMicrophone">
                     <i class="fa fa-microphone-slash"></i>
                 </span>
-                <span class="w3-btn w3-small w3-green" v-if="connection.detectRtc.hasWebcam">
+                <span class="w3-btn w3-small w3-green" v-if="conn.detectRtc.hasWebcam">
                     <i class="fa fa-video-camera"></i>
                 </span>
-                <span class="w3-btn w3-small w3-red" v-if="!connection.detectRtc.hasWebcam">
+                <span class="w3-btn w3-small w3-red" v-if="!conn.detectRtc.hasWebcam">
                     <i class="fa fa-video-camera"></i>
                 </span>
-                <span class="w3-btn w3-small w3-green" v-if="connection.detectRtc.hasSpeakers">
+                <span class="w3-btn w3-small w3-green" v-if="conn.detectRtc.hasSpeakers">
                     <i class="fa fa-volume-up"></i>
                 </span>
-                <span class="w3-btn w3-small w3-red" v-if="!connection.detectRtc.hasSpeakers">
+                <span class="w3-btn w3-small w3-red" v-if="!conn.detectRtc.hasSpeakers">
                     <i class="fa fa-volume-off"></i>
                 </span>
                 <span class="w3-badge w3-right w3-green w3-center" v-if="count">
                     {{count}}
                 </span>
-                <span class="w3-badge w3-right w3-green w3-center" v-if="!count && connection.events.length > 0">
-                    {{connection.events.length}}
+                <span class="w3-badge w3-right w3-green w3-center" v-if="!count && conn.events.length > 0">
+                    {{conn.events.length}}
                 </span>
+            </span>
         </div>
-        <div v-bind:class="[connection.isActive ? 'w3-show' : 'w3-hide']">
-            <div v-if="connection.events && connection.events.length > 0">
-                <div v-for="connectionEvent in connection.events" v-bind:key="connectionEvent.id">
-                    <accordion-panel v-bind:connection-event="connectionEvent"></accordion-panel>
+        <div v-bind:class="[conn.isActive ? 'w3-show' : 'w3-hide']">
+            <div v-if="conn.events && conn.events.length > 0">
+                <div v-for="connEvent in conn.events" v-bind:key="connEvent.id">
+                    <accordion-panel v-bind:conn-event="connEvent"></accordion-panel>
                 </div>
             </div>
         </div>
@@ -54,16 +55,18 @@ let self;
 export default {
 
     name: 'accordion',
-    props:['connection', 'filterForm'],
+    props: ['connection', 'filterForm', 'count'],
     data() {
-        return { }
+        return {
+            conn: this.connection
+        }
     },
     methods: {
         toggle: function (accordion) {
-            accordion.isActive = !accordion.isActive;
+            this.conn.isActive = !accordion.isActive;
         },
         goToUrl: function (url) {
-           return window.location.href = url;
+            return window.location.href = url;
         }
     }
 }

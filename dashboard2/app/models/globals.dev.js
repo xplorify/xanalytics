@@ -33,5 +33,3 @@ module.exports = {
     }
   ]
 };
-
-// export let globals = result;

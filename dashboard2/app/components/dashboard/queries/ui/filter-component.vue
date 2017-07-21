@@ -4,7 +4,7 @@
             <div class="w3-container w3-blue">
                 <h4>Filter</h4>
             </div>
-            <form class="w3-container">
+            <form class="w3-container" v-if="filterFormObj">
                 <div style="width: 100%" class="w3-third tablink w3-bottombar">
                     <h4>
                         <i class="fa fa-tag w3-text-blue"></i>
@@ -24,25 +24,25 @@
                         <label class="w3-text-blue">
                             <b>Username</b>
                         </label>
-                        <input class="w3-input w3-border" name="user name" type="text" v-bind:value="filterFormObj.username">
+                        <input class="w3-input w3-border" type="text" v-bind:value="filterFormObj.username">
                     </p>
                     <p>
                         <label class="w3-text-blue">
                             <b>Ip Address</b>
                         </label>
-                        <input class="w3-input w3-border" name="ip address" type="text" v-bind:value="filterFormObj.ipAddress">
+                        <input class="w3-input w3-border" type="text" v-bind:value="filterFormObj.ipAddress">
                     </p>
                     <p>
                         <label class="w3-text-blue">
                             <b>Country Code</b>
                         </label>
-                        <input class="w3-input w3-border" name="country code" type="text" v-bind:value="filterFormObj.countryCode">
+                        <input class="w3-input w3-border" type="text" v-bind:value="filterFormObj.countryCode">
                     </p>
                     <p>
                         <label class="w3-text-blue">
                             <b>Referrer</b>
                         </label>
-                        <input class="w3-input w3-border" name="referrer" type="text" v-bind:value="filterFormObj.referrer">
+                        <input class="w3-input w3-border" type="text" v-bind:value="filterFormObj.referrer">
                     </p>
                     <p>
                         <select v-model="filterFormObj.browser" class="w3-text-blue w3-white w3-btn w3-border w3-border-blue w3-block">
@@ -72,7 +72,7 @@
                         <label class="w3-text-blue" style="margin-top: 5%">
                             <b>Navigate To</b>
                         </label>
-                        <input class="w3-input w3-border" name="navigate to" type="text" v-bind:value="filterFormObj.navigateTo">
+                        <input class="w3-input w3-border" type="text" v-bind:value="filterFormObj.navigateTo">
                     </p>
                     <p>
                         <select v-model="filterFormObj.eventType" class="w3-text-blue w3-white w3-btn w3-border w3-border-blue w3-block">
@@ -102,12 +102,12 @@
                             <option v-for="size in pageSizeChoices" v-bind:key="size">{{size}}</option>
                         </select>
                     </p>
-                    <button class="w3-btn w3-block w3-blue" v-on:click="search" v-bind:disabled="!canSearch">
-                        <i class="fa fa-search"></i>
-                        Search
-                    </button>
                 </p>
             </form>
+            <button class="w3-btn w3-block w3-blue" v-on:click="search" v-bind:disabled="!canSearch">
+                <i class="fa fa-search"></i>
+                Search
+            </button>
         </div>
     </div>
 </template>
@@ -122,8 +122,8 @@ import Vue from 'vue';
 let self;
 export default {
 
-    name: 'filter-tag',
-    props: ["filterForm", "connections"],
+    name: 'filter-component',
+    props: ["filterForm"],
     data() {
         return {
             eventsLength: 0,
@@ -137,7 +137,8 @@ export default {
             eventLogs: this.getEventLogs(),
             isRequesting: false,
             pageSizeChoices: [5, 10, 20, 50, 100],
-            pageSize: 10
+            pageSize: 10,
+            connectionsArray: []
         }
     },
     methods: {
@@ -155,25 +156,63 @@ export default {
                 this.filterFormObj.pageSize = this.pageSize;
             }
 
-            if (this.filterFormObj.isDetailed && this.filterFormObj.groupBy === "null") {
+            if (this.filterFormObj.isDetailed && this.filterFormObj.groupBy === null) {
                 this.filterFormObj.isFirstRequest = true;
             }
 
             this.filterFormObj.lastId = "";
-            return queryHelper.search(this.filterFormObj, false);
+            this.searchData(this.filterFormObj, false);
         },
         onFilterChange: function (count) {
             var data = {
-                connections: this.connections,
+                connections: this.connectionsArray,
                 count: count,
                 filter: this.filterFormObj
             }
             return this.$emit('on-filter-change', data);
+        },
+        onFilterDataChange: function (filterForm, isMoreDataRequested, count) {
+            var data = {
+                connections: this.connectionsArray,
+                count: count,
+                filter: filterForm,
+                isMoreDataRequested: isMoreDataRequested
+            }
+            return this.$emit('on-filter-change', data);
+        },
+        searchData: function (filterForm, isMoreDataRequested) {
+            this.connectionsArray = [];
+            var data = queryHelper.getData(filterForm);
+            self = this;
+            console.log("Entered parameters: " + JSON.stringify(data));
+            return new Promise(function (resolve, reject) {
+                return globals.xAnalytics.api.getAnalytics(data, function (result) {
+                    if (result.error) {
+                        reject(result.message);
+                    } else {
+                        var count;
+                        if (filterForm.isDetailed || (!filterForm.isDetailed && filterForm.groupBy !== null)) {
+                            if (filterForm.groupBy === null && filterForm.isFirstRequest) {
+                                count = result && result.length > 0 ? result[0].count : 0;
+                            } else {
+                                this.connectionsArray = result;
+                                filterForm.lastId = result && result.length > 0 ? this.connectionsArray[this.connectionsArray.length - 1]._id : "";
+                            }
+                            self.onFilterDataChange(filterForm, isMoreDataRequested, count);
+                        } else {
+                            var count = result && result.length > 0 ? result[0].count : 0;
+                            self.onFilterDataChange(filterForm, isMoreDataRequested, count);
+                        }
+                        resolve(result);
+                    }
+                });
+            });
         }
     },
     computed: {
         canSearch: function () {
-            return this.filterFormObj.from != null && this.filterFormObj.to != null && !this.isRequesting;
+            // return this.filterFormObj && this.filterFormObj.from != null && this.filterFormObj.to != null && !this.isRequesting;
+            return true;
         }
     },
     components: {

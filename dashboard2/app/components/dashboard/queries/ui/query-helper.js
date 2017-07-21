@@ -20,8 +20,8 @@ class QueryHelper {
           reject(result.message);
         } else {
           var count;
-          if (filterForm.isDetailed || (!filterForm.isDetailed && filterForm.groupBy !== "null")) {
-            if (filterForm.groupBy === "null" && filterForm.isFirstRequest) {
+          if (filterForm.isDetailed || (!filterForm.isDetailed && filterForm.groupBy !== null)) {
+            if (filterForm.groupBy === null && filterForm.isFirstRequest) {
               count = result && result.length > 0 ? result[0].count : 0;
             } else {
               self.connections = result;
@@ -93,23 +93,23 @@ class QueryHelper {
       data.navigateTo = filterForm.navigateTo;
     }
 
-    if (filterForm.groupBy !== "null") {
+    if (filterForm.groupBy !== null) {
       data.groupBy = filterForm.groupBy;
     }
 
-    if (filterForm.browser !== "null") {
+    if (filterForm.browser !== null) {
       data.browser = filterForm.browser;
     }
 
-    if (filterForm.operatingSystem !== "null") {
+    if (filterForm.operatingSystem !== null) {
       data.operatingSystem = filterForm.operatingSystem;
     }
 
-    if (filterForm.eventType !== "null") {
+    if (filterForm.eventType !== null) {
       data.eventType = filterForm.eventType;
     }
 
-    if (filterForm.application !== "null") {
+    if (filterForm.application !== null) {
       data.application = filterForm.application;
     }
 
@@ -121,7 +121,7 @@ class QueryHelper {
       data.key = filterForm.key;
     }
 
-    if (filterForm.pageSize != "null") {
+    if (filterForm.pageSize != null) {
       data.pageSize = filterForm.pageSize;
     }
 
@@ -138,7 +138,7 @@ class QueryHelper {
       filter: filterForm,
       isMoreDataRequested: isMoreDataRequested
     }
-    this.eventAggregator.publish(new FilterChanged(data));
+    return this.$emit('on-filter-change', data);
   }
 }
 

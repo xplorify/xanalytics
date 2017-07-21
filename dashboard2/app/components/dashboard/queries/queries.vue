@@ -2,7 +2,7 @@
   <div class="w3-row">
     <div class="w3-col s3">
       <div class="w3-row">
-        <filter-tag v-bind:filter-form="filterForm" v-on:on-filter-change="onFilterChange"></filter-tag>
+        <filter-component v-bind:filter-form="filterForm" v-on:on-filter-change="onFilterChange"></filter-component>
       </div>
     </div>
     <div class="w3-rest">
@@ -17,18 +17,18 @@
             <div v-if="filterForm.isDetailed">
               <div class="w3-panel w3-indigo" v-on:click="toggle">
                 <p class="w3-padding">
-                  <span v-if="filterForm.navigateTo || filterForm.eventType != 'null'">
+                  <span v-if="filterForm.navigateTo || filterForm.eventType != null">
                     Events
                   </span>
-                  <span v-if="!filterForm.navigateTo && filterForm.eventType == 'null'">
+                  <span v-if="!filterForm.navigateTo && filterForm.eventType == null">
                     Connections
                   </span>
                   <span class="w3-badge w3-right w3-green" v-if="totalCount">
                     <span v-if="connections && connections.length > 0">
-                      <span v-if="filterForm.navigateTo || filterForm.eventType !='null'">
+                      <span v-if="filterForm.navigateTo || filterForm.eventType !=null">
                         {{eventsLength}} /
                       </span>
-                      <span v-if="!filterForm.navigateTo && filterForm.eventType == 'null'">
+                      <span v-if="!filterForm.navigateTo && filterForm.eventType == null">
                         {{connections.length}} /
                       </span>
                     </span> {{totalCount}}
@@ -54,8 +54,8 @@
       </div>
       <div v-if="count" class="w3-margin">
         <div class="w3-panel w3-blue w3-round-large w3-center">
-          <p v-if="(filterForm.navigateTo || filterForm.eventType != 'null') && !filterForm.isDetailed" class="w3-margin">The number of events is: ${count}</p>
-          <p v-if="!filterForm.navigateTo && filterForm.eventType =='null'  && !filterForm.isDetailed" class="w3-margin">The number of connections is: ${count}</p>
+          <p v-if="(filterForm.navigateTo || filterForm.eventType != null) && !filterForm.isDetailed" class="w3-margin">The number of events is: {{count}}</p>
+          <p v-if="!filterForm.navigateTo && filterForm.eventType == null  && !filterForm.isDetailed" class="w3-margin">The number of connections is: {{count}}</p>
         </div>
       </div>
       <div v-if="!count && totalCount == 0 && connections.length == 0" class="w3-margin">
@@ -70,10 +70,11 @@
 </template>
 
 <script>
-import { QueryHelper } from './ui/query-helper';
+import { queryHelper } from './ui/query-helper';
+import { globals } from '../../../models/globals';
 import Vue from 'vue';
 
-Vue.component('filter-tag', require('./ui/filter-tag'));
+Vue.component('filter-component', require('./ui/filter-component'));
 Vue.component('accordion', require('./ui/accordion'));
 Vue.component('accordion-grouped', require('./ui/accordion-grouped'));
 let self;
@@ -82,7 +83,6 @@ export default {
   name: 'queries',
   data() {
     return {
-      queryHelper: QueryHelper,
       filterForm: {
         from: null,
         to: null,
@@ -91,11 +91,11 @@ export default {
         ipAddress: "",
         referrer: "",
         navigateTo: "",
-        groupBy: "",
-        browser: "",
-        operatingSystem: "",
-        application: "",
-        eventType: "",
+        groupBy: null,
+        browser: null,
+        operatingSystem: null,
+        application: null,
+        eventType: null,
         isDetailed: false,
         pageSize: 10,
         lastId: "",
@@ -113,21 +113,58 @@ export default {
   },
   methods: {
     onFilterChange: function (filterResult) {
-      this.connections = filterResult.data.isMoreDataRequested ? this.connections.concat(filterResult.data.connections) : filterResult.data.connections;
-      this.count = filterResult.data.count;
-      this.filterForm = filterResult.data.filter;
-      if (filterResult.data.filter.isFirstRequest) {
+      this.connections = filterResult.isMoreDataRequested ? this.connections.concat(filterResult.connections) : filterResult.connections;
+      this.count = filterResult.count;
+      this.filterForm = filterResult.filter;
+      if (filterResult.filter.isFirstRequest) {
         this.filterForm.isFirstRequest = false;
-        this.totalCount = filterResult.data.count;
+        this.totalCount = filterResult.count;
       }
-      this.isGrouped = this.filterForm.groupBy != "null";
+      this.isGrouped = this.filterForm.groupBy != null;
     },
     loadMore: function () {
       this.filterForm.isFirstRequest = false;
-      return this.queryHelper.search(this.filterForm, true)
+      return this.search(this.filterForm, true)
         .then(function (result) {
           this.getEventsLength(this.connections);
         });
+    },
+    onFilterDataChange: function (filterForm, isMoreDataRequested, count) {
+      var filterResult = {
+        connections: self.connections,
+        count: count,
+        filter: filterForm,
+        isMoreDataRequested: isMoreDataRequested
+      }
+      self.onFilterChange(filterResult);
+    },
+    search: function (filterForm, isMoreDataRequested) {
+      this.connections = [];
+      var data = queryHelper.getData(filterForm);
+      self = this;
+      console.log("Entered parameters: " + JSON.stringify(data));
+      return new Promise(function (resolve, reject) {
+        globals.xAnalytics.api.getAnalytics(data, function (result) {
+          if (result.error) {
+            reject(result.message);
+          } else {
+            var count;
+            if (filterForm.isDetailed || (!filterForm.isDetailed && filterForm.groupBy !== null)) {
+              if (filterForm.groupBy === null && filterForm.isFirstRequest) {
+                count = result && result.length > 0 ? result[0].count : 0;
+              } else {
+                self.connections = result;
+                filterForm.lastId = result && result.length > 0 ? self.connections[self.connections.length - 1]._id : "";
+              }
+              self.onFilterDataChange(filterForm, isMoreDataRequested, count);
+            } else {
+              var count = result && result.length > 0 ? result[0].count : 0;
+              self.onFilterDataChange(filterForm, isMoreDataRequested, count);
+            }
+            resolve(result);
+          }
+        });
+      });
     },
     getEventsLength: function (conn) {
       var events = 0;
@@ -142,10 +179,11 @@ export default {
         this.filterForm.key = "";
         this.filterForm.lastId = "";
         this.filterForm.isFirstRequest = false;
-        return this.queryHelper.search(this.filterForm, false)
+        self = this;
+        return this.search(this.filterForm, false)
           .then(function (result) {
-            this.showMore = !self.showMore;
-            this.getEventsLength(this.connections);
+            self.showMore = !self.showMore;
+            self.getEventsLength(self.connections);
           });
       } else {
         this.connections = [];

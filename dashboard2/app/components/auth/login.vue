@@ -28,6 +28,10 @@
 
 <script>
 import { authService } from '../../services/auth-service';
+import { securityUtils } from '../../services/security-utils';
+import { security } from '../../services/security';
+import { enums } from '../../models/enums';
+import { globals } from '../../models/globals';
 import { validationService } from './validation/validation';
 import router from '../../router';
 
@@ -37,7 +41,7 @@ export default {
         return {
             username: '',
             password: '',
-            rememberme: ''
+            rememberme: false
         }
     },
     methods: {
@@ -56,6 +60,16 @@ export default {
             return authService.login(data)
                 .then(function (response) {
                     if (response && response.success) {
+                        securityUtils.setAccessToken(response.token, data.rememberme);
+                        console.log("Token: " + response.token);
+                        let dataObj = {
+                            userName: data.username ?  data.username : 'Anonymous',
+                            referrer: document.referrer,
+                            eventType: enums.eventLogs.login,
+                            loginType: enums.loginType.local
+                        };
+                        globals.xAnalytics.send(dataObj);
+                        security.setAuthInfo(response);
                         router.push('/');
                     }
                 });
