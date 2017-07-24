@@ -195,8 +195,8 @@ export default {
                             if (filterForm.groupBy === null && filterForm.isFirstRequest) {
                                 count = result && result.length > 0 ? result[0].count : 0;
                             } else {
-                                this.connectionsArray = result;
-                                filterForm.lastId = result && result.length > 0 ? this.connectionsArray[this.connectionsArray.length - 1]._id : "";
+                                self.connectionsArray = result;
+                                filterForm.lastId = result && result.length > 0 ? self.connectionsArray[self.connectionsArray.length - 1]._id : "";
                             }
                             self.onFilterDataChange(filterForm, isMoreDataRequested, count);
                         } else {
@@ -211,8 +211,7 @@ export default {
     },
     computed: {
         canSearch: function () {
-            // return this.filterFormObj && this.filterFormObj.from != null && this.filterFormObj.to != null && !this.isRequesting;
-            return true;
+           return this.filterFormObj && this.filterFormObj.from != null && this.filterFormObj.to != null && !this.isRequesting;
         }
     },
     components: {

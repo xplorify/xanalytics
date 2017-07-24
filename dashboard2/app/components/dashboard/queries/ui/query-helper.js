@@ -5,41 +5,9 @@ let self = null;
 class QueryHelper {
   constructor() {
     self = this;
-    this.isRequesting = false;
-  }
-
-  search = function (filterForm, isMoreDataRequested) {
-    self.isRequesting = true;
-    self.connections = [];
-    var data = self.getData(filterForm);
-    console.log("Entered parameters: " + JSON.stringify(filterForm));
-    return new Promise(function (resolve, reject) {
-      globals.xAnalytics.api.getAnalytics(data, function (result) {
-        self.isRequesting = false;
-        if (result.error) {
-          reject(result.message);
-        } else {
-          var count;
-          if (filterForm.isDetailed || (!filterForm.isDetailed && filterForm.groupBy !== null)) {
-            if (filterForm.groupBy === null && filterForm.isFirstRequest) {
-              count = result && result.length > 0 ? result[0].count : 0;
-            } else {
-              self.connections = result;
-              filterForm.lastId = result && result.length > 0 ? self.connections[self.connections.length - 1]._id : "";
-            }
-            self.onFilterChange(filterForm, isMoreDataRequested, count);
-          } else {
-            var count = result && result.length > 0 ? result[0].count : 0;
-            self.onFilterChange(filterForm, isMoreDataRequested, count);
-          }
-          resolve(result);
-        }
-      });
-    });
   }
 
   searchByKey = function (group, filterForm, isMoreDataRequested) {
-    self.isRequesting = true;
     var data = self.getData(filterForm);
     console.log("Entered parameters: " + JSON.stringify(filterForm));
     return new Promise(function (resolve, reject) {
@@ -129,16 +97,6 @@ class QueryHelper {
     data.isFirstRequest = filterForm.isFirstRequest;
 
     return data;
-  }
-
-  onFilterChange = function (filterForm, isMoreDataRequested, count) {
-    var data = {
-      connections: self.connections,
-      count: count,
-      filter: filterForm,
-      isMoreDataRequested: isMoreDataRequested
-    }
-    return this.$emit('on-filter-change', data);
   }
 }
 

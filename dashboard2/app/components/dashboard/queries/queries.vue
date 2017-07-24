@@ -7,11 +7,9 @@
     </div>
     <div class="w3-rest">
       <div v-if="isGrouped">
-        <div class="w3-row" v-for="conn in connections" v-bind:key="conn.id">
-          <accordion-grouped v-bind:conn="conn" v-bind:total-count="conn.count" v-bind:filter-form="filterForm"></accordion-grouped>
-        </div>
+          <accordion-grouped  :filter-form="filterForm" :connections="connections"></accordion-grouped>
       </div>
-      <div v-if="!isGrouped">
+      <div v-if="!isGrouped && (totalCount > 0 || connections.length > 0)">
         <div class="container">
           <div class="row">
             <div v-if="filterForm.isDetailed">
@@ -41,7 +39,7 @@
         <div v-bind:class="[showMore ? 'w3-show' : 'w3-hide']">
           <div v-if="connections && connections.length > 0">
             <div class="w3-row" v-for="connection in connections" v-bind:key="connection.id">
-              <accordion v-bind:connection="connection" v-bind:filter-form="filterForm"></accordion>
+              <accordion-queries v-bind:connection="connection" v-bind:filter-form="filterForm"></accordion-queries>
             </div>
             <div v-if="connections && connections.length > 0 && (((filterForm.navigateTo  || filterForm.eventType != 'null') && eventsLength < totalCount) || (!filterForm.navigateTo && filterForm.eventType == 'null' && connections.length < totalCount))" class="tablink w3-hover-light-grey w3-padding w3-center">
               <a v-on:click="loadMore">
@@ -75,7 +73,7 @@ import { globals } from '../../../models/globals';
 import Vue from 'vue';
 
 Vue.component('filter-component', require('./ui/filter-component'));
-Vue.component('accordion', require('./ui/accordion'));
+Vue.component('accordion-queries', require('./ui/accordion-queries'));
 Vue.component('accordion-grouped', require('./ui/accordion-grouped'));
 let self;
 export default {
@@ -124,9 +122,10 @@ export default {
     },
     loadMore: function () {
       this.filterForm.isFirstRequest = false;
+      self = this;
       return this.search(this.filterForm, true)
         .then(function (result) {
-          this.getEventsLength(this.connections);
+          self.getEventsLength(self.connections);
         });
     },
     onFilterDataChange: function (filterForm, isMoreDataRequested, count) {

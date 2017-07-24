@@ -1,73 +1,77 @@
 <template>
-    <div v-bind:id="conn._id">
-        <div class="container">
-            <div class="row">
-                <div v-if="filterForm.isDetailed">
-                    <div class="w3-panel w3-indigo" v-on:click="toggleGroup(conn)">
-                        <p class="w3-padding">
-                            <span v-if="conn._id != null">
-                                <span v-if="filterForm.groupBy != 'events.url'">
-                                    {{conn._id}}
-                                </span>
-                                <span v-if="filterForm.groupBy === 'events.url'">
-                                    <button class="w3-button w3-tiny w3-indigo" v-on:click="goToUrl(conn._id)">
-                                        <i class="fa fa-reply"></i>
-                                    </button>
-                                    {{conn._id}}
-                                </span>
-                            </span>
-                            <span v-if="conn._id == null"> null</span>
-                            <span class="w3-badge w3-right w3-green" v-if="totalCount">
-                                <span v-if="conn.connections && conn.connections.length > 0">
-                                    <span v-if="filterForm.navigateTo || filterForm.groupBy ==='events.url' || filterForm.eventType !== 'null'">
-                                        {{conn.connections | eventsLength}} /
+    <div>
+        <div class="row" v-for="connObj in connectionsArray" :key="connObj._id">
+            <div class="container">
+                <div class="row">
+                    <div v-if="filterFormObj.isDetailed">
+                        <div class="w3-panel w3-indigo" v-on:click="toggleGroup(connObj)">
+                            <p class="w3-padding">
+                                <span v-if="connObj._id != null">
+                                    <span v-if="filterFormObj.groupBy != 'events.url'">
+                                        {{connObj._id}}
                                     </span>
-                                    <span v-if="filterForm.groupBy !=='events.url' &&  filterForm.eventType === 'null' && !filterForm.navigateTo">
-                                        {{conn.connections.length}} /
+                                    <span v-if="filterFormObj.groupBy === 'events.url'">
+                                        <button class="w3-button w3-tiny w3-indigo" v-on:click="goToUrl(connObj._id)">
+                                            <i class="fa fa-reply"></i>
+                                        </button>
+                                        {{connObj._id}}
                                     </span>
-                                </span> {{totalCount}}
-                            </span>
-                        </p>
+                                </span>
+                                <span v-if="connObj._id == null"> null</span>
+                                <span class="w3-badge w3-right w3-green" v-if="connObj.count">
+                                    <span v-if="connObj.connections && connObj.connections.length > 0">
+                                        <span v-if="filterFormObj.navigateTo || filterFormObj.groupBy ==='events.url' || filterFormObj.eventType !== null">
+                                            {{connObj.connections | connectionsLength}} /
+                                        </span>
+                                        <span v-if="filterFormObj.groupBy !=='events.url' &&  filterFormObj.eventType === null && !filterFormObj.navigateTo">
+                                            {{connObj.connections.length}} /
+                                        </span>
+                                    </span> {{connObj.count}}
+                                </span>
+                            </p>
+                        </div>
                     </div>
-                </div>
-                <div v-if="!filterForm.isDetailed">
-                    <div class="w3-panel w3-indigo">
-                        <p class="w3-padding">
-                            <span v-if="conn._id != null">
-                                <span v-if="filterForm.groupBy != 'events.url'">
-                                    {{conn._id}}
+                    <div v-if="!filterFormObj.isDetailed">
+                        <div class="w3-panel w3-indigo">
+                            <p class="w3-padding">
+                                <span v-if="connObj._id != null">
+                                    <span v-if="filterFormObj.groupBy != 'events.url'">
+                                        {{connObj._id}}
+                                    </span>
+                                    <span v-if="filterFormObj.groupBy === 'events.url'">
+                                        <button class="w3-button w3-tiny w3-indigo" v-on:click="goToUrl(connObj._id)">
+                                            <i class="fa fa-reply"></i>
+                                        </button>
+                                        {{connObj._id}}
+                                    </span>
                                 </span>
-                                <span v-if="filterForm.groupBy === 'events.url'">
-                                    <button class="w3-button w3-tiny w3-indigo" v-on:click="goToUrl(conn._id)">
-                                        <i class="fa fa-reply"></i>
-                                    </button>
-                                    {{conn._id}}
+                                <span v-if="connObj._id == null"> null</span>
+                                <span class="w3-badge w3-right w3-green" v-if="connObj.count">
+                                    {{connObj.count}}
                                 </span>
-                            </span>
-                            <span v-if="conn._id == null"> null</span>
-                            <span class="w3-badge w3-right w3-green" v-if="totalCount">
-                                {{totalCount}}
-                            </span>
-                        </p>
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div v-bind:class="[conn.isActive ? 'w3-show' : 'w3-hide']">
-            <div v-if="conn.data && conn.connections && conn.connections.length == 0">
-                <div class="w3-row" v-for="data in conn.data" v-bind:key="data.id">
-                    <accordion v-bind:connection="data.connections[0]" v-bind:count="data.count" v-bind:filter-form="filterForm"></accordion>
+            <div v-bind:class="[isActive ? 'w3-show' : 'w3-hide']">
+                <div v-if="connObj.data && connObj.connections && connObj.connections.length == 0">
+                    <div class="w3-row" v-for="data in connObj.data" v-bind:key="data._id">
+                        <div v-if="data.connections && data.connections.length >0">
+                            <accordion-queries v-bind:connection="data.connections[0]" v-bind:count="data.count" v-bind:filter-form="filterFormObj"></accordion-queries>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div v-if="!conn.data || conn.connections && conn.connections.length > 0">
-                <div class="w3-row" v-for="connection in conn.connections" v-bind:key="connection.id">
-                    <accordion v-bind:connection="connection" v-bind:filter-form="filterForm"></accordion>
-                </div>
-                <div v-if="conn.connections && conn.connections.length > 0 && (((filterForm.groupBy ==='events.url' || filterForm.navigateTo ||  filterForm.eventType !== 'null') && getLength(conn) < totalCount) ||  (!filterForm.navigateTo && filterForm.groupBy !=='events.url'  &&  filterForm.eventType === 'null' && conn.connections.length < totalCount))" class="tablink w3-hover-light-grey w3-padding w3-center">
-                    <a v-on:click="loadMore(conn)">
-                        <i class="fa fa-circle-o-notch"></i>
-                        <span>Load More</span>
-                    </a>
+                <div v-if="!connObj.data || connObj.connections && connObj.connections.length > 0">
+                    <div class="w3-row" v-for="connection in connObj.connections" v-bind:key="connection._id">
+                        <accordion-queries v-bind:connection="connection" v-bind:filter-form="filterFormObj"></accordion-queries>
+                    </div>
+                    <div v-if="connObj.connections && connObj.connections.length > 0 && (((filterFormObj.groupBy ==='events.url' || filterFormObj.navigateTo ||  filterFormObj.eventType !== 'null') && getLength(connObj) < connObj.count) ||  (!filterFormObj.navigateTo && filterFormObj.groupBy !=='events.url'  &&  filterFormObj.eventType === null && connObj.connections.length < connObj.count))" class="tablink w3-hover-light-grey w3-padding w3-center">
+                        <a v-on:click="loadMore(connObj)">
+                            <i class="fa fa-circle-o-notch"></i>
+                            <span>Load More</span>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -75,42 +79,49 @@
 </template>
 
 <script>
-import { QueryHelper } from './query-helper';
+import { queryHelper } from './query-helper';
 import Vue from 'vue';
 
-Vue.component('accordion', require('./accordion'));
+Vue.component('accordion-queries', require('./accordion-queries'));
+Vue.filter('connectionsLength', function (connections) {
+    var events = 0;
+    connections.forEach(function (connection) {
+        events += connection.events.length;
+    });
+    return events;
+})
 let self;
 export default {
 
     name: 'accordion-grouped',
-    props: ["filterForm"],
+    props: ["connections", "filterForm"],
     data() {
         return {
-            queryHelper: QueryHelper,
-            eventsLength: 0,
-            filterFormObj: this.filterForm
+            connectionsArray: this.connections,
+            filterFormObj: this.filterForm,
+            isActive: false
         }
     },
     methods: {
-        toggleGroup: function (accordion) {
-            this.eventsLength = 0;
-            if (!accordion.isActive) {
-                //reset lastId on accordion open
+        toggleGroup: function (group) {
+            if (!this.isActive) {
+                //reset lastId on accordion group open
                 this.filterFormObj.lastIds.forEach(function (obj) {
-                    if (obj.key === accordion._id) {
+                    if (obj.key === group._id) {
                         obj.lastId = "";
                     }
                 });
-                this.filterFormObj.key = accordion._id;
+                this.filterFormObj.key = group._id;
                 this.filterFormObj.lastId = "";
-                return this.queryHelper.searchByKey(accordion, this.filterFormObj, false)
+                self = this;
+                return queryHelper.searchByKey(group, this.filterFormObj, false)
                     .then(function (result) {
-                        this.getLength(accordion);
-                        accordion.isActive = !accordion.isActive;
+                        self.getLength(group);
+                        self.isActive = !self.isActive;
                     });
             } else {
-                accordion.connections = [];
-                accordion.isActive = !accordion.isActive;
+                group.connections = [];
+                this.isActive = !this.isActive;
             }
         },
         goToUrl: function (url) {
@@ -123,15 +134,16 @@ export default {
             });
             return events;
         },
-        loadMore: function(accordion) {
+        loadMore: function (group) {
             var lastIdFound = this.filterFormObj.lastIds.find(function (lastIdObj) {
-                return lastIdObj.key == accordion._id;
+                return lastIdObj.key == group._id;
             });
             this.filterFormObj.lastId = lastIdFound.lastId;
             this.filterFormObj.key = lastIdFound.key;
-            return this.queryHelper.searchByKey(accordion, this.filterFormObj, true)
+            self = this;
+            return queryHelper.searchByKey(group, this.filterFormObj, true)
                 .then(function (result) {
-                    this.getLength(accordion);
+                    self.getLength(group);
                 });
         }
     }

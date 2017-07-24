@@ -1,7 +1,7 @@
 <template>
     <div class="w3-row" style="margin-left: 5%; margin-top:1%">
         <span v-if="conn.url"> 
-            <button class="w3-button w3-small w3-blue" v-on:click="goToUrl(url)">
+            <button class="w3-button w3-small w3-blue" v-on:click="goToUrl(conn.url)">
                 <i class="fa fa-reply"></i>
             </button>
         </span>
@@ -25,11 +25,11 @@
 <script>
 export default {
 
-    name: 'accordion-panel',
-    props:['connectionEvent'],
+    name: 'accordion-queries-panel',
+    props:['connEvent'],
     data() {
         return { 
-            conn: this.connectionEvent
+            conn: this.connEvent
         }
     },
     methods: {

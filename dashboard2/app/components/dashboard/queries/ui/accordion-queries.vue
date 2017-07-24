@@ -36,10 +36,10 @@
                 </span>
             </span>
         </div>
-        <div v-bind:class="[conn.isActive ? 'w3-show' : 'w3-hide']">
+        <div v-bind:class="[isActive ? 'w3-show' : 'w3-hide']">
             <div v-if="conn.events && conn.events.length > 0">
                 <div v-for="connEvent in conn.events" v-bind:key="connEvent.id">
-                    <accordion-panel v-bind:conn-event="connEvent"></accordion-panel>
+                    <accordion-queries-panel v-bind:conn-event="connEvent"></accordion-queries-panel>
                 </div>
             </div>
         </div>
@@ -47,23 +47,23 @@
 </template>
 
 <script>
-import { QueryHelper } from './query-helper';
 import Vue from 'vue';
 
-Vue.component('accordion-panel', require('./accordion-panel'));
+Vue.component('accordion-queries-panel', require('./accordion-queries-panel'));
 let self;
 export default {
 
-    name: 'accordion',
+    name: 'accordion-queries',
     props: ['connection', 'filterForm', 'count'],
     data() {
         return {
-            conn: this.connection
+            conn: this.connection,
+            isActive: false
         }
     },
     methods: {
-        toggle: function (accordion) {
-            this.conn.isActive = !accordion.isActive;
+        toggle: function () {
+            this.isActive = !this.isActive;
         },
         goToUrl: function (url) {
             return window.location.href = url;
