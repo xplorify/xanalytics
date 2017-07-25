@@ -7,7 +7,7 @@
     </div>
     <div class="w3-rest">
       <div v-if="isGrouped">
-          <accordion-grouped  :filter-form="filterForm" :connections="connections"></accordion-grouped>
+        <accordion-grouped :filter-form="filterForm" :connections="connections"></accordion-grouped>
       </div>
       <div v-if="!isGrouped && (totalCount > 0 || connections.length > 0)">
         <div class="container">
@@ -111,7 +111,7 @@ export default {
   },
   methods: {
     onFilterChange: function (filterResult) {
-      this.connections = filterResult.isMoreDataRequested ? this.connections.concat(filterResult.connections) : filterResult.connections;
+      this.connections = filterResult.connections;
       this.count = filterResult.count;
       this.filterForm = filterResult.filter;
       if (filterResult.filter.isFirstRequest) {
@@ -138,7 +138,7 @@ export default {
       self.onFilterChange(filterResult);
     },
     search: function (filterForm, isMoreDataRequested) {
-      this.connections = [];
+      var connectionsArray = [];
       var data = queryHelper.getData(filterForm);
       self = this;
       console.log("Entered parameters: " + JSON.stringify(data));
@@ -152,8 +152,14 @@ export default {
               if (filterForm.groupBy === null && filterForm.isFirstRequest) {
                 count = result && result.length > 0 ? result[0].count : 0;
               } else {
-                self.connections = result;
-                filterForm.lastId = result && result.length > 0 ? self.connections[self.connections.length - 1]._id : "";
+                connectionsArray = result;
+                if (self.connections.length == 0) {
+                  self.connections = connectionsArray;
+                } else {
+                  self.connections = self.connections.concat(connectionsArray);
+                }
+
+                filterForm.lastId = result && result.length > 0 ? connectionsArray[connectionsArray.length - 1]._id : "";
               }
               self.onFilterDataChange(filterForm, isMoreDataRequested, count);
             } else {
