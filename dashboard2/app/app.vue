@@ -59,7 +59,6 @@ export default {
           if (result && result.err) {
             storage.clear("accessToken");
             security.userInfo = null;
-            // this.setRouteVisibility(false);
             return router.push({ name: 'login' });
           } else {
             let dataObj = {
@@ -71,7 +70,8 @@ export default {
           }
         });
     } else {
-      return false;
+      this.isLogoutVisible = false;
+      return router.push({ name: 'login' });
     }
   },
   methods: {
@@ -90,7 +90,6 @@ export default {
         security.userInfo = null;
       }
       console.log("Inside logout, isAuth: false");
-      // this.setRouteVisibility(false);
       return router.push({ name: 'login' });
     }
   },

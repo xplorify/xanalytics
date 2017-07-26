@@ -159,9 +159,9 @@ emailService.getHtmlContent = function (data, topTenLinks) {
                     + '<td style="border:1px solid black">' + countryCodeData.detectRtc.hasWebcam + '</td>'
                     + '</tr>'
             });
+            text += '</tbody></table>'
         });
 
-        text += '</tbody></table>'
 
         //remote address
         data.remoteAddressResult.forEach(function (remoteAddressResult) {
@@ -191,9 +191,10 @@ emailService.getHtmlContent = function (data, topTenLinks) {
                     + '<td style="border:1px solid black">' + remoteAddressData.detectRtc.hasWebcam + '</td>'
                     + '</tr>'
             });
+            text += '</tbody></table>'
         });
 
-        text += '</tbody></table>'
+
 
         if (topTenLinks) {
             text += "Top 10 Most Visited Links";

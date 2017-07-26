@@ -54,7 +54,7 @@
                     </div>
                 </div>
             </div>
-            <div v-bind:class="[isActive ? 'w3-show' : 'w3-hide']">
+            <div v-bind:class="[connObj.isActive ? 'w3-show' : 'w3-hide']">
                 <div v-if="connObj.data && connObj.connections && connObj.connections.length == 0">
                     <div class="w3-row" v-for="data in connObj.data" v-bind:key="data._id">
                         <div v-if="data.connections && data.connections.length >0">
@@ -98,13 +98,18 @@ export default {
     data() {
         return {
             connectionsArray: this.connections,
-            filterFormObj: this.filterForm,
-            isActive: false
+            filterFormObj: this.filterForm
         }
+    },
+    created: function () {
+        this.connectionsArray.forEach(function (conn) {
+            Vue.set(conn, 'isActive', false);
+            Vue.set(conn, 'connections', []);
+        });
     },
     methods: {
         toggleGroup: function (group) {
-            if (!this.isActive) {
+            if (!group.isActive) {
                 //reset lastId on accordion group open
                 this.filterFormObj.lastIds.forEach(function (obj) {
                     if (obj.key === group._id) {
@@ -117,11 +122,11 @@ export default {
                 return queryHelper.searchByKey(group, this.filterFormObj, false)
                     .then(function (result) {
                         self.getLength(group);
-                        self.isActive = !self.isActive;
+                        group.isActive = !group.isActive;
                     });
             } else {
                 group.connections = [];
-                this.isActive = !this.isActive;
+                group.isActive = !group.isActive;
             }
         },
         goToUrl: function (url) {
