@@ -19,6 +19,7 @@ export class Login {
   rememberMe = false;
 
   activate() {
+    console.log("referrer:  " + document.referrer);
     return true;
   }
 

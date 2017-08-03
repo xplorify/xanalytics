@@ -53,18 +53,18 @@ class XAnalytics {
         window.addEventListener('unload', self.onUnload, false);
 
         var pushState = history.pushState;
-        history.pushState = function() {
-            pushState.apply(history, arguments);
-            // fireEvents('pushState', arguments);  // Some event-handling function
-            console.log("Inside push state: " + window.location.href);
-            self.onUrlChange();
+        history.pushState = function () {
+                pushState.apply(history, arguments);
+                // fireEvents('pushState', arguments);  // Some event-handling function
+                console.log("Inside push state: " + window.location.href);
+                self.onUrlChange();
         };
     }
 
     send(data) {
         var accessToken = window.sessionStorage["accessToken"] || window.localStorage["accessToken"];
         if (accessToken && globals.authToken != accessToken) {
-            self.api.getUserInfo(function() {
+            self.api.getUserInfo(function () {
                 globals.authToken = accessToken;
                 console.log("Sending data: " + JSON.stringify(data));
                 self.ws.send(data, self.api.send);
@@ -77,17 +77,17 @@ class XAnalytics {
 
     onLoad() {
         console.log("On page load...");
-        self.api.getGlobals(function(err) {
+        self.api.getGlobals(function (err) {
             if (!err) {
-                self.utils.detectRtc(function() {
-                    self.api.createConnection(function(err) {
+                self.utils.detectRtc(function () {
+                    self.api.createConnection(function (err) {
                         if (!err) {
                             var dataObj = {
                                 referrer: document.referrer,
                                 to: window.location.href,
                                 eventType: "Navigate"
                             }
-                            self.ws.open(function(err) {
+                            self.ws.open(function (err) {
                                 self.send(dataObj);
                             });
                             globals.initialized = true;

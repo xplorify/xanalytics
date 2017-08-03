@@ -82,6 +82,24 @@ module.exports = {
                 res.send({ error: err });
             });
     },
+    getReportById: function (req, res) {
+        var data = {
+            reportId: req.query.reportId,
+            grouping: req.query.grouping
+        };
+        logger.info("data " + JSON.stringify(data));
+        res.header("Content-Type", "application/json");
+        return analyticsService
+            .getReportById(data)
+            .then(function (result) {
+                logger.info("result " + result);
+                res.send({ result: result });
+            })
+            .catch(function (err) {
+                res.status(500);
+                res.send({ error: err });
+            });
+    },
     getConnectionsByGroupKey: function (req, res) {
         var data = {
             from: req.query.from,
@@ -228,9 +246,9 @@ module.exports = {
                 res.send({ result: response });
             })
             .catch(function (err) {
-            console.log("Err " + err);
-            res.status(500);
-            res.send({ error: err });
-        });
+                console.log("Err " + err);
+                res.status(500);
+                res.send({ error: err });
+            });
     }
 };

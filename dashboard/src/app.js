@@ -74,6 +74,7 @@ export class AuthorizeStep {
         console.log("Inside run, isAuth: " + isAuthorized);
         self.setRouteVisibility(false);
         objectThis.isLogginOut = false;
+        console.log("REferrer : " + document.referrer);
         return next.cancel(new Redirect('login'));
       }
     }

@@ -11,7 +11,7 @@ var validateLogin = require('./validators/validate-login');
 
 function generateToken(user) {
     return jwt.sign(user, config.jwtSecret, {
-        expiresIn: 10080
+        expiresIn: 1209600
     });
 }
 

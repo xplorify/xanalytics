@@ -70,6 +70,7 @@
 <script>
 import { queryHelper } from './ui/query-helper';
 import { globals } from '../../../models/globals';
+import router from '../../../router';
 import Vue from 'vue';
 
 Vue.component('filter-component', require('./ui/filter-component'));
@@ -106,8 +107,39 @@ export default {
       isGrouped: false,
       totalCount: 0,
       eventsLength: 0,
-      showMore: false
+      showMore: false,
+      reportId: null,
+      grouping: null
     }
+  },
+  created: function () {
+    console.log(this.$route);
+    this.reportId = this.$route.query.r;
+    this.grouping = this.$route.query.g;
+    if (this.reportId) {
+      this.filterForm.isDetailed = true;
+      switch (this.grouping) {
+        case "browser":
+          this.filterForm.groupBy = "detectRtc.browser.name";
+          break;
+        case "country":
+          this.filterForm.groupBy = "countryCode";
+          break;
+        case "address":
+          this.filterForm.groupBy = "remoteAddress";
+          break;
+      }
+      this.isGrouped = true;
+      self = this;
+      // make lookup mongodb request
+      return this.getReportById(this.reportId, this.filterForm.groupBy)
+        .then(function (result) {
+          self.filterForm.from = result.from.substring(0, 10);
+          self.filterForm.to =  result.to.substring(0, 10);
+          self.connections = result;
+        });
+    }
+
   },
   methods: {
     onFilterChange: function (filterResult) {
@@ -167,6 +199,17 @@ export default {
               self.onFilterDataChange(filterForm, isMoreDataRequested, count);
             }
             resolve(result);
+          }
+        });
+      });
+    },
+    getReportById: function (reportId, grouping) {
+      return new Promise(function (resolve, reject) {
+        globals.xAnalytics.api.getReportById({ reportId: reportId, grouping: grouping }, function (result) {
+          if (result.error) {
+            reject(result.message);
+          } else {
+            resolve(result[0]);
           }
         });
       });

@@ -3,13 +3,13 @@
 var mongoose = require('mongoose'),
     config = require("../config"),
     connectionSchema = require("../models/connection"),
-    analyticsAggregateSchema = require("../models/analytics-aggregate"),
+    reportSchema = require("../models/report"),
     util = require('util'),
     logger = require('winston');
 mongoose.Promise = require('bluebird');
 var analyticsService = {};
 analyticsService.Connection = mongoose.model("connections", connectionSchema);
-analyticsService.AnalyticsAggregate = mongoose.model("analyticsAggregates", analyticsAggregateSchema);
+analyticsService.Report = mongoose.model("reports", reportSchema);
 var ObjectId = mongoose.Types.ObjectId;
 
 analyticsService.createConnection = function (data) {
@@ -121,7 +121,7 @@ analyticsService.getMatchQuery = function (data) {
     return $match;
 }
 
-analyticsService.getDetailedQuery = function (data) {
+analyticsService.getDetailedQuery = function (data, getOnlyId) {
     console.log("inside detailed query");
     let aggregate = [];
     let groups = [];
@@ -167,7 +167,7 @@ analyticsService.getDetailedQuery = function (data) {
                     '$group': {
                         "_id": '$' + data.groupBy,
                         "count": { "$sum": 1 },
-                        "data": { $push: "$$ROOT" }
+                        "data": { $push: getOnlyId ? "$_id" : "$$ROOT" }
                     }
                 });
             }
@@ -413,7 +413,7 @@ analyticsService.getAnalytics = function (data) {
         var db = mongoose.createConnection(config.xplorifyDb, { auth: { authdb: "admin" } });
         var connectionModel = db.model("connections", connectionSchema);
         logger.info("before find is detailed search: " + data.isDetailed);
-        var query = data.isDetailed === "true" && data.isFirstRequest === "false" ? analyticsService.getDetailedQuery(data) : analyticsService.getCountQuery(data);
+        var query = data.isDetailed === "true" && data.isFirstRequest === "false" ? analyticsService.getDetailedQuery(data, false) : analyticsService.getCountQuery(data);
         logger.info("query " + JSON.stringify(query));
         return connectionModel.aggregate(query)
             .allowDiskUse(true)
@@ -481,7 +481,7 @@ analyticsService.getTopTenLinks = function (data) {
             .allowDiskUse(true)
             .exec(function (err, response) {
                 if (!err) {
-                    logger.info("Result: " + JSON.stringify(response));
+                    // logger.info("Result: " + JSON.stringify(response));
                     resolve(response);
                 } else {
                     logger.error("err: " + err);
@@ -494,17 +494,16 @@ analyticsService.getTopTenLinks = function (data) {
     });
 };
 
-
 analyticsService.getGroupedAnalytics = function (data) {
     return new Promise(function (resolve, reject) {
         var db = mongoose.createConnection(config.xplorifyDb, { auth: { authdb: "admin" } });
         var connectionModel = db.model("connections", connectionSchema);
         data.groupBy = 'detectRtc.browser.name';
-        var browserQuery = analyticsService.getDetailedQuery(data);
+        var browserQuery = analyticsService.getDetailedQuery(data, true);
         data.groupBy = 'countryCode';
-        var countryCodeQuery = analyticsService.getDetailedQuery(data);
+        var countryCodeQuery = analyticsService.getDetailedQuery(data, true);
         data.groupBy = 'remoteAddress';
-        var remoteAddressQuery = analyticsService.getDetailedQuery(data);
+        var remoteAddressQuery = analyticsService.getDetailedQuery(data, true);
         var browserResult;
         var countryCodeResult;
         var remoteAddressResult;
@@ -709,10 +708,36 @@ analyticsService.getNewConnectionObject = function (db, data) {
     return connection;
 };
 
-analyticsService.getAnalyticsAggregateObject = function (db, data, topTenLinks) {
+analyticsService.getConnectionIds = function (data) {
+    var connections = [];
+    data.browserResult.forEach(function (browser) {
+        connections = browser.data;
+    });
+    data.countryCodeResult.forEach(function (code) {
+        connections.concat(code.data);
+    });
+    data.remoteAddressResult.forEach(function (address) {
+        connections.concat(address.data);
+    });
+
+    let item = {};
+    connections.forEach(function (connectionId) {
+        item[connectionId] = true
+    });
+
+    var uniqueIds = Object.keys(item)
+    return uniqueIds;
+}
+
+analyticsService.getReportObject = function (db, data, topTenLinks, body) {
+    var connections = analyticsService.getConnectionIds(data);
     var obj = {
-        startDate: new Date().toISOString(),
-        data: data,
+        from: new Date(body.from),
+        to: new Date(body.to),
+        browserGrouping: data.browserResult,
+        countryGrouping: data.countryCodeResult,
+        ipGrouping: data.remoteAddressResult,
+        connections: connections
     };
 
     if (topTenLinks) {
@@ -723,17 +748,86 @@ analyticsService.getAnalyticsAggregateObject = function (db, data, topTenLinks) 
         obj.isDaily = true;
         obj.isWeekly = false;
     }
-    var analyticsAggregateModel = db.model("analyticsAggregates", analyticsAggregateSchema);
-    var analyticsAggregate = new analyticsAggregateModel(obj);
-    return analyticsAggregate;
+    var reportModel = db.model("reports", reportSchema);
+    var report = new reportModel(obj);
+    return report;
 };
 
-analyticsService.createAnalyticsAggregate = function (data, topTenLinks) {
-    logger.info("Creating analytics aggregate... " + JSON.stringify(data));
+analyticsService.getReportById = function (data) {
     return new Promise(function (resolve, reject) {
         var db = mongoose.createConnection(config.xplorifyDb, { auth: { authdb: "admin" } });
-        var analyticsAggregate = analyticsService.getAnalyticsAggregateObject(db, data, topTenLinks);
-        return analyticsAggregate.save(function (err, response) {
+        var reportModel = db.model("reports", reportSchema);
+        let query = [];
+        let groups = [];
+        let $sort = { $sort: { "_id": 1 } };
+        let $match = { $match: { $and: [{ _id: ObjectId(data.reportId) }, { "connectionReport": { $ne: [] } }] } };
+        let $limit = { '$limit': 10 };
+        let $unwind = {
+            '$unwind': {
+                path: '$connections',
+                preserveNullAndEmptyArrays: false
+            }
+        }
+        let $lookup = {
+            '$lookup': {
+                from: "connections",
+                localField: "connections",
+                foreignField: "_id",
+                as: "connectionReport"
+            }
+        };
+         let $unwindResult = { "$unwind": "$connectionReport" };
+        // Group back to arrays
+        let $groupArray = {
+            "$group":
+            {
+                "_id": "$connectionReport." + data.grouping,
+                "from": { $first: "$from" },
+                "to": { $first: "$to" },
+                "connections": { "$push": "$connectionReport" }
+            }
+        }
+       
+        // $groupArray.push({
+        //     '$group': {
+        //         "_id": { "event_key": '$connectionReport.' + data.grouping, "connection_id": "$connectionReport._id" },
+        //         "count": { "$sum": 1 }
+        //     }
+        // });
+        // $groupArray.push({
+        //     "$group": {
+        //         "_id": "$_id.event_key",
+        //         "count": { $sum: "$count" }
+        //     }
+        // });
+        query.push($match);
+        query.push($unwind);
+        query.push($lookup);
+        query.push($unwindResult);
+        query.push($groupArray);
+        logger.info("query " + JSON.stringify(query));
+        return reportModel.aggregate(query)
+            .allowDiskUse(true)
+            .exec(function (err, response) {
+                if (!err) {
+                    logger.info("Result: " + response);
+                    resolve(response);
+                } else {
+                    logger.error("err: " + err);
+                    reject(new Error(err));
+                }
+            })
+            .finally(function () {
+                db.close();
+            });
+    });
+};
+
+analyticsService.createReport = function (data, topTenLinks, body) {
+    return new Promise(function (resolve, reject) {
+        var db = mongoose.createConnection(config.xplorifyDb, { auth: { authdb: "admin" } });
+        var report = analyticsService.getReportObject(db, data, topTenLinks, body);
+        return report.save(function (err, response) {
             if (!err) {
                 resolve(response);
             } else {

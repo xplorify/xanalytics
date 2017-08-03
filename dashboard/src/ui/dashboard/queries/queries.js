@@ -62,9 +62,9 @@ export class Queries {
   loadMore() {
     self.filterForm.isFirstRequest = false;
     return self.queryHelper.search(self.filterForm, true)
-    .then(function(result){
-       self.getEventsLength(self.connections);
-    });
+      .then(function (result) {
+        self.getEventsLength(self.connections);
+      });
   }
 
   getEventsLength(conn) {

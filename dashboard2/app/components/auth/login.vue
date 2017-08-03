@@ -30,6 +30,7 @@
 import { authService } from '../../services/auth-service';
 import { securityUtils } from '../../services/security-utils';
 import { security } from '../../services/security';
+import { storage } from '../../services/storage';
 import { enums } from '../../models/enums';
 import { globals } from '../../models/globals';
 import { validationService } from './validation/validation';
@@ -63,14 +64,19 @@ export default {
                         securityUtils.setAccessToken(response.token, data.rememberme);
                         console.log("Token: " + response.token);
                         let dataObj = {
-                            userName: data.username ?  data.username : 'Anonymous',
+                            userName: data.username ? data.username : 'Anonymous',
                             referrer: document.referrer,
                             eventType: enums.eventLogs.login,
                             loginType: enums.loginType.local
                         };
                         globals.xAnalytics.send(dataObj);
                         security.setAuthInfo(response);
-                        router.push('/');
+                        var returnUrl = storage.getLocal("returnUrl");
+                        if (returnUrl) {
+                            window.location.href = returnUrl;
+                        } else {
+                            router.push('/');
+                        }
                     }
                 });
         }

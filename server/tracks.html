@@ -1,0 +1,76 @@
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Simple Transactional Email</title>
+    </head>
+   <style>
+      body{
+background:#d0d0d5;
+}
+
+
+/*  Basic stucture
+=====================*/
+#accordion{margin:100px auto;width:400px;}
+#accordion ul{list-style:none;margin:0;padding:0;}
+.accordion{display:none;}
+.accordion:target{display:block;}
+#accordion ul li a{text-decoration:none;display:block;padding:10px;}
+.accordion{padding:4px;}
+
+
+
+
+
+/*  Colors 
+====================*/
+#accordion ul{
+/*box-shadow*/
+-webkit-box-shadow:0 4px 10px #BDBDBD;
+   -moz-box-shadow:0 4px 10px #BDBDBD;
+        box-shadow:0 4px 10px #BDBDBD;
+/*border-radius*/
+-webkit-border-radius:5px;
+   -moz-border-radius:5px;
+        border-radius:5px;
+}
+#accordion ul li a{
+background:#fff;
+border-bottom:1px solid #E0E0E0;
+color:#999;
+}
+.accordion{
+background:#fdfdfd;
+color:#999;
+}
+.accordion:target{
+border-top:3px solid #FFCDCD;
+}
+      </style>
+    </head>
+    <body>
+  <div id="accordion">
+  <ul>
+    <li>
+      <a href="#one">aaa</a>
+      <div id="one" class="accordion">
+        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet in laborum praesentium esse aliquam molestiae animi non facilis perspiciatis corporis ad molestias quo harum suscipit ipsum incidunt ea voluptates accusantium.
+      </div>
+    </li>
+    <li>
+      <a href="#two">Example two</a>
+      <div id="two" class="accordion">
+        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet in laborum praesentium esse aliquam molestiae animi non facilis perspiciatis corporis ad molestias quo harum suscipit ipsum incidunt ea voluptates accusantium.
+      </div>
+    </li>    
+    <li>
+      <a href="#three">Example three</a>
+      <div id="three" class="accordion">
+        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet in laborum praesentium esse aliquam molestiae animi non facilis perspiciatis corporis ad molestias quo harum suscipit ipsum incidunt ea voluptates accusantium.
+      </div>
+    </li>
+  </ul>
+</div>
+  </body>
+ </html>

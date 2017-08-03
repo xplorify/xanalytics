@@ -51,6 +51,7 @@ export default {
     if (this.isLogginOut) {
       return false;
     }
+
     var accessToken = storage.get('accessToken');
     console.log("accessToken: " + accessToken);
     if (accessToken !== undefined) {
@@ -70,6 +71,11 @@ export default {
           }
         });
     } else {
+      if (window.location.href.substring(0, 33) === "http://localhost:8081/analytics?r") {
+        var returnUrl = window.location.href;
+        storage.setLocal("returnUrl", returnUrl);
+      }
+
       this.isLogoutVisible = false;
       return router.push({ name: 'login' });
     }

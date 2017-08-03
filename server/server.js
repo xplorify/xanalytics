@@ -11,7 +11,7 @@ var express = require("express"),
   cipher = require("./cert/cipher"),
   config = require("./config"),
   analyticsService = require("./services/analytics-service");
-var logger = require('./log/log.js');
+ var logger = require('./log/log.js');
 
 var app = express();
 
@@ -23,7 +23,7 @@ app.use(errorhandler({
 
 
 app.use(require("morgan")("combined", { stream: logger.stream }));
-app.get(['/register', '/login', '/dashboard'], function(req, res) {
+app.get(['/register', '/login', '/dashboard', '/dashboard/queries'], function(req, res) {
   res.header("Content-Type", "text/html");
   res.sendFile(path.join(__dirname + "/../dashboard/dist/index.html"));
 });

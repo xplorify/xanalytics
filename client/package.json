@@ -2,7 +2,7 @@
   "name": "xplorify.analytics.client",
   "title": "Xplorify Analytics Client",
   "description": "Xplorify Analytics Client",
-  "version": "1.0.22",
+  "version": "1.0.29",
   "homepage": "https://www.xplorify.net",
   "author": "Violeta Ivkovska <violeta.ivkovska@inovatika.net>",
   "contributors": [],
@@ -61,7 +61,7 @@
   },
   "scripts": {
     "dev": "set NODE_ENV=dev && webpack-dev-server",
-    "dev-prd": "set NODE_ENV=dev && webpack -p",
+    "dev-prd": "set NODE_ENV=dev && webpack",
     "prd": "set NODE_ENV=prd && webpack -p",
     "tst": "set NODE_ENV=tst && webpack -p",
     "server": "http-server -p 8080",
