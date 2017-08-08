@@ -29,7 +29,7 @@ echo fs.inotify.max_user_watches=524288 | tee -a /etc/sysctl.conf && sysctl -p
 cd /
 git clone git@github.com:xplorify/xplorify-analytics.git
 
-cd /xplorify-analytics/dashboard 
+cd /xplorify-analytics/dashboard2 
 npm i
 npm start webpack.build.production
 #npm run prd - dashboard
