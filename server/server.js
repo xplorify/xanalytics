@@ -23,11 +23,11 @@ app.use(errorhandler({
 
 
 app.use(require("morgan")("combined", { stream: logger.stream }));
-app.get(['/register', '/login', '/dashboard', '/dashboard/queries'], function(req, res) {
+app.get(['/register', '/login', '/dashboard2/analytics'], function(req, res) {
   res.header("Content-Type", "text/html");
-  res.sendFile(path.join(__dirname + "/../dashboard/dist/index.html"));
+  res.sendFile(path.join(__dirname + "/../dashboard2/dist/index.html"));
 });
-app.use(express.static(__dirname + "/../dashboard/dist/"));
+app.use(express.static(__dirname + "/../dashboard2/dist/"));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
   extended: true
