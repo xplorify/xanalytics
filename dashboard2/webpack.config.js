@@ -13,6 +13,7 @@ var GLOBALS = {
   '__ENV__': JSON.stringify(ENV),
   '__DEV__': DEBUG
 };
+console.log(GLOBALS);
 
 module.exports = {
   // This is the "main" file which should include all other modules
