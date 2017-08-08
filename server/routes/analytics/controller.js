@@ -216,10 +216,15 @@ module.exports = {
     sendDailyAnalytics: function (req, res) {
         res.header("Content-Type", "application/json");
         logger.info("Send daily analytics start " + JSON.stringify(req.body));
+        var result;
         return analyticsService
             .getGroupedAnalytics(req.body)
-            .then(function (result) {
-                return emailService.sendAnalytics(result, null, req.body)
+            .then(function (groupedAnalytics) {
+                result = groupedAnalytics;
+                return analyticsService.getTopTenLinks(req.body);
+            })
+            .then(function (topTenLinks) {
+                return emailService.sendAnalytics(result, topTenLinks, req.body, false)
                     .then(function (response) {
                         res.send({ result: response });
                     });
@@ -237,10 +242,10 @@ module.exports = {
         return analyticsService.getGroupedAnalytics(req.body)
             .then(function (groupedAnalytics) {
                 result = groupedAnalytics;
-                return analyticsService.getTopTenLinks(req.body)
+                return analyticsService.getTopTenLinks(req.body);
             })
             .then(function (topTenLinks) {
-                return emailService.sendAnalytics(result, topTenLinks, req.body)
+                return emailService.sendAnalytics(result, topTenLinks, req.body, true);
             })
             .then(function (response) {
                 res.send({ result: response });

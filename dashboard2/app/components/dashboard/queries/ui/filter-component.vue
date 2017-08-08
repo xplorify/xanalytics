@@ -138,7 +138,8 @@ export default {
             isRequesting: false,
             pageSizeChoices: [5, 10, 20, 50, 100],
             pageSize: 10,
-            connectionsArray: []
+            connectionsArray: [],
+            report: this.reportId
         }
     },
     methods: {

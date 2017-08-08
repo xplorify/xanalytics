@@ -504,9 +504,17 @@ analyticsService.getGroupedAnalytics = function (data) {
         var countryCodeQuery = analyticsService.getDetailedQuery(data, true);
         data.groupBy = 'remoteAddress';
         var remoteAddressQuery = analyticsService.getDetailedQuery(data, true);
+        data.groupBy = 'referrer';
+        var referrerQuery = analyticsService.getDetailedQuery(data, true);
+        data.groupBy = 'userName';
+        var usernameQuery = analyticsService.getDetailedQuery(data, true);
+        data.groupBy = 'application.code';
+        var applicationQuery = analyticsService.getDetailedQuery(data, true);
         var browserResult;
         var countryCodeResult;
         var remoteAddressResult;
+        var referrerResult;
+        var usernameResult;
         return connectionModel.aggregate(browserQuery)
             .allowDiskUse(true)
             .exec(function (err, response) {
@@ -522,21 +530,56 @@ analyticsService.getGroupedAnalytics = function (data) {
                                     .exec(function (err, remoteAddressResponse) {
                                         if (!err) {
                                             remoteAddressResult = remoteAddressResponse;
-                                            var analytics = {
-                                                browserResult: browserResult,
-                                                countryCodeResult: countryCodeResult,
-                                                remoteAddressResult: remoteAddressResult
-                                            }
-                                            resolve(analytics);
+                                            return connectionModel.aggregate(referrerQuery)
+                                                .allowDiskUse(true)
+                                                .exec(function (err, referrerResponse) {
+                                                    if (!err) {
+                                                        referrerResult = referrerResponse;
+                                                        return connectionModel.aggregate(usernameQuery)
+                                                            .allowDiskUse(true)
+                                                            .exec(function (err, usernameResponse) {
+                                                                if (!err) {
+                                                                    usernameResult = usernameResponse;
+                                                                    return connectionModel.aggregate(applicationQuery)
+                                                                        .allowDiskUse(true)
+                                                                        .exec(function (err, applicationResponse) {
+                                                                            if (!err) {
+                                                                                var analytics = {
+                                                                                    browserResult: browserResult,
+                                                                                    countryCodeResult: countryCodeResult,
+                                                                                    remoteAddressResult: remoteAddressResult,
+                                                                                    referrerResult: referrerResult,
+                                                                                    usernameResult: usernameResult,
+                                                                                    applicationResult: applicationResponse
+                                                                                }
+                                                                                resolve(analytics);
+                                                                            } else {
+                                                                                logger.error("err: " + err);
+                                                                                reject(new Error(err));
+                                                                            }
+                                                                        })
+                                                                        .finally(function () {
+                                                                            logger.info("Connection closed");
+                                                                            db.close();
+                                                                        });
+                                                                }
+                                                                else {
+                                                                    logger.error("err: " + err);
+                                                                    reject(new Error(err));
+                                                                }
+                                                            })
+                                                    }
+                                                    else {
+                                                        logger.error("err: " + err);
+                                                        reject(new Error(err));
+                                                    }
+                                                })
                                         } else {
                                             logger.error("err: " + err);
                                             reject(new Error(err));
                                         }
                                     })
-                                    .finally(function () {
-                                        logger.info("Connection closed");
-                                        db.close();
-                                    });
+
                             } else {
                                 logger.error("err: " + err);
                                 reject(new Error(err));
@@ -547,7 +590,7 @@ analyticsService.getGroupedAnalytics = function (data) {
                     logger.error("err: " + err);
                     reject(new Error(err));
                 }
-            })
+            });
 
     });
 };
@@ -729,7 +772,7 @@ analyticsService.getConnectionIds = function (data) {
     return uniqueIds;
 }
 
-analyticsService.getReportObject = function (db, data, topTenLinks, body) {
+analyticsService.getReportObject = function (db, data, topTenLinks, body, isWeekly) {
     var connections = analyticsService.getConnectionIds(data);
     var obj = {
         from: new Date(body.from),
@@ -737,17 +780,15 @@ analyticsService.getReportObject = function (db, data, topTenLinks, body) {
         browserGrouping: data.browserResult,
         countryGrouping: data.countryCodeResult,
         ipGrouping: data.remoteAddressResult,
-        connections: connections
+        referrerGrouping: data.referrerResult,
+        usernameGrouping: data.usernameResult,
+        applicationGrouping: data.applicationResult,
+        navigateToGrouping: topTenLinks,
+        connections: connections,
+        isWeekly: isWeekly,
+        isDaily: !isWeekly
     };
 
-    if (topTenLinks) {
-        obj.topTenLinks = topTenLinks
-        obj.isDaily = false;
-        obj.isWeekly = true;
-    } else {
-        obj.isDaily = true;
-        obj.isWeekly = false;
-    }
     var reportModel = db.model("reports", reportSchema);
     var report = new reportModel(obj);
     return report;
@@ -776,7 +817,7 @@ analyticsService.getReportById = function (data) {
                 as: "connectionReport"
             }
         };
-         let $unwindResult = { "$unwind": "$connectionReport" };
+        let $unwindResult = { "$unwind": "$connectionReport" };
         // Group back to arrays
         let $groupArray = {
             "$group":
@@ -787,19 +828,7 @@ analyticsService.getReportById = function (data) {
                 "connections": { "$push": "$connectionReport" }
             }
         }
-       
-        // $groupArray.push({
-        //     '$group': {
-        //         "_id": { "event_key": '$connectionReport.' + data.grouping, "connection_id": "$connectionReport._id" },
-        //         "count": { "$sum": 1 }
-        //     }
-        // });
-        // $groupArray.push({
-        //     "$group": {
-        //         "_id": "$_id.event_key",
-        //         "count": { $sum: "$count" }
-        //     }
-        // });
+
         query.push($match);
         query.push($unwind);
         query.push($lookup);
@@ -810,8 +839,18 @@ analyticsService.getReportById = function (data) {
             .allowDiskUse(true)
             .exec(function (err, response) {
                 if (!err) {
-                    logger.info("Result: " + response);
-                    resolve(response);
+                    var from = response[0].from;
+                    var to = response[0].to;
+                    response.forEach(function (item) {
+                        delete item.from;
+                        delete item.to;
+                    })
+                    var result = {
+                        from: from,
+                        to: to,
+                        data: response
+                    }
+                    resolve(result);
                 } else {
                     logger.error("err: " + err);
                     reject(new Error(err));
@@ -823,10 +862,10 @@ analyticsService.getReportById = function (data) {
     });
 };
 
-analyticsService.createReport = function (data, topTenLinks, body) {
+analyticsService.createReport = function (data, topTenLinks, body, isWeekly) {
     return new Promise(function (resolve, reject) {
         var db = mongoose.createConnection(config.xplorifyDb, { auth: { authdb: "admin" } });
-        var report = analyticsService.getReportObject(db, data, topTenLinks, body);
+        var report = analyticsService.getReportObject(db, data, topTenLinks, body, isWeekly);
         return report.save(function (err, response) {
             if (!err) {
                 resolve(response);

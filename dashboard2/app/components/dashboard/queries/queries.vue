@@ -6,8 +6,14 @@
       </div>
     </div>
     <div class="w3-rest">
-      <div v-if="isGrouped">
+      <div v-if="isGrouped && reportId == null">
         <accordion-grouped :filter-form="filterForm" :connections="connections"></accordion-grouped>
+      </div>
+      <div v-if="isGrouped  && reportId != null">
+         <div class="w3-panel w3-blue w3-round-large w3-center">
+          <p class="w3-margin">You are currently seeing report with ID: {{reportId}}</p>
+        </div>
+        <report-grouped :filter-form="filterForm" :connections="connections"></report-grouped>
       </div>
       <div v-if="!isGrouped && (totalCount > 0 || connections.length > 0)">
         <div class="container">
@@ -76,6 +82,7 @@ import Vue from 'vue';
 Vue.component('filter-component', require('./ui/filter-component'));
 Vue.component('accordion-queries', require('./ui/accordion-queries'));
 Vue.component('accordion-grouped', require('./ui/accordion-grouped'));
+Vue.component('report-grouped', require('./ui/report-grouped'));
 let self;
 export default {
 
@@ -128,21 +135,30 @@ export default {
         case "address":
           this.filterForm.groupBy = "remoteAddress";
           break;
+        case "referrer":
+          this.filterForm.groupBy = "referrer";
+          break;
+        case "username":
+          this.filterForm.groupBy = "userName";
+          break;
+        case "application":
+          this.filterForm.groupBy = "application.code";
+          break;
       }
       this.isGrouped = true;
       self = this;
       // make lookup mongodb request
       return this.getReportById(this.reportId, this.filterForm.groupBy)
         .then(function (result) {
-          self.filterForm.from = result.from.substring(0, 10);
-          self.filterForm.to =  result.to.substring(0, 10);
-          self.connections = result;
+          self.filterForm.from = new Date(result.from);
+          self.filterForm.to =  new Date(result.to);
+          self.connections = result.data;
         });
     }
-
   },
   methods: {
     onFilterChange: function (filterResult) {
+      this.reportId = null;
       this.connections = filterResult.connections;
       this.count = filterResult.count;
       this.filterForm = filterResult.filter;
@@ -209,7 +225,7 @@ export default {
           if (result.error) {
             reject(result.message);
           } else {
-            resolve(result[0]);
+            resolve(result);
           }
         });
       });

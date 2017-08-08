@@ -1,0 +1,55 @@
+<html>
+
+<head>
+  <meta name="viewport" content="width=device-width" />
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <title>Report Email</title>
+</head>
+
+<body>
+  <div>
+    {{#if isEmpty}}
+    <h2>No results found</h2>
+    {{else}} {{#if topTenLinks}}
+    <h2>Top 10 Most Visited Links</h2>
+    <table>
+      <tbody>
+        <tr>
+          <th style="background-color:#008cba;color:white;">Link</th>
+          <th style="background-color:#008cba;color:white;">Number of visitations</th>
+        </tr>
+        {{#each topTenLinks}}
+        <tr style="background-color:#f2f2f2;">
+          <td style="background-color:#f2f2f2;">{{_id}}</td>
+          <td style="background-color:#f2f2f2;">{{count}}</td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+    {{else}} {{#if data}}
+    <table style="border-collapse: collapse; width: 50%;">
+      <tbody>
+        <tr>
+          <th style="text-align: left; padding: 8px;background-color: #008CBA;color: white;">{{name}}</th>
+          <th style="text-align: right;padding: 8px;background-color: #008CBA;color: white;">Connections</th>
+        </tr>
+      </tbody>
+    </table>
+    {{#each data}}
+    <table style="border-collapse: collapse; width: 50%;">
+      <tbody>
+        <tr style="background-color: #f2f2f2">
+          <td style="text-align: left;padding: 8px;">{{_id}}</td>
+          <td style="text-align: right; padding: 8px;">{{count}}</td>
+        </tr>
+      </tbody>
+    </table>
+    {{/each}}{{/if}}
+    <div style="padding-bottom:30px">
+      {{{url}}}
+    </div>
+    {{/if}} {{/if}}
+  </div>
+</body>
+
+</html>
