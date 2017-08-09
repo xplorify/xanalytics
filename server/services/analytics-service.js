@@ -757,10 +757,10 @@ analyticsService.getConnectionIds = function (data) {
         connections = browser.data;
     });
     data.countryCodeResult.forEach(function (code) {
-        connections.concat(code.data);
+        connections = connections.concat(code.data);
     });
     data.remoteAddressResult.forEach(function (address) {
-        connections.concat(address.data);
+        connections = connections.concat(address.data);
     });
 
     let item = {};
@@ -800,9 +800,7 @@ analyticsService.getReportById = function (data) {
         var reportModel = db.model("reports", reportSchema);
         let query = [];
         let groups = [];
-        let $sort = { $sort: { "_id": 1 } };
         let $match = { $match: { $and: [{ _id: ObjectId(data.reportId) }, { "connectionReport": { $ne: [] } }] } };
-        let $limit = { '$limit': 10 };
         let $unwind = {
             '$unwind': {
                 path: '$connections',
@@ -850,6 +848,7 @@ analyticsService.getReportById = function (data) {
                         to: to,
                         data: response
                     }
+                    console.log("Data " + JSON.stringify(result));
                     resolve(result);
                 } else {
                     logger.error("err: " + err);
