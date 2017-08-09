@@ -5,7 +5,7 @@
   "main": "webpack.config.js",
   "scripts": {
     "dev": "webpack --env=DEV && http-server -p 8080",
-    "prd": "webpack -p --env=PRD",
+    "prd": "set NODE_ENV=production && webpack -p --env=PRD",
     "start": "webpack-dev-server --hot --inline --env=DEV",
     "buildDev": "webpack --env=DEV",
     "test": "echo \"Error: no test specified\" && exit 1"
