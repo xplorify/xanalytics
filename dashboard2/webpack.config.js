@@ -5,13 +5,12 @@ const argv = require('yargs').argv;
 
 const fileName = "build.js";
 const chunkFilename = "[name].chunk.js";
-// const ENV = argv.env;
+const ENV = argv.env;
 
 let DEBUG = !(process.env.NODE_ENV && JSON.stringify(process.env.NODE_ENV).replace(' ', '') === '"production"');
-let ENV = JSON.stringify(process.env.NODE_ENV ? process.env.NODE_ENV : 'development');
 var GLOBALS = {
   'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development'),
-  '__ENV__': ENV,
+  '__ENV__': JSON.stringify(ENV),
   '__DEV__': DEBUG
 };
 console.log(GLOBALS);
