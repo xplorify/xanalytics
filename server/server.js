@@ -23,7 +23,7 @@ app.use(errorhandler({
 
 
 app.use(require("morgan")("combined", { stream: logger.stream }));
-app.get(['/register', '/login', '/dashboard2/analytics'], function(req, res) {
+app.get(['/register', '/login', '/analytics'], function(req, res) {
   res.header("Content-Type", "text/html");
   res.sendFile(path.join(__dirname + "/../dashboard2/dist/index.html"));
 });
