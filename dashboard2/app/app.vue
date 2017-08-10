@@ -23,6 +23,7 @@ import { globals } from './models/globals';
 import { XAnalytics } from 'xplorify.analytics.client/dist/app';
 import { storage } from './services/storage';
 import { security } from './services/security';
+import { config } from './config';
 import { authService } from './services/auth-service';
 import { enums } from './models/enums';
 import { route } from './models/urls';
