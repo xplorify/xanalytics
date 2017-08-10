@@ -71,7 +71,11 @@ export default {
           }
         });
     } else {
-      if (window.location.href.substring(0, 33) === "http://localhost:8081/analytics?r") {
+      var env = __ENV__ ? __ENV__ : 'DEV';
+      var isReportUrl = env === 'DEV' 
+      ? window.location.href.substring(0, 33) === config.analyticsUrl 
+      : window.location.href.substring(0, 42) === config.analyticsUrl;
+      if (isReportUrl) {
         var returnUrl = window.location.href;
         storage.setLocal("returnUrl", returnUrl);
       }
