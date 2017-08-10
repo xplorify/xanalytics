@@ -125,7 +125,14 @@ analyticsService.getDetailedQuery = function (data, getOnlyId) {
     console.log("inside detailed query");
     let aggregate = [];
     let groups = [];
-    let $sort = { $sort: { "_id": 1 } };
+    let $sort;
+
+    if (getOnlyId) {
+        $sort = { $sort: { "count": -1 } };
+    } else {
+        $sort = { $sort: { "_id": 1 } };
+    }
+
     let $unwind = {
         '$unwind': {
             path: '$events',
@@ -200,6 +207,7 @@ analyticsService.getDetailedQuery = function (data, getOnlyId) {
     groups.forEach(function (g) {
         aggregate.push(g);
     });
+
     aggregate.push($sort);
     if (data.pageSize && !data.groupBy) {
         aggregate.push($limit);
@@ -823,15 +831,17 @@ analyticsService.getReportById = function (data) {
                 "_id": "$connectionReport." + data.grouping,
                 "from": { $first: "$from" },
                 "to": { $first: "$to" },
-                "connections": { "$push": "$connectionReport" }
+                "connections": { "$push": "$connectionReport" },
+                "count": { "$sum": 1 }
             }
         }
-
+        let $sort = { $sort: { "count": -1 } };
         query.push($match);
         query.push($unwind);
         query.push($lookup);
         query.push($unwindResult);
         query.push($groupArray);
+        query.push($sort);
         logger.info("query " + JSON.stringify(query));
         return reportModel.aggregate(query)
             .allowDiskUse(true)
