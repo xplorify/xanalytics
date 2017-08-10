@@ -74,8 +74,8 @@ export default {
     } else {
       var env = __ENV__ ? __ENV__ : 'dev';
       var isReportUrl = env === 'dev' 
-      ? window.location.href.substring(0, 33) === config.analyticsUrl 
-      : window.location.href.substring(0, 42) === config.analyticsUrl;
+      ? window.location.href.substring(0, 33) === config.settings.analyticsUrl 
+      : window.location.href.substring(0, 42) === config.settings.analyticsUrl;
       if (isReportUrl) {
         var returnUrl = window.location.href;
         storage.setLocal("returnUrl", returnUrl);
