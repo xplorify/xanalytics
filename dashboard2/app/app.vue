@@ -72,8 +72,8 @@ export default {
           }
         });
     } else {
-      var env = __ENV__ ? __ENV__ : 'DEV';
-      var isReportUrl = env === 'DEV' 
+      var env = __ENV__ ? __ENV__ : 'dev';
+      var isReportUrl = env === 'dev' 
       ? window.location.href.substring(0, 33) === config.analyticsUrl 
       : window.location.href.substring(0, 42) === config.analyticsUrl;
       if (isReportUrl) {
