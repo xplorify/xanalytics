@@ -1,17 +1,91 @@
 <template>
   <div class="w3-row">
-    <div class="w3-col s3">
+    <!-- Desktop filter -->
+    <div class="w3-col s3 w3-hide-small w3-hide-medium">
       <div class="w3-row">
         <filter-component v-bind:filter-form="filterForm" v-on:on-filter-change="onFilterChange"></filter-component>
       </div>
     </div>
-    <div class="w3-rest">
+    <!-- Mobile filter -->
+    <div class="w3-col s12 w3-hide-large">
+      <div class="w3-row">
+        <filter-mobile v-bind:filter-form="filterForm" v-on:on-filter-change="onFilterChange"></filter-mobile>
+      </div>
+    </div>
+    <div class="w3-rest w3-hide-small  w3-hide-medium">
       <div v-if="isGrouped && reportId == null">
         <accordion-grouped :filter-form="filterForm" :connections="connections"></accordion-grouped>
       </div>
       <div v-if="isGrouped  && reportId != null">
-         <div class="w3-panel w3-blue w3-round-large w3-center">
+        <div class="w3-panel w3-blue w3-round-large w3-center">
           <p class="w3-margin">You are currently seeing report with ID: {{reportId}}</p>
+        </div>
+       <div style="margin-left:2%">
+          <report-grouped :filter-form="filterForm" :connections="connections"></report-grouped>
+       </div>
+      </div>
+      <div v-if="!isGrouped && (totalCount > 0 || connections.length > 0)">
+        <div class="container">
+          <div class="row">
+            <div v-if="filterForm.isDetailed">
+              <div class="w3-panel w3-indigo" v-on:click="toggle">
+                <p class="w3-padding">
+                  <span v-if="filterForm.navigateTo || filterForm.eventType != null">
+                    Events
+                  </span>
+                  <span v-if="!filterForm.navigateTo && filterForm.eventType == null">
+                    Connections
+                  </span>
+                  <span class="w3-badge w3-right w3-green" v-if="totalCount">
+                    <span v-if="connections && connections.length > 0">
+                      <span v-if="filterForm.navigateTo || filterForm.eventType !=null">
+                        {{eventsLength}} /
+                      </span>
+                      <span v-if="!filterForm.navigateTo && filterForm.eventType == null">
+                        {{connections.length}} /
+                      </span>
+                    </span> {{totalCount}}
+                  </span>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div v-bind:class="[showMore ? 'w3-show' : 'w3-hide']">
+          <div v-if="connections && connections.length > 0">
+            <div class="w3-row" v-for="connection in connections" v-bind:key="connection.id">
+              <accordion-queries v-bind:connection="connection" v-bind:filter-form="filterForm"></accordion-queries>
+            </div>
+            <div v-if="connections && connections.length > 0 && (((filterForm.navigateTo  || filterForm.eventType != 'null') && eventsLength < totalCount) || (!filterForm.navigateTo && filterForm.eventType == 'null' && connections.length < totalCount))" class="tablink w3-hover-light-grey w3-padding w3-center">
+              <a v-on:click="loadMore">
+                <i class="fa fa-circle-o-notch"></i>
+                <span>Load More</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div v-if="count" class="w3-margin">
+        <div class="w3-panel w3-blue w3-round-large w3-center">
+          <p v-if="(filterForm.navigateTo || filterForm.eventType != null) && !filterForm.isDetailed" class="w3-margin">The number of events is: {{count}}</p>
+          <p v-if="!filterForm.navigateTo && filterForm.eventType == null  && !filterForm.isDetailed" class="w3-margin">The number of connections is: {{count}}</p>
+        </div>
+      </div>
+      <div v-if="!count && totalCount == 0 && connections.length == 0" class="w3-margin">
+        <div class="w3-panel w3-blue w3-round-large w3-center">
+          <p class="w3-margin">There aren't any connections
+            <i class="w3-large fa fa-exclamation-circle"></i>
+          </p>
+        </div>
+      </div>
+    </div>
+    <div class="w3-row w3-hide-large">
+      <div v-if="isGrouped && reportId == null">
+        <accordion-grouped :filter-form="filterForm" :connections="connections"></accordion-grouped>
+      </div>
+      <div v-if="isGrouped  && reportId != null">
+        <div class="w3-blue w3-round-small w3-center">
+          <p class="w3-margin">Report ID: {{reportId}}</p>
         </div>
         <report-grouped :filter-form="filterForm" :connections="connections"></report-grouped>
       </div>
@@ -80,6 +154,7 @@ import router from '../../../router';
 import Vue from 'vue';
 
 Vue.component('filter-component', require('./ui/filter-component'));
+Vue.component('filter-mobile', require('./ui/filter-mobile'));
 Vue.component('accordion-queries', require('./ui/accordion-queries'));
 Vue.component('accordion-grouped', require('./ui/accordion-grouped'));
 Vue.component('report-grouped', require('./ui/report-grouped'));
@@ -145,16 +220,20 @@ export default {
           this.filterForm.groupBy = "application.code";
           break;
       }
+
       this.isGrouped = true;
       self = this;
       // make lookup mongodb request
       return this.getReportById(this.reportId, this.filterForm.groupBy)
         .then(function (result) {
           self.filterForm.from = new Date(result.from);
-          self.filterForm.to =  new Date(result.to);
+          self.filterForm.to = new Date(result.to);
           self.connections = result.data;
         });
     }
+  },
+  mounted: function () {
+   document.getElementById("groupDemo").innerHTML = this.filterForm.groupBy ? this.filterForm.groupBy : "-Choose Grouping-";
   },
   methods: {
     onFilterChange: function (filterResult) {
