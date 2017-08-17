@@ -12,7 +12,7 @@
             </div>
         </div>
         <div v-bind:class="[isActive ? 'w3-show' : 'w3-hide']">
-            <example-chart v-bind:filter-form="filterForm" v-bind:connectionsArray="connectionsArray"></example-chart>
+            <example-chart v-bind:filter-form="filterForm" v-bind:connections-array="connectionsArray"></example-chart>
         </div>
     </div>
 </template>
