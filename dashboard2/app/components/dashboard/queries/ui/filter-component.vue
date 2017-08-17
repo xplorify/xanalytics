@@ -164,14 +164,6 @@ export default {
             this.filterFormObj.lastId = "";
             this.searchData(this.filterFormObj, false);
         },
-        onFilterChange: function (count) {
-            var data = {
-                connections: this.connectionsArray,
-                count: count,
-                filter: this.filterFormObj
-            }
-            return this.$emit('on-filter-change', data);
-        },
         onFilterDataChange: function (filterForm, isMoreDataRequested, count) {
             var data = {
                 connections: this.connectionsArray,

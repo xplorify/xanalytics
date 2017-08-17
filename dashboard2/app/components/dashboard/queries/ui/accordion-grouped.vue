@@ -97,7 +97,6 @@ export default {
     props: ["connections", "filterForm"],
     data() {
         return {
-            connectionsArray: this.connections,
             filterFormObj: this.filterForm
         }
     },
@@ -150,6 +149,15 @@ export default {
                 .then(function (result) {
                     self.getLength(group);
                 });
+        }
+    },
+    computed:{
+        connectionsArray: function(){
+            this.connections.forEach(function (conn) {
+            Vue.set(conn, 'isActive', false);
+            Vue.set(conn, 'connections', []);
+        });
+        return this.connections;
         }
     }
 }

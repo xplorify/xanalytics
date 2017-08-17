@@ -12,6 +12,11 @@
         <filter-mobile v-bind:filter-form="filterForm" v-on:on-filter-change="onFilterChange"></filter-mobile>
       </div>
     </div>
+    <div v-if="canSeeCharts">
+      <div class="w3-rest w3-hide-small  w3-hide-medium">
+        <accordion-chart v-bind:filter-form="filterForm" v-bind:connections="connections"></accordion-chart>
+      </div>
+    </div>
     <div class="w3-rest w3-hide-small  w3-hide-medium">
       <div v-if="isGrouped && reportId == null">
         <accordion-grouped :filter-form="filterForm" :connections="connections"></accordion-grouped>
@@ -20,9 +25,9 @@
         <div class="w3-panel w3-blue w3-round-large w3-center">
           <p class="w3-margin">You are currently seeing report with ID: {{reportId}}</p>
         </div>
-       <div style="margin-left:2%">
+        <div style="margin-left:2%">
           <report-grouped :filter-form="filterForm" :connections="connections"></report-grouped>
-       </div>
+        </div>
       </div>
       <div v-if="!isGrouped && (totalCount > 0 || connections.length > 0)">
         <div class="container">
@@ -151,6 +156,7 @@
 import { queryHelper } from './ui/query-helper';
 import { globals } from '../../../models/globals';
 import router from '../../../router';
+import moment from 'moment';
 import Vue from 'vue';
 
 Vue.component('filter-component', require('./ui/filter-component'));
@@ -158,6 +164,9 @@ Vue.component('filter-mobile', require('./ui/filter-mobile'));
 Vue.component('accordion-queries', require('./ui/accordion-queries'));
 Vue.component('accordion-grouped', require('./ui/accordion-grouped'));
 Vue.component('report-grouped', require('./ui/report-grouped'));
+Vue.component('accordion-chart', require('./ui/accordion-chart'));
+
+
 let self;
 export default {
 
@@ -233,7 +242,7 @@ export default {
     }
   },
   mounted: function () {
-   document.getElementById("groupDemo").innerHTML = this.filterForm.groupBy ? this.filterForm.groupBy : "-Choose Grouping-";
+    document.getElementById("groupDemo").innerHTML = this.filterForm.groupBy ? this.filterForm.groupBy : "-Choose Grouping-";
   },
   methods: {
     onFilterChange: function (filterResult) {
@@ -333,6 +342,18 @@ export default {
         this.showMore = !this.showMore;
         this.filterForm.isFirstRequest = true;
       }
+    }
+  },
+  computed: {
+    canSeeCharts: function () {
+      if (this.filterForm.to && this.filterForm.from) {
+        var from = moment(this.filterForm.from);
+        var to = moment(this.filterForm.to);
+        var duration = moment.duration(to.diff(from));
+        var days = duration.asDays();
+        return days > 1 && this.connections && this.connections.length > 0 && this.filterForm.groupBy != null;
+      }
+      return false;
     }
   }
 }

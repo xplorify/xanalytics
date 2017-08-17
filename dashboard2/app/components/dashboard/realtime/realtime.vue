@@ -6,12 +6,13 @@
         <filter-tag v-bind:selected-application="selectedApplication" v-bind:analytics-model="analyticsModel" v-on:on-change="onChange" v-bind:get-connections-count="getConnectionsCount"></filter-tag>
       </div>
     </div>
-     <!-- Mobile filter -->
+    <!-- Mobile filter -->
     <div class="w3-col s12 w3-hide-large">
       <div class="w3-row">
         <filter-tag-mobile v-bind:selected-application="selectedApplication" v-bind:analytics-model="analyticsModel" v-on:on-change="onChange" v-bind:get-connections-count="getConnectionsCount"></filter-tag-mobile>
       </div>
     </div>
+    
     <div class="w3-col s8 w3-hide-small w3-hide-medium">
       <div class="w3-row" v-for="accordion in getAccordions" v-bind:key="accordion.id">
         <accordion v-bind:accordion="accordion"></accordion>
@@ -34,6 +35,7 @@ import Vue from 'vue';
 Vue.component('filter-tag', require('./ui/filter-tag'));
 Vue.component('filter-tag-mobile', require('./ui/filter-tag-mobile'));
 Vue.component('accordion', require('./ui/accordion'));
+
 let self;
 export default {
 
@@ -89,9 +91,9 @@ export default {
       }
     },
     onChange: function (selectedApplication) {
-        self.analyticsModel.connections = [];
-        return self.getOpenConnections(selectedApplication ? selectedApplication : '')
-          .then(self.onData);
+      self.analyticsModel.connections = [];
+      return self.getOpenConnections(selectedApplication ? selectedApplication : '')
+        .then(self.onData);
     }
   },
   computed: {

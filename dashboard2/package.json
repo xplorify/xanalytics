@@ -15,6 +15,7 @@
   "dependencies": {
     "axios": "^0.16.2",
     "bluebird": "^3.5.0",
+    "chart.js": "^2.6.0",
     "eonasdan-bootstrap-datetimepicker": "^4.17.47",
     "html-webpack-plugin": "^2.29.0",
     "jquery": "^3.2.1",
@@ -24,6 +25,7 @@
     "vue": "^2.3.4",
     "vue-axios": "^2.0.2",
     "vue-bootstrap-datetimepicker": "^2.4.3",
+    "vue-chartjs": "^2.8.2",
     "vue-js-modal": "^1.1.2",
     "vue-router": "^2.5.3",
     "webrtc-adapter": "^4.0.2",
