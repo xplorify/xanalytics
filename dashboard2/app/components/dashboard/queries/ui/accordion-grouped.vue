@@ -66,7 +66,7 @@
                     <div class="w3-row" v-for="connection in connObj.connections" v-bind:key="connection._id">
                         <accordion-queries v-bind:connection="connection" v-bind:filter-form="filterFormObj"></accordion-queries>
                     </div>
-                    <div v-if="connObj.connections && connObj.connections.length > 0 && (((filterFormObj.groupBy ==='events.url' || filterFormObj.navigateTo ||  filterFormObj.eventType !== 'null') && getLength(connObj) < connObj.count) ||  (!filterFormObj.navigateTo && filterFormObj.groupBy !=='events.url'  &&  filterFormObj.eventType === null && connObj.connections.length < connObj.count))" class="tablink w3-hover-light-grey w3-padding w3-center">
+                    <div v-if="connObj.connections && connObj.connections.length > 0 && (((filterFormObj.groupBy ==='events.url' || filterFormObj.navigateTo ||  filterFormObj.eventType !== null) && getLength(connObj) < connObj.count) ||  (!filterFormObj.navigateTo && filterFormObj.groupBy !=='events.url'  &&  filterFormObj.eventType === null && connObj.connections.length < connObj.count))" class="tablink w3-hover-light-grey w3-padding w3-center">
                         <a v-on:click="loadMore(connObj)">
                             <i class="fa fa-circle-o-notch"></i>
                             <span>Load More</span>

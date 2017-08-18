@@ -61,7 +61,7 @@
             <div class="w3-row" v-for="connection in connections" v-bind:key="connection.id">
               <accordion-queries v-bind:connection="connection" v-bind:filter-form="filterForm"></accordion-queries>
             </div>
-            <div v-if="connections && connections.length > 0 && (((filterForm.navigateTo  || filterForm.eventType != 'null') && eventsLength < totalCount) || (!filterForm.navigateTo && filterForm.eventType == 'null' && connections.length < totalCount))" class="tablink w3-hover-light-grey w3-padding w3-center">
+            <div v-if="connections && connections.length > 0 && (((filterForm.navigateTo  || filterForm.eventType != null) && eventsLength < totalCount) || (!filterForm.navigateTo && filterForm.eventType == null && connections.length < totalCount))" class="tablink w3-hover-light-grey w3-padding w3-center">
               <a v-on:click="loadMore">
                 <i class="fa fa-circle-o-notch"></i>
                 <span>Load More</span>
@@ -70,7 +70,7 @@
           </div>
         </div>
       </div>
-      <div v-if="count" class="w3-margin">
+      <div v-if="count && (((filterForm.navigateTo || filterForm.eventType != null) || (!filterForm.navigateTo && filterForm.eventType == null)) && !filterForm.isDetailed)" class="w3-margin">
         <div class="w3-panel w3-blue w3-round-large w3-center">
           <p v-if="(filterForm.navigateTo || filterForm.eventType != null) && !filterForm.isDetailed" class="w3-margin">The number of events is: {{count}}</p>
           <p v-if="!filterForm.navigateTo && filterForm.eventType == null  && !filterForm.isDetailed" class="w3-margin">The number of connections is: {{count}}</p>
