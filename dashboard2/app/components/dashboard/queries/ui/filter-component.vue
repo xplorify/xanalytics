@@ -24,25 +24,25 @@
                         <label class="w3-text-blue">
                             <b>Username</b>
                         </label>
-                        <input class="w3-input w3-border" type="text" v-bind:value="filterFormObj.username">
+                        <input class="w3-input w3-border" type="text" v-model="filterFormObj.username">
                     </p>
                     <p>
                         <label class="w3-text-blue">
                             <b>Ip Address</b>
                         </label>
-                        <input class="w3-input w3-border" type="text" v-bind:value="filterFormObj.ipAddress">
+                        <input class="w3-input w3-border" type="text" v-model="filterFormObj.ipAddress">
                     </p>
                     <p>
                         <label class="w3-text-blue">
                             <b>Country Code</b>
                         </label>
-                        <input class="w3-input w3-border" type="text" v-bind:value="filterFormObj.countryCode">
+                        <input class="w3-input w3-border" type="text" v-model="filterFormObj.countryCode">
                     </p>
                     <p>
                         <label class="w3-text-blue">
                             <b>Referrer</b>
                         </label>
-                        <input class="w3-input w3-border" type="text" v-bind:value="filterFormObj.referrer">
+                        <input class="w3-input w3-border" type="text" v-model="filterFormObj.referrer">
                     </p>
                     <p>
                         <select v-model="filterFormObj.browser" class="w3-text-blue w3-white w3-btn w3-border w3-border-blue w3-block">
@@ -72,7 +72,7 @@
                         <label class="w3-text-blue" style="margin-top: 5%">
                             <b>Navigate To</b>
                         </label>
-                        <input class="w3-input w3-border" type="text" v-bind:value="filterFormObj.navigateTo">
+                        <input class="w3-input w3-border" type="text" v-model="filterFormObj.navigateTo">
                     </p>
                     <p>
                         <select v-model="filterFormObj.eventType" class="w3-text-blue w3-white w3-btn w3-border w3-border-blue w3-block">
@@ -162,7 +162,7 @@ export default {
             }
 
             this.filterFormObj.lastId = "";
-            this.searchData(this.filterFormObj, false);
+            this.searchData(false);
         },
         onFilterDataChange: function (filterForm, isMoreDataRequested, count) {
             var data = {
@@ -173,28 +173,29 @@ export default {
             }
             return this.$emit('on-filter-change', data);
         },
-        searchData: function (filterForm, isMoreDataRequested) {
+        searchData: function (isMoreDataRequested) {
             this.connectionsArray = [];
-            var data = queryHelper.getData(filterForm);
+            console.log("Filter " + JSON.stringify(this.filterFormObj));
+            var data = queryHelper.getData(this.filterFormObj);
             self = this;
-            console.log("Entered parameters: " + JSON.stringify(data));
+            console.log("Entered parameters - search data: " + JSON.stringify(data));
             return new Promise(function (resolve, reject) {
                 return globals.xAnalytics.api.getAnalytics(data, function (result) {
                     if (result.error) {
                         reject(result.message);
                     } else {
                         var count;
-                        if (filterForm.isDetailed || (!filterForm.isDetailed && filterForm.groupBy !== null)) {
-                            if (filterForm.groupBy === null && filterForm.isFirstRequest) {
+                        if (self.filterFormObj.isDetailed || (!self.filterFormObj.isDetailed && self.filterFormObj.groupBy !== null)) {
+                            if (self.filterFormObj.groupBy === null && self.filterFormObj.isFirstRequest) {
                                 count = result && result.length > 0 ? result[0].count : 0;
                             } else {
                                 self.connectionsArray = result;
-                                filterForm.lastId = result && result.length > 0 ? self.connectionsArray[self.connectionsArray.length - 1]._id : "";
+                                self.filterFormObj.lastId = result && result.length > 0 ? self.connectionsArray[self.connectionsArray.length - 1]._id : "";
                             }
-                            self.onFilterDataChange(filterForm, isMoreDataRequested, count);
+                            self.onFilterDataChange(self.filterFormObj, isMoreDataRequested, count);
                         } else {
                             var count = result && result.length > 0 ? result[0].count : 0;
-                            self.onFilterDataChange(filterForm, isMoreDataRequested, count);
+                            self.onFilterDataChange(self.filterFormObj, isMoreDataRequested, count);
                         }
                         resolve(result);
                     }
