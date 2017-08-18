@@ -24,6 +24,14 @@ module.exports = {
       url: 'https://blog.xplorify.mk'
     },
     {
+      code: 'xplorify-promo',
+      url: 'https://teach.xplorify.net'
+    },
+    {
+      code: 'xplorify-hello',
+      url: 'https://hello.xplorify.net'
+    },
+    {
       code: 'blog-net',
       url: 'https://blog.xplorify.net'
     },

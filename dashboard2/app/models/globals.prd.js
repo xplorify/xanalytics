@@ -28,6 +28,14 @@ module.exports = {
       url: 'https://blog.xplorify.net'
     },
     {
+      code: 'xplorify-promo',
+      url: 'https://teach.xplorify.net'
+    },
+    {
+      code: 'xplorify-hello',
+      url: 'https://hello.xplorify.net'
+    },
+    {
       code: 'test2',
       url: 'https://test2.xplorify.net'
     }
