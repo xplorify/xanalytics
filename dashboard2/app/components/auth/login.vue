@@ -65,6 +65,7 @@ export default {
                         console.log("Token: " + response.token);
                         let dataObj = {
                             userName: data.username ? data.username : 'Anonymous',
+                            isAdmin: response.roles && response.roles.length > 0 && response.roles[0] === 'admin',
                             referrer: document.referrer,
                             eventType: enums.eventLogs.login,
                             loginType: enums.loginType.local

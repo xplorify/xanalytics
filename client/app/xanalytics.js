@@ -103,6 +103,7 @@ class XAnalytics {
         var dataObj = {
             userName: globals.userName(),
             connectionId: globals.connection,
+            isAdmin: globals && globals.userInfo && globals.userInfo.roles && globals.userInfo.roles.length > 0 && globals.userInfo.roles[0] === 'admin',
             referrer: document.referrer,
             to: window.location.href,
             eventType: "Navigate"

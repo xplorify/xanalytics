@@ -719,7 +719,8 @@ analyticsService.addUserInfo = function (data) {
                 userInfo: {
                     firstName: data.firstName,
                     lastName: data.lastName,
-                    email: data.email
+                    email: data.email,
+                    isAdmin: data.isAdmin
                 }
             }
         };

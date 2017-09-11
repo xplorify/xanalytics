@@ -58,6 +58,6 @@
     "webpack-dev-server": "^2.4.5",
     "bootstrap": "3.3.7",
     "w3-css": "^4.0.4",
-    "xplorify.analytics.client": "^1.0.22"
+    "xplorify.analytics.client": "^1.0.33"
   }
 }

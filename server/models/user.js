@@ -9,6 +9,7 @@ var mongoose = require('mongoose'),
 var userSchema = new Schema({
     firstname: { type: String, required: 'FirstNameInvalid' },
     lastname: { type: String, required: 'LastNameInvalid' },
+    isAdmin: { type: Boolean },
     email: { type: String, lowercase: true, required: 'EmailInvalid' },
     username: { type: String, unique: true, required: 'UsernameInvalid' },
     password: { type: String, required: 'PasswordInvalid' },

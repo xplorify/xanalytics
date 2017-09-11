@@ -3,15 +3,16 @@ var logger = require('winston');
 
 var storeService = {};
 
-storeService.addUser = function(connectionId, user) {
+storeService.addUser = function (connectionId, user) {
     storeModel.users[connectionId] = user;
-    if (user.userName === 'admin') {
+    logger.info("Is user admin " + user.isAdmin);
+    if (user.userName === 'admin' || user.isAdmin) {
         logger.info("Adding admin");
         storeModel.admin[connectionId] = user;
     }
 };
 
-storeService.removeUser = function(connectionId) {
+storeService.removeUser = function (connectionId) {
     logger.info("Removing user connection from the store...");
     if (storeModel.admin && storeModel.admin[connectionId]) {
         delete storeModel.admin[connectionId];
@@ -21,7 +22,7 @@ storeService.removeUser = function(connectionId) {
     }
 };
 
-storeService.notifyAdmin = function(info) {
+storeService.notifyAdmin = function (info) {
     // find admin connection and send him the connections count
     logger.info("Preparing to send message to admins with connection ids:  " + Object.keys(storeModel.admin));
     var infoString = JSON.stringify(info);
@@ -34,6 +35,5 @@ storeService.notifyAdmin = function(info) {
         }
     }
 };
-
 
 module.exports = storeService;

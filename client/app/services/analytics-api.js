@@ -158,7 +158,7 @@ export default class AnalyticsApi {
                 if (req.readyState === 4) {
                     try {
                         var result = JSON.parse(req.responseText);
-                        console.log("result " + result);
+                        console.log("result " + JSON.stringify(result));
                         globals.userInfo = result;
                         if (result && (result.userName || result.username)) {
                             console.log('Getting user info was successful.');
@@ -189,6 +189,7 @@ export default class AnalyticsApi {
             userName: globals.userName(),
             firstName: globals.firstName(),
             lastName: globals.lastName(),
+            isAdmin: userInfo && userInfo.roles && userInfo.roles.length > 0 && userInfo.roles[0] === 'admin',
             email: userInfo.email,
             connectionId: globals.connection
         };
