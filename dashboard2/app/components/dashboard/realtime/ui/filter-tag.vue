@@ -33,7 +33,7 @@ export default {
 
     data() {
         return {
-            applications: globals.applications,
+            globals: globals,
             application: this.selectedApplication,
             analytics: this.analyticsModel
         }
@@ -48,6 +48,11 @@ export default {
         },
         onAppChange: function () {
             return this.$emit('on-change', this.application);
+        }
+    },
+    computed: {
+         applications: function () {
+             return this.globals.applications;
         }
     }
 }

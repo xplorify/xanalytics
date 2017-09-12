@@ -8,37 +8,5 @@ module.exports = {
     code: 'dev',
     url: 'http://localhost:8080'
   },
-  applications: [{
-      code: 'dev',
-      url: 'http://localhost:8080'
-    },
-    {
-      code: 'mk',
-      url: 'https://www.xplorify.mk'
-    },
-    {
-      code: 'net',
-      url: 'https://www.xplorify.net'
-    },
-    {
-      code: 'blog-mk',
-      url: 'https://blog.xplorify.mk'
-    },
-    {
-      code: 'blog-net',
-      url: 'https://blog.xplorify.net'
-    },
-    {
-      code: 'xplorify-promo',
-      url: 'https://teach.xplorify.net'
-    },
-    {
-      code: 'xplorify-hello',
-      url: 'https://hello.xplorify.net'
-    },
-    {
-      code: 'test2',
-      url: 'https://test2.xplorify.net'
-    }
-  ]
+  applications: []
 };

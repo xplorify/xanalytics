@@ -38,7 +38,7 @@ export default {
 
     data() {
         return {
-            applications: globals.applications,
+            globals: globals,
             application: this.selectedApplication,
             analytics: this.analyticsModel
         }
@@ -68,6 +68,11 @@ export default {
                 x.className = x.className.replace(" w3-show", "");
             }
         },
+    },
+    computed: {
+         applications: function () {
+             return this.globals.applications;
+        }
     }
 }
 </script>

@@ -133,7 +133,6 @@ export default {
                 'detectRtc.osName', 'detectRtc.browser.name', 'application.code'],
             browsers: ['Chrome', 'Firefox', 'Safari', 'Others'],
             osNames: ['Windows', 'Android', 'Linux', 'iOS'],
-            applications: globals.applications,
             eventLogs: this.getEventLogs(),
             isRequesting: false,
             pageSizeChoices: [5, 10, 20, 50, 100],
@@ -206,6 +205,9 @@ export default {
     computed: {
         canSearch: function () {
            return this.filterFormObj && this.filterFormObj.from != null && this.filterFormObj.to != null && !this.isRequesting;
+        },
+        applications: function () {
+             return globals.applications;
         }
     },
     components: {
