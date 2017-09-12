@@ -13,6 +13,7 @@ module.exports = function(app) {
     // init routes
     apiRoutes.use('/', require('./analytics'));
     apiRoutes.use('/auth', require('./auth'));
+    apiRoutes.use('/application', require('./application'));
     apiRoutes.use('/ip', require('./ip'));
 
     app.use('/api', apiRoutes);
