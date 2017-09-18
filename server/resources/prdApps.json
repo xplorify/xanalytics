@@ -21,8 +21,12 @@
             "url": "https://blog.xplorify.net"
         },
         {
-            "code": "xplorify-promo",
+            "code": "xplorify-teach",
             "url": "https://teach.xplorify.net"
+        },
+        {
+            "code": "xplorify-partner",
+            "url": "https://partner.xplorify.net"
         },
         {
             "code": "xplorify-hello",
