@@ -8,6 +8,7 @@ let result = {
     numberOfTrials: 5,
     onData: null,
     authSchema: "Bearer ",
+    tokenKey: "accessToken ",
     
 
 

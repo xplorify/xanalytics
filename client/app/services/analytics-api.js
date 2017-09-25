@@ -144,7 +144,7 @@ export default class AnalyticsApi {
     getUserInfo(next) {
         console.log('Getting user info...');
 
-        var accessToken = window.sessionStorage["accessToken"] || window.localStorage["accessToken"];
+        var accessToken = window.sessionStorage[globals.tokenKey] || window.localStorage[globals.tokenKey];
         if (accessToken && self.urls.getUserInfoUrl) {
             var req = new XMLHttpRequest();
             var url = self.urls.getUserInfoUrl;
