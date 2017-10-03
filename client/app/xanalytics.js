@@ -65,7 +65,7 @@ class XAnalytics {
     }
 
     send(data) {
-        var accessToken = window.sessionStorage["accessToken"] || window.localStorage["accessToken"];
+        var accessToken = window.sessionStorage[globals.tokenKey] || window.localStorage[globals.tokenKey];
         if (accessToken && globals.authToken != accessToken) {
             self.api.getUserInfo(function () {
                 globals.authToken = accessToken;
