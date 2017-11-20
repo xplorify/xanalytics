@@ -37,6 +37,10 @@
             "url": "https://tutor.xplorify.net"
         },
         {
+            "code": "xplorify-tutor2",
+            "url": "https://tutor2.xplorify.net"
+        },
+        {
             "code": "test2",
             "url": "https://test2.xplorify.net"
         }
