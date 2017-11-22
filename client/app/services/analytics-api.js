@@ -125,7 +125,7 @@ export default class AnalyticsApi {
         var url = self.urls.getGlobals;
         req.open("GET", url, true);
         req.send(null);
-        req.setRequestHeader("Cache-Controll", "no-cache");
+        req.setRequestHeader("Cache-Control", "no-cache");
         req.onreadystatechange = function () {
             if (req.readyState === 4) {
                 var result = JSON.parse(req.responseText);
