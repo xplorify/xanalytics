@@ -94,7 +94,7 @@ export default class AnalyticsApi {
         }
     }
 
-     getConnectionsByGroupKey(options, next) {
+    getConnectionsByGroupKey(options, next) {
         console.log("Getting Connections By Group Key...");
         var req = new XMLHttpRequest();
         var url = self.urls.getConnectionsByGroupKey + "?";
@@ -125,6 +125,7 @@ export default class AnalyticsApi {
         var url = self.urls.getGlobals;
         req.open("GET", url, true);
         req.send(null);
+        req.setRequestHeader("Cache-Controll", "no-cache");
         req.onreadystatechange = function () {
             if (req.readyState === 4) {
                 var result = JSON.parse(req.responseText);
