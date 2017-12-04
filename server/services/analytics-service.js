@@ -646,28 +646,28 @@ analyticsService.getConnectionById = function (id) {
 };
 
 analyticsService.closeConnection = function (connectionId) {
-    try {
         return new Promise(function (resolve, reject) {
             var db = mongoose.createConnection(config.xplorifyDb, { auth: { authdb: "admin" } });
             var connectionModel = db.model("connections", connectionSchema);
             logger.info("Before end date update");
             var endDate = new Date().toISOString();
-            return connectionModel.update({ _id: connectionId }, {
+            return connectionModel.update({ _id: ObjectId(connectionId) }, {
                 $set: { endDate: endDate }
             })
                 .exec()
                 .then(function (result) {
                     logger.info("End date updated: " + result);
                     resolve(result);
+                })
+                .catch((e)=>{
+                    logger.info("Error: " + e);
+                    reject(new Error(e));
+                })
+                .finally(()=>{
+                    logger.info("Closing db connection");
+                    db.close();
                 });
         });
-    } catch (e) {
-        logger.error("Save failed");
-        logger.error("Error: " + e);
-    } finally {
-        logger.info("finally block");
-        return mongoose.disconnect();
-    }
 };
 
 analyticsService.addNewEvent = function (data) {
