@@ -38,6 +38,7 @@ app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE");
   res.header("Access-Control-Allow-Headers", "origin, content-type, Authorization");
   res.header("Content-Type", "application/json");
+  res.header("Cache-Control", "no-cache");
   if (req.method === "OPTIONS") {
     res.send(200);
   } else {
