@@ -15,7 +15,7 @@ ADD repo-key /
 # Prepare the system
 RUN /scripts/install.sh
 
-EXPOSE 444
+EXPOSE 444 8080
 
 # Define the run command
 CMD /scripts/run.sh
