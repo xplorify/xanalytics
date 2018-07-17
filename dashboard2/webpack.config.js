@@ -40,13 +40,25 @@ module.exports = {
       { test: /\.html$/, loader: 'html' },
       { test: /\.vue$/, loader: 'vue-loader' },
       { test: /\.css$/, loader: "style-loader!css-loader" },
+      // {
+      //   test: /\.(jpe?g|png|gif|svg)$/i,
+      //   use: [
+      //     'url-loader?limit=10000',
+      //     'img-loader'
+      //   ]
+      // },
       {
-        test: /\.(jpe?g|png|gif|svg)$/i,
+        test: /\.(gif|png|jpe?g|svg)$/i,
         use: [
-          'url-loader?limit=10000',
-          'img-loader'
-        ]
-      },
+            'file-loader',
+            {
+                loader: 'image-webpack-loader',
+                options: {
+                  disable: true, // webpack@2.x and newer
+                },
+            },
+        ],
+    },
       { test: /\.(png|woff|woff2|eot|ttf|svg)$/, loader: 'url-loader?limit=100000' }
       // { test: /\.woff(2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/, loader: "url-loader?limit=10000&mimetype=application/font-woff" },
       // { test: /\.(ttf|eot|svg)(\?v=[0-9]\.[0-9]\.[0-9])?$/, loader: "file-loader" }
