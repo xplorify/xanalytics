@@ -63,7 +63,7 @@ module.exports = {
         loader: "file-loader"
       }, {
         test: /\.svg(\?v=\d+\.\d+\.\d+)?$/,
-        loader: "url-loader?limit=10000&mimetype=image/svg+xml"
+        loader: "file-loader"
       }
     ]
   },
