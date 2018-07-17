@@ -16,7 +16,7 @@ RUN \
 # Docker build
 `docker build -t xplorify/analytics .`
 
-`docker build -t xplorify/mp-analytics .`
+`docker build -t mp-analytics .`
 
 # Docker run
 `docker run -d \
@@ -34,5 +34,5 @@ RUN \
                 -p 9090:8080 \
                 -v /xplorify/cert:/cert \
                 -e NODE_ENV="met" \
-		xplorify/analytics`
+		mp-analytics`
 
