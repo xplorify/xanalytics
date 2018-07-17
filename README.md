@@ -34,5 +34,5 @@ RUN \
                 -p 9090:8080 \
                 -v /xplorify/cert:/cert \
                 -e NODE_ENV="met" \
-		xplorify/mp-analytics`
+		xplorify/analytics`
 

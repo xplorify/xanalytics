@@ -1,5 +1,5 @@
 var config = {};
-config.env = "tst";
+config.env = "met";
 config.httpsPort = 444;
 config.jwtSecret = "pvpnCCZfwOF85pBjbOebZiYIDhZ3w9LZrKwBZ7152K89mPCOHtbRlmr5Z91ci4L";
 config.xplorifyDb = "mongodb://XplorifyAdmin:Xp12345!@live.xplorify.net:1212/metprodb";
