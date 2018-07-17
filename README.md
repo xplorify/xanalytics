@@ -16,6 +16,8 @@ RUN \
 # Docker build
 `docker build -t xplorify/analytics .`
 
+`docker build -t xplorify/mp-analytics .`
+
 # Docker run
 `docker run -d \
                 --name="analytics" \
@@ -23,5 +25,14 @@ RUN \
 		-p 444:444 \
                 -v /xplorify/cert:/cert \
                 -e NODE_ENV="tst" \
+		xplorify/analytics`
+
+`docker run -d \
+                --name="mp-analytics" \
+                --restart="on-failure:10" \
+		-p 9091:444 \
+                -p 9090:8080 \
+                -v /xplorify/cert:/cert \
+                -e NODE_ENV="met" \
 		xplorify/analytics`
 
