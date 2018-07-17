@@ -28,6 +28,7 @@ echo fs.inotify.max_user_watches=524288 | tee -a /etc/sysctl.conf && sysctl -p
 
 cd /
 git clone git@github.com:xplorify/xplorify-analytics.git
+git checkout mpanalytics
 
 cd /xplorify-analytics/dashboard2 
 npm i
