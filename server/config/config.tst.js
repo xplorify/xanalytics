@@ -1,5 +1,6 @@
 var config = {};
 config.env = "tst";
+config.httpPort = 8080;
 config.httpsPort = 444;
 config.jwtSecret = "pvpnCCZfwOF85pBjbOebZiYIDhZ3w9LZrKwBZ7152K89mPCOHtbRlmr5Z91ci4L";
 config.xplorifyDb = "mongodb://XplorifyAdmin:Xp12345!@live.xplorify.net:1212/xplorifydb";
