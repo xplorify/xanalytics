@@ -1,12 +1,12 @@
 module.exports = {
   // input parameters
   xAnalytics: null,
-  serverUrl: 'https://analytics.xplorify.net',
-  getUserInfoLocation: 'https://analytics.xplorify.net/api/auth/getUserInfo',
+  serverUrl: 'http://analytics.met-pro.net',
+  getUserInfoLocation: 'http://analytics.met-pro.net/api/auth/getUserInfo',
   // authSchema: "JWT",
   application: {
     code: 'analytics',
-    url: 'https://analytics.xplorify.net'
+    url: 'http://analytics.met-pro.net'
   },
   applications: []
 };

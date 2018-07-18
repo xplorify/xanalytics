@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "webpack --env=dev && http-server -p 8080",
     "prd": "set NODE_ENV=production && webpack -p --env=prd",
+    "met": "set NODE_ENV=production && webpack -p --env=met",
     "start": "webpack-dev-server --hot --inline --env=dev",
     "buildDev": "webpack --env=dev",
     "test": "echo \"Error: no test specified\" && exit 1"
