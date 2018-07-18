@@ -1,12 +1,8 @@
 {
     "applications": [
         {
-            "code": "metpro",
-            "url": "https://metpro.xplorify.net"
-        },
-        {
             "code": "met-pro",
-            "url": "http://met-pro.net"
+            "url": "http://www.met-pro.net"
         }
     ]
 }
