@@ -49,6 +49,7 @@
     created: function () {
       var env = __ENV__ ? __ENV__ : 'dev';
       var isDevEnv = env === 'dev';
+      var ENV = env === 'dev'? 'dev': env === 'prd'? 'prd': 'met';
       this.globals.xAnalytics = new window.XAnalytics(this.options);
       this.isLogginOut = false;
       this.isLogoutVisible = true;
@@ -58,9 +59,9 @@
       var accessToken = storage.get('accessToken');
       console.log("accessToken: " + accessToken);
       if (accessToken !== undefined) {
-        return this.setUserAndApps(accessToken, isDevEnv);
+        return this.setUserAndApps(accessToken, ENV);
       } else {
-        return this.goToLogin(isDevEnv);
+        return this.goToLogin(isDevEnv, ENV);
       }
     },
     methods: {
@@ -81,7 +82,7 @@
         console.log("Inside logout, isAuth: false");
         return router.push({ name: 'login' });
       },
-      goToLogin: function (isDevEnv) {
+      goToLogin: function (isDevEnv, ENV) {
         var isReportUrl = isDevEnv
           ? window.location.href.substring(0, 33) === config.settings.analyticsUrl
           : window.location.href.substring(0, 42) === config.settings.analyticsUrl;
@@ -92,7 +93,7 @@
         var self = this;
         this.isLogoutVisible = false;
 
-        if (isDevEnv) {
+        if (ENV == 'dev') {
           return applicationService.getDevelopmentApps()
             .then(function (response) {
               if (response && response.response && response.response.data) {
@@ -103,8 +104,19 @@
             .then(function () {
               return router.push({ name: 'login' });
             });
-        } else {
+        } else if (ENV == 'prd') {
           return applicationService.getProductionApps()
+            .then(function (response) {
+              if (response && response.response && response.response.data) {
+                var resources = response.response.data.result.applications;
+                self.globals.applications = resources;
+              }
+            })
+            .then(function () {
+              return router.push({ name: 'login' });
+            });
+        } else {
+          return applicationService.getMetproApps()
             .then(function (response) {
               if (response && response.response && response.response.data) {
                 var resources = response.response.data.result.applications;
@@ -116,7 +128,7 @@
             });
         }
       },
-      setUserAndApps: function (accessToken, isDevEnv) {
+      setUserAndApps: function (accessToken, env) {
         var self = this;
         return authService.getUserInfo()
           .then(function (result) {
@@ -134,10 +146,13 @@
             }
           })
           .then(function () {
-            if (isDevEnv) {
+            if (env == 'dev') {
               return applicationService.getDevelopmentApps();
-            } else {
+            } else if (env == 'prd') {
               return applicationService.getProductionApps();
+            }
+            else {
+              return applicationService.getMetproApps();
             }
           })
           .then(function (response) {

@@ -10,5 +10,8 @@ applicationRoutes.get(
   applicationRoutes.get(
   '/getPrdApps',
   controller.getPrdApps);
+  applicationRoutes.get(
+    '/getMetproApps',
+    controller.getMetproApps);
 
 module.exports = applicationRoutes;

@@ -33,6 +33,6 @@ RUN \
 		-p 9091:444 \
                 -p 9090:8080 \
                 -v /xplorify/cert:/cert \
-                -e NODE_ENV="prd" \
+                -e NODE_ENV="met" \
 		mp-analytics`
 

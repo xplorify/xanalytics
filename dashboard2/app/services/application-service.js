@@ -8,7 +8,8 @@ let self = null;
 
 let endpoints = {
     getDevApps: "/api/application/getDevApps",
-    getPrdApps: "/api/application/getPrdApps"
+    getPrdApps: "/api/application/getPrdApps",
+    getMetproApps: "/api/application/getMetproApps"
 };
 
 class ApplicationService {
@@ -32,6 +33,18 @@ class ApplicationService {
 
      getProductionApps() {
         const resourcesApi = `${globals.serverUrl}${endpoints.getPrdApps}`;
+        return axios.get(resourcesApi)
+            .then(function (response) {
+                var result = { response: response, success: response.data.success };
+                return result;
+            })
+            .catch(function (error) {
+                return { error: error, success: false };
+            });
+    }
+
+    getMetproApps() {
+        const resourcesApi = `${globals.serverUrl}${endpoints.getMetproApps}`;
         return axios.get(resourcesApi)
             .then(function (response) {
                 var result = { response: response, success: response.data.success };
