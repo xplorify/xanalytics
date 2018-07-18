@@ -13,7 +13,7 @@ ADD scripts/ /scripts/
 ADD repo-key /
 
 # Prepare the system
-RUN /scripts/install.sh
+RUN /scripts/install.met.sh
 
 EXPOSE 444
 
