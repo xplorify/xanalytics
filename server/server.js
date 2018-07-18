@@ -62,8 +62,8 @@ const routes = require("./routes")(app);
 
 analyticsService.closeOpenConnections().then(function() {
   logger.info("All open connections have been closed.");
-  logger.info("Initializing http server...");
   if (process.env.NODE_ENV === "met") {
+    logger.info("Initializing http server...");
     var httpServer = app.listen(process.env.PORT || config.httpPort);
     require("./routes/echo").init(httpServer);
   } else {
