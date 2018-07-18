@@ -1,8 +1,8 @@
 module.exports = {
   // input parameters
   xAnalytics: null,
-  serverUrl: 'https://localhost:444',
-  getUserInfoLocation: 'https://localhost:444/api/auth/getUserInfo',
+  serverUrl: 'http://localhost:8080',
+  getUserInfoLocation: 'http://localhost:8080/api/auth/getUserInfo',
   authSchema: "JWT",
   application: {
     code: 'dev',
