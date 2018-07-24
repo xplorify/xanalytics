@@ -7,7 +7,7 @@
       <router-link to="/login" v-if="!isAuthenticated" class="w3-bar-item w3-button" active-class="active" exact>
         Login
       </router-link>
-      <router-link to="/register" v-if="!isAuthenticated" class="w3-bar-item w3-button" active-class="active" exact>
+      <router-link to="/register" v-if="!isAuthenticated && globalEnv !== 'met'" class="w3-bar-item w3-button" active-class="active" exact>
         Register
       </router-link>
       <a class="w3-bar-item w3-button" active-class="active" v-if="isAuthenticated" v-on:click="logout">Logout</a>
@@ -38,6 +38,7 @@
         globals: globals,
         isLogginOut: false,
         isLogoutVisible: true,
+        globalEnv : __ENV__,
         options: {
           application: globals.application,
           serverUrl: globals.serverUrl,
